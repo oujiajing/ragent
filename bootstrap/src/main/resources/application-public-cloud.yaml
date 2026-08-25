@@ -1,0 +1,24 @@
+spring:
+  config:
+    activate:
+      on-profile: public-cloud
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${RAGENT_NACOS_SERVER_ADDR:common-nacos-dev.magestack.cn:8848}
+
+  data:
+    redis:
+      host: ${RAGENT_REDIS_HOST:common-redis-dev.magestack.cn}
+      port: ${RAGENT_REDIS_PORT:19389}
+      password: ${RAGENT_REDIS_PASSWORD:Sm9sVXBOYJjI030b5tz0trjpzvZzRhtZmEbv0uOImcD1wEDOPfeaqNU4PxHob/Wp}
+
+rocketmq:
+  name-server: ${RAGENT_ROCKETMQ_NAME_SERVER:common-rocketmq-dev.magestack.cn:9876}
+
+unique-name: ${RAGENT_UNIQUE_NAME:-dingma23a45}
+
+framework:
+  cache:
+    redis:
+      prefix: "${RAGENT_REDIS_PREFIX:dingma23a45:}"

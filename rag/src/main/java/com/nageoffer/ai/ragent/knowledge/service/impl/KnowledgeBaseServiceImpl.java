@@ -96,14 +96,10 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
             throw new ServiceException("知识库名称已存在：" + requestParam.getName());
         }
 
-        // Collection 名重复校验（共享 collection 模型下，向量层不再拦截重复，需在此显式校验）
-        Long collectionCount = knowledgeBaseMapper.selectCount(
-                new LambdaQueryWrapper<KnowledgeBaseDO>()
-                        .eq(KnowledgeBaseDO::getCollectionName, requestParam.getCollectionName())
-                        .eq(KnowledgeBaseDO::getDeleted, 0)
-        );
+        // Collection 名重复校验（包括已删除记录，避免复用底层向量空间）
+        Long collectionCount = knowledgeBaseMapper.countByCollectionNameIncludingDeleted(requestParam.getCollectionName());
         if (collectionCount > 0) {
-            throw new ServiceException("Collection 名称已存在：" + requestParam.getCollectionName());
+            throw new ServiceException("Collection名称已存在：" + requestParam.getCollectionName());
         }
 
         KnowledgeBaseDO kbDO = KnowledgeBaseDO.builder()

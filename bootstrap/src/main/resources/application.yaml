@@ -15,9 +15,9 @@ spring:
   datasource:
     driver-class-name: org.postgresql.Driver
     type: com.zaxxer.hikari.HikariDataSource
-    username: postgres
-    password: postgres
-    url: jdbc:postgresql://127.0.0.1:5432/ragent?client_encoding=UTF8
+    username: ${RAGENT_POSTGRES_USER:postgres}
+    password: ${RAGENT_POSTGRES_PASSWORD:123456}
+    url: ${RAGENT_POSTGRES_URL:jdbc:postgresql://127.0.0.1:15432/ragent?client_encoding=UTF8}
     hikari:
       connection-timeout: 5000
       idle-timeout: 600000
@@ -28,9 +28,9 @@ spring:
 
   data:
     redis:
-      host: 127.0.0.1
-      port: 6379
-      password: 123456
+      host: ${RAGENT_REDIS_HOST:127.0.0.1}
+      port: ${RAGENT_REDIS_PORT:6379}
+      password: ${RAGENT_REDIS_PASSWORD:123456}
 
 ragent:
   engine:
@@ -38,6 +38,12 @@ ragent:
   demo-mode: false
   eval:
     enabled: true
+
+rocketmq:
+  name-server: ${RAGENT_ROCKETMQ_NAME_SERVER:127.0.0.1:9876}
+  producer:
+    group: ragent-producer${unique-name:}_pg
+    send-message-timeout: 2000
 
 # Agent 执行架构（ragent.engine.type=agent 时生效）；单模型无 fallback，供应商可用性由 provider 侧保障
 agent:
@@ -202,7 +208,7 @@ ai:
         embedding: /v1/embeddings
     bailian:
       url: https://dashscope.aliyuncs.com
-      api-key: ${BAILIAN_API_KEY:}
+      api-key: ${BAILIAN_API_KEY:sk-ea27150744824f8380aa8a11c7e845f6}
       endpoints:
         chat: /compatible-mode/v1/chat/completions
         rerank: /api/v1/services/rerank/text-rerank/text-rerank
@@ -215,7 +221,7 @@ ai:
         embedding: /v1/embeddings
     siliconflow:
       url: https://api.siliconflow.cn
-      api-key: ${SILICONFLOW_API_KEY:}
+      api-key: ${SILICONFLOW_API_KEY:sk-fqyaidikzxewynhgozzenatzryrrvmsusozjximvdgjbivzn}
       endpoints:
         chat: /v1/chat/completions
         embedding: /v1/embeddings
@@ -316,6 +322,11 @@ mineru:
   semaphore-name: rag:mineru:parse
   max-wait-seconds: 30
   lease-seconds: 900
+
+rustfs:
+  url: ${RAGENT_RUSTFS_URL:http://localhost:9000}
+  access-key-id: ${RAGENT_RUSTFS_ACCESS_KEY_ID:rustfsadmin}
+  secret-access-key: ${RAGENT_RUSTFS_SECRET_ACCESS_KEY:rustfsadmin}
 
 sa-token:
   token-name: Authorization
