@@ -15,61 +15,55 @@
  * limitations under the License.
  */
 
-package com.nageoffer.ai.ragent.agent.dto;
+package com.nageoffer.ai.ragent.agent.dao.entity;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
+
 /**
- * Agent 运行轨迹块：按事件顺序排列的 reasoning / answer / tool 片段，随消息落库
+ * 长期记忆条目，纯追加表：失效走 invalidAt 不删行，审计链完整
  */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@JsonInclude(JsonInclude.Include.NON_NULL)
-public class AgentBlock {
+@TableName("t_agent_memory")
+public class AgentMemoryDO {
+
+    @TableId(type = IdType.ASSIGN_ID)
+    private String id;
+
+    private String userId;
 
     /**
-     * reasoning / answer / tool
+     * 自足陈述句，脱离上下文也读得懂
      */
-    private String kind;
+    private String content;
 
     /**
-     * 产生时刻 yyyy-MM-dd'T'HH:mm:ss，历史数据是 HH:mm:ss，前端两种都认
+     * 见 AgentMemorySourceType
      */
-    private String at;
+    private String sourceType;
 
     /**
-     * reasoning / answer 的正文
+     * 为空即 ACTIVE，注入与仲裁都只看这一列
      */
-    private String text;
+    private Date invalidAt;
 
     /**
-     * tool 名
+     * 取代者ID；撤回的行留空
      */
-    private String name;
+    private String supersededBy;
 
-    /**
-     * tool 展示名
-     */
-    private String displayName;
-
-    /**
-     * tool 终态 done / interrupted
-     */
-    private String status;
-
-    /**
-     * tool 结果文本，超长截断
-     */
-    private String result;
-
-    /**
-     * 供应商侧的 tool_call id，与上下文里 tool_use / tool_result 同源；端点不回时留空
-     */
-    private String toolCallId;
+    @TableField(fill = FieldFill.INSERT)
+    private Date createTime;
 }
