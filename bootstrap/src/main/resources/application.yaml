@@ -39,6 +39,16 @@ ragent:
   eval:
     enabled: true
 
+# Phase 1 Safe-team development integration.  The token is intentionally empty by default and
+# must only be supplied through SAFE_TEAM_DEV_TOKEN in a local/dev/test profile.
+safeguard:
+  safe-team:
+    base-url: ${SAFE_TEAM_BASE_URL:http://localhost:8080}
+    dev-token: ${SAFE_TEAM_DEV_TOKEN:}
+    connect-timeout-ms: ${SAFE_TEAM_CONNECT_TIMEOUT_MS:2000}
+    request-timeout-ms: ${SAFE_TEAM_REQUEST_TIMEOUT_MS:8000}
+    read-max-retries: ${SAFE_TEAM_READ_MAX_RETRIES:1}
+
 rocketmq:
   name-server: ${RAGENT_ROCKETMQ_NAME_SERVER:127.0.0.1:9876}
   producer:
@@ -334,12 +344,6 @@ sa-token:
   token-style: simple-uuid
   is-log: false
   is-print: false
-
-rocketmq:
-  name-server: 127.0.0.1:9876
-  producer:
-    group: ragent-producer${unique-name:}_pg
-    send-message-timeout: 2000
 
 milvus:
   uri: http://localhost:19530

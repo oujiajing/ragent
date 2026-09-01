@@ -246,7 +246,58 @@ public class IntentTreeFactory {
         sales.setChildren(List.of(dingTaskSales));
         roots.add(sales);
 
-        // ========== 4. 系统交互 / 助手说明 ==========
+        // ========== 4. Safe-team 隐患整改（Agent Phase 1 REST Tools） ==========
+        IntentNode rectification = IntentNode.builder()
+                .id("safeguard-rectification")
+                .name("隐患整改")
+                .level(DOMAIN)
+                .kind(IntentKind.MCP)
+                .description("查询或通过 Safe-team 开发测试入口操作隐患整改工单")
+                .build();
+        IntentNode searchOrders = IntentNode.builder()
+                .id("safeguard-rectification-search")
+                .name("查询整改工单")
+                .level(CATEGORY)
+                .parentId(rectification.getId())
+                .mcpToolId("search_rectification_orders")
+                .kind(IntentKind.MCP)
+                .description("按状态、组织、责任人或业务日期查询隐患整改工单")
+                .examples(List.of("查询待整改的隐患工单", "查一下本部门未关闭的整改单"))
+                .build();
+        IntentNode getOrder = IntentNode.builder()
+                .id("safeguard-rectification-detail")
+                .name("查询整改工单详情")
+                .level(CATEGORY)
+                .parentId(rectification.getId())
+                .mcpToolId("get_rectification_order")
+                .kind(IntentKind.MCP)
+                .description("查询指定隐患整改工单的当前状态、明细和版本")
+                .examples(List.of("查询工单 123 的详细信息"))
+                .build();
+        IntentNode createOrder = IntentNode.builder()
+                .id("safeguard-rectification-create")
+                .name("创建整改工单")
+                .level(CATEGORY)
+                .parentId(rectification.getId())
+                .mcpToolId("create_rectification_order")
+                .kind(IntentKind.MCP)
+                .description("创建 Safe-team 手工隐患整改工单；仅允许开发测试入口明确执行")
+                .examples(List.of("创建一张隐患整改工单"))
+                .build();
+        IntentNode issueOrder = IntentNode.builder()
+                .id("safeguard-rectification-issue")
+                .name("下发整改")
+                .level(CATEGORY)
+                .parentId(rectification.getId())
+                .mcpToolId("issue_rectification")
+                .kind(IntentKind.MCP)
+                .description("把待派发 Safe-team 整改工单下发给责任人；仅允许开发测试入口明确执行")
+                .examples(List.of("把工单 123 下发给责任人"))
+                .build();
+        rectification.setChildren(List.of(searchOrders, getOrder, createOrder, issueOrder));
+        roots.add(rectification);
+
+        // ========== 5. 系统交互 / 助手说明 ==========
         IntentNode sys = IntentNode.builder()
                 .id("sys")
                 .name("系统交互")

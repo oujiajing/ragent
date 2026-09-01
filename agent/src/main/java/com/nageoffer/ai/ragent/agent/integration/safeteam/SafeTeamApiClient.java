@@ -1,0 +1,187 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.nageoffer.ai.ragent.agent.integration.safeteam;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URLEncoder;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.nio.charset.StandardCharsets;
+import org.springframework.stereotype.Component;
+
+import static com.nageoffer.ai.ragent.agent.integration.safeteam.SafeTeamContracts.*;
+
+@Component
+public class SafeTeamApiClient {
+    private final SafeTeamIntegrationProperties properties;
+    private final ObjectMapper objectMapper;
+    private final HttpClient httpClient;
+
+    public SafeTeamApiClient(SafeTeamIntegrationProperties properties, ObjectMapper objectMapper) {
+        this.properties = properties;
+        this.objectMapper = objectMapper;
+        this.httpClient = HttpClient.newBuilder()
+                .connectTimeout(Duration.ofMillis(properties.getConnectTimeoutMs()))
+                .build();
+    }
+
+    public ApiResponse<PageResult<OrderListItem>> search(OrderQuery query) {
+        query = query == null ? new OrderQuery(null, null, null, null, null, null, null, null, null) : query;
+        Map<String, Object> params = new LinkedHashMap<>();
+        put(params, "status", query.status());
+        put(params, "companyId", query.companyId());
+        put(params, "departmentId", query.departmentId());
+        put(params, "teamId", query.teamId());
+        put(params, "responsibleUserId", query.responsibleUserId());
+        put(params, "dateStart", query.dateStart());
+        put(params, "dateEnd", query.dateEnd());
+        put(params, "page", query.page());
+        put(params, "pageSize", query.pageSize());
+        return send("GET", "/api/pingan/hazard-rectification/orders" + queryString(params), null, false,
+                objectMapper.getTypeFactory().constructParametricType(
+                        ApiResponse.class,
+                        objectMapper.getTypeFactory().constructParametricType(PageResult.class, OrderListItem.class)));
+    }
+
+    public ApiResponse<OrderDetail> detail(long orderId) {
+        return send("GET", "/api/pingan/hazard-rectification/orders/" + orderId, null, false,
+                objectMapper.getTypeFactory().constructParametricType(ApiResponse.class, OrderDetail.class));
+    }
+
+    public ApiResponse<OrderDetail> create(CreateRequest request) {
+        return send("POST", "/api/pingan/hazard-rectification/orders", request, true,
+                objectMapper.getTypeFactory().constructParametricType(ApiResponse.class, OrderDetail.class));
+    }
+
+    public ApiResponse<OrderDetail> action(long orderId, ActionRequest request) {
+        return send("POST", "/api/pingan/hazard-rectification/orders/" + orderId + "/actions", request, true,
+                objectMapper.getTypeFactory().constructParametricType(ApiResponse.class, OrderDetail.class));
+    }
+
+    private <T> T send(String method, String path, Object body, boolean write, JavaType responseType) {
+        String token = properties.getDevToken();
+        if (token == null || token.isBlank()) {
+            throw new SafeTeamApiException("SAFE_TEAM_DEV_TOKEN 未配置", 0, false);
+        }
+        int attempts = write ? 1 : Math.max(1, properties.getReadMaxRetries() + 1);
+        for (int attempt = 1; attempt <= attempts; attempt++) {
+            try {
+                HttpRequest.Builder builder = HttpRequest.newBuilder()
+                        .uri(URI.create(normalizedBaseUrl() + path))
+                        .timeout(Duration.ofMillis(properties.getRequestTimeoutMs()))
+                        .header("Accept", "application/json")
+                        .header("Authorization", bearer(token));
+                if (body == null) {
+                    builder.method(method, HttpRequest.BodyPublishers.noBody());
+                } else {
+                    builder.header("Content-Type", "application/json")
+                            .method(method, HttpRequest.BodyPublishers.ofString(writeJson(body)));
+                }
+                HttpResponse<String> response = httpClient.send(builder.build(), HttpResponse.BodyHandlers.ofString());
+                int status = response.statusCode();
+                if (status >= 500 && attempt < attempts) {
+                    continue;
+                }
+                if (status < 200 || status >= 300) {
+                    throw new SafeTeamApiException(errorMessage(response.body(), status), status, status >= 500);
+                }
+                T result = objectMapper.readValue(response.body(), responseType);
+                ApiResponse<?> apiResponse = objectMapper.readValue(response.body(),
+                        objectMapper.getTypeFactory().constructParametricType(ApiResponse.class, JsonNode.class));
+                if (apiResponse.code() != 0) {
+                    throw new SafeTeamApiException(apiResponse.message(), status, false);
+                }
+                return result;
+            } catch (SafeTeamApiException exception) {
+                throw exception;
+            } catch (InterruptedException exception) {
+                Thread.currentThread().interrupt();
+                throw new SafeTeamApiException("Safe-team 请求被中断", exception, false);
+            } catch (IOException | RuntimeException exception) {
+                if (attempt < attempts) {
+                    continue;
+                }
+                throw new SafeTeamApiException("Safe-team 请求失败或超时", exception, !write);
+            }
+        }
+        throw new SafeTeamApiException("Safe-team 请求失败", 0, !write);
+    }
+
+    private String normalizedBaseUrl() {
+        String base = properties.getBaseUrl();
+        if (base == null || base.isBlank()) {
+            throw new SafeTeamApiException("safeguard.safe-team.base-url 未配置", 0, false);
+        }
+        return base.endsWith("/") ? base.substring(0, base.length() - 1) : base;
+    }
+
+    private String bearer(String token) {
+        return token.startsWith("Bearer ") ? token : "Bearer " + token;
+    }
+
+    private String writeJson(Object body) {
+        try {
+            return objectMapper.writer().without(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                    .writeValueAsString(body);
+        } catch (JsonProcessingException exception) {
+            throw new SafeTeamApiException("Safe-team 请求参数无法序列化", exception, false);
+        }
+    }
+
+    private String errorMessage(String body, int status) {
+        try {
+            JsonNode root = objectMapper.readTree(body);
+            String message = root.path("message").asText();
+            return message == null || message.isBlank() ? "Safe-team HTTP " + status : message;
+        } catch (Exception ignored) {
+            return "Safe-team HTTP " + status;
+        }
+    }
+
+    private String queryString(Map<String, Object> params) {
+        if (params.isEmpty()) {
+            return "";
+        }
+        StringBuilder result = new StringBuilder("?");
+        params.forEach((key, value) -> {
+            if (result.length() > 1) {
+                result.append('&');
+            }
+            result.append(URLEncoder.encode(key, StandardCharsets.UTF_8));
+            result.append('=');
+            result.append(URLEncoder.encode(String.valueOf(value), StandardCharsets.UTF_8));
+        });
+        return result.toString();
+    }
+
+    private void put(Map<String, Object> target, String key, Object value) {
+        if (value != null) {
+            target.put(key, value);
+        }
+    }
+}
