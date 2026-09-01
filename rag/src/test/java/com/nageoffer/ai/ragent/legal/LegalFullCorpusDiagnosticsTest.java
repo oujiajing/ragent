@@ -66,6 +66,10 @@ class LegalFullCorpusDiagnosticsTest {
         write(reportDir.resolve("PHASE2A_REVIEW_DOCUMENTS.md"), buildReviewReport(documents));
         write(reportDir.resolve("PHASE2A_DUPLICATE_DIAGNOSTICS.md"), buildDuplicateReport(documents));
         write(reportDir.resolve("PHASE2A_UNSTRUCTURED_DIAGNOSTICS.md"), buildUnstructuredReport(documents));
+        if (Boolean.getBoolean("legal.write.baseline")) {
+            write(reportDir.resolve("PHASE2A2_BASELINE.json"), buildBaselineJson(documents));
+        }
+        write(reportDir.resolve("PHASE2A3_BEFORE_AFTER_REPORT.md"), buildBeforeAfterReport(reportDir.resolve("PHASE2A2_BASELINE.json"), documents));
     }
 
     private String buildFullReport(List<LegalDocumentDiagnostics> documents) {
@@ -108,6 +112,11 @@ class LegalFullCorpusDiagnosticsTest {
                 .append("- deterministic PASS: ").append(documents.stream().filter(LegalDocumentDiagnostics::deterministic).count()).append("\n")
                 .append("- source coverage min: ").append(String.format("%.4f", documents.stream().mapToDouble(LegalDocumentDiagnostics::sourceTextCoverageRatio).min().orElse(0))).append("\n")
                 .append("- source coverage mean: ").append(String.format("%.4f", documents.stream().mapToDouble(LegalDocumentDiagnostics::sourceTextCoverageRatio).average().orElse(0))).append("\n")
+                .append("- source text total: ").append(documents.stream().mapToInt(LegalDocumentDiagnostics::sourceTextLength).sum()).append("\n")
+                .append("- accounted text total: ").append(documents.stream().mapToInt(LegalDocumentDiagnostics::accountedTextLength).sum()).append("\n")
+                .append("- unaccounted text total: ").append(documents.stream().mapToInt(LegalDocumentDiagnostics::unaccountedTextLength).sum()).append("\n")
+                .append("- structured text ratio min: ").append(String.format("%.4f", documents.stream().mapToDouble(LegalDocumentDiagnostics::structuredTextRatio).min().orElse(0))).append("\n")
+                .append("- structured text ratio mean: ").append(String.format("%.4f", documents.stream().mapToDouble(LegalDocumentDiagnostics::structuredTextRatio).average().orElse(0))).append("\n")
                 .append("\n## Appendix diagnostics\n\n");
         documents.stream().filter(d -> d.quality().appendixCount() > 0).sorted(Comparator.comparingInt((LegalDocumentDiagnostics d) -> d.quality().appendixCount()).reversed())
                 .limit(20).forEach(d -> out.append("- ").append(d.document()).append(": appendixElements=")
@@ -133,9 +142,60 @@ class LegalFullCorpusDiagnosticsTest {
                     .append("- duplicate: ").append(d.duplicateGroups().size()).append(" groups\n")
                     .append("- unstructured: ").append(d.unstructuredItems().size()).append(" (coverage ")
                     .append(String.format("%.4f", d.sourceTextCoverageRatio())).append(")\n")
+                    .append("- source/accounted/unaccounted: ").append(d.sourceTextLength()).append("/")
+                    .append(d.accountedTextLength()).append("/").append(d.unaccountedTextLength()).append("\n")
+                    .append("- structuredTextRatio: ").append(String.format("%.4f", d.structuredTextRatio())).append("\n")
                     .append("- metadata warnings: ").append(String.join("; ", d.metadataWarnings())).append("\n")
                     .append("- QC warnings: ").append(String.join("; ", d.quality().warnings())).append("\n\n");
         });
+        return out.toString();
+    }
+
+    private String buildBaselineJson(List<LegalDocumentDiagnostics> docs) {
+        StringBuilder out = new StringBuilder("{\n  \"documents\": [\n");
+        for (int i = 0; i < docs.size(); i++) {
+            LegalDocumentDiagnostics d = docs.get(i);
+            var q = d.quality();
+            out.append("    {\"document\":\"").append(json(d.document())).append("\"")
+                    .append(",\"title\":\"").append(json(d.result().document().metadata().docTitle())).append("\"")
+                    .append(",\"standardNo\":\"").append(json(d.result().document().metadata().standardNo())).append("\"")
+                    .append(",\"clauseCount\":").append(q.clauseCount())
+                    .append(",\"chunkCount\":").append(q.chunkCount())
+                    .append(",\"normative\":").append(q.normativeClauseCount())
+                    .append(",\"commentary\":").append(q.commentaryClauseCount())
+                    .append(",\"appendix\":").append(q.appendixCount())
+                    .append(",\"unstructured\":").append(q.unstructuredParagraphCount())
+                    .append(",\"duplicateGroups\":").append(d.duplicateGroups().size())
+                    .append(",\"qc\":\"").append(q.qualityStatus()).append("\"}");
+            if (i + 1 < docs.size()) out.append(',');
+            out.append('\n');
+        }
+        return out.append("  ]\n}\n").toString();
+    }
+
+    private String buildBeforeAfterReport(Path baselinePath, List<LegalDocumentDiagnostics> documents) throws IOException {
+        Map<String, BaselineRow> before = new LinkedHashMap<>();
+        if (Files.exists(baselinePath)) {
+            String json = Files.readString(baselinePath, StandardCharsets.UTF_8);
+            var matcher = java.util.regex.Pattern.compile("\\{\\\"document\\\":\\\"([^\\\"]+)\\\".*?\\\"clauseCount\\\":(\\d+).*?\\\"chunkCount\\\":(\\d+).*?\\\"unstructured\\\":(\\d+).*?\\\"appendix\\\":(\\d+).*?\\\"qc\\\":\\\"([^\\\"]+)\\\"}").matcher(json);
+            while (matcher.find()) before.put(matcher.group(1), new BaselineRow(
+                    Integer.parseInt(matcher.group(2)), Integer.parseInt(matcher.group(3)),
+                    Integer.parseInt(matcher.group(4)), Integer.parseInt(matcher.group(5)), matcher.group(6)));
+        }
+        StringBuilder out = new StringBuilder("# Phase 2A-3 Before / After\n\n")
+                .append("Baseline: `PHASE2A2_BASELINE.json`\n\n")
+                .append("| document | clause before | clause after | delta % | chunk before | chunk after | unstructured before | unstructured after | appendix before | appendix after | QC before | QC after | coverage | deterministic |\n")
+                .append("|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|---|---:|---|\n");
+        for (LegalDocumentDiagnostics d : documents) {
+            LegalQualityReport q = d.quality();
+            BaselineRow b = before.getOrDefault(d.document(), new BaselineRow(q.clauseCount(), q.chunkCount(), q.unstructuredParagraphCount(), q.appendixCount(), q.qualityStatus().name()));
+            double delta = b.clauseCount() == 0 ? 0 : ((double) q.clauseCount() - b.clauseCount()) / b.clauseCount() * 100;
+            out.append("| ").append(cell(d.document())).append(" | ").append(b.clauseCount()).append(" | ").append(q.clauseCount()).append(" | ")
+                    .append(String.format("%.2f%%", delta)).append(" | ").append(b.chunkCount()).append(" | ").append(q.chunkCount())
+                    .append(" | ").append(b.unstructuredCount()).append(" | ").append(q.unstructuredParagraphCount()).append(" | ").append(b.appendixCount()).append(" | ").append(q.appendixCount())
+                    .append(" | ").append(b.qualityStatus()).append(" | ").append(q.qualityStatus()).append(" | ").append(String.format("%.4f", d.sourceTextCoverageRatio()))
+                    .append(" | ").append(d.deterministic()).append(" |\n");
+        }
         return out.toString();
     }
 
@@ -204,8 +264,15 @@ class LegalFullCorpusDiagnosticsTest {
         return value == null ? "-" : value.replace("|", "\\|").replace("\n", " ");
     }
 
+    private String json(String value) {
+        return value == null ? "" : value.replace("\\", "\\\\").replace("\"", "\\\"");
+    }
+
     private void write(Path path, String content) throws IOException {
         Files.writeString(path, content, StandardCharsets.UTF_8);
         assertFalse(Files.size(path) == 0);
+    }
+
+    private record BaselineRow(int clauseCount, int chunkCount, int unstructuredCount, int appendixCount, String qualityStatus) {
     }
 }

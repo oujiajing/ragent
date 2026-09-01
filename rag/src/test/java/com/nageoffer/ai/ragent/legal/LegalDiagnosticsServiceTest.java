@@ -51,7 +51,7 @@ class LegalDiagnosticsServiceTest {
             assertTrue(diagnostics.duplicateGroups().stream().anyMatch(g -> g.duplicateType() == LegalDuplicateType.EXACT_DUPLICATE
                     && g.duplicateOrigin() == LegalDuplicateType.SOURCE_EXACT_DUPLICATE));
             assertTrue(diagnostics.duplicateGroups().stream().anyMatch(g -> g.duplicateType() == LegalDuplicateType.NEAR_DUPLICATE
-                    && g.duplicateOrigin() == LegalDuplicateType.UNKNOWN));
+                    && g.duplicateOrigin() == LegalDuplicateType.SOURCE_NEAR_DUPLICATE));
             assertTrue(diagnostics.duplicateGroups().stream().anyMatch(g -> g.duplicateType() == LegalDuplicateType.SAME_NUMBER_DIFFERENT_ROLE
                     && g.duplicateOrigin() == LegalDuplicateType.STRUCTURAL_VALID));
             assertEquals(1.0, diagnostics.sourceTextCoverageRatio());

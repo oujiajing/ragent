@@ -39,7 +39,9 @@ public record LegalClause(
         String firstElementId,
         String lastElementId,
         Integer pageStart,
-        Integer pageEnd
+        Integer pageEnd,
+        int sourceStartOffset,
+        int sourceEndOffset
 ) {
     public LegalClause {
         if (clauseId == null || clauseId.isBlank()) {
@@ -53,6 +55,9 @@ public record LegalClause(
         }
         if (clauseNo == null || clauseNo.isBlank()) {
             throw new IllegalArgumentException("clauseNo 不能为空");
+        }
+        if (sourceStartOffset < 0 || sourceEndOffset < sourceStartOffset) {
+            throw new IllegalArgumentException("clause source provenance 非法");
         }
         rawText = rawText == null ? "" : rawText;
         normalizedText = normalizedText == null ? "" : normalizedText;

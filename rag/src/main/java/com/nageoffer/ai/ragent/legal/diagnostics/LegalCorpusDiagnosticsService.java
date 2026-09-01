@@ -40,6 +40,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.HexFormat;
 
 @Service
 public class LegalCorpusDiagnosticsService {
@@ -65,9 +68,12 @@ public class LegalCorpusDiagnosticsService {
                 CleanedTextImportMode.DRY_RUN);
         boolean deterministic = signature(first).equals(signature(second));
         NormalizedLegalDocument document = first.document();
+        Coverage coverage = coverage(document, first.canonicalSourceText());
         return new LegalDocumentDiagnostics(source.getFileName().toString(), first,
                 duplicateGroups(source, document), unstructured(source, document), metadataWarnings(document),
-                coverage(document), deterministic);
+                ratio(coverage.accountedLength(), coverage.sourceLength()), coverage.sourceLength(),
+                coverage.accountedLength(), coverage.sourceLength() - coverage.accountedLength(), coverage.fragments(),
+                ratio(coverage.structuredLength(), coverage.sourceLength()), deterministic);
     }
 
     public List<LegalDocumentDiagnostics> analyzeAll(Path corpus) throws IOException {
@@ -87,11 +93,13 @@ public class LegalCorpusDiagnosticsService {
         out.append(result.document().clauses().size()).append('|').append(result.chunks().size()).append('|');
         result.document().clauses().forEach(clause -> out.append(clause.clauseId()).append(':')
                 .append(clause.contentRole()).append(':').append(clause.clauseNo()).append(':')
-                .append(clause.hierarchyPath()).append(';'));
+                .append(clause.hierarchyPath()).append(':').append(sha256(clause.rawText())).append(':')
+                .append(sha256(clause.normalizedText())).append(';'));
         result.chunks().forEach(chunk -> out.append(chunk.chunkIndex()).append(':')
-                .append(chunk.metadata().parentClauseId()).append(':').append(chunk.metadata().clauseNo()).append(';'));
+                .append(chunk.metadata().parentClauseId()).append(':').append(chunk.metadata().clauseNo()).append(':')
+                .append(sha256(chunk.content())).append(':').append(sha256(chunk.metadata().toMap().toString())).append(';'));
         out.append(result.qualityReport().qualityStatus()).append(':').append(result.qualityReport().warnings());
-        return out.toString();
+        return sha256(out.toString());
     }
 
     private List<LegalDuplicateGroup> duplicateGroups(Path source, NormalizedLegalDocument document) {
@@ -108,11 +116,12 @@ public class LegalCorpusDiagnosticsService {
             for (List<LegalClause> sameText : byText.values()) {
                 if (sameText.size() > 1) {
                     groups.add(group(source, sameText, LegalDuplicateType.EXACT_DUPLICATE,
-                            rawTextsIdentical(sameText) ? LegalDuplicateType.SOURCE_EXACT_DUPLICATE : LegalDuplicateType.UNKNOWN));
+                            originFor(sameText, LegalDuplicateType.SOURCE_EXACT_DUPLICATE)));
                 }
             }
             if (byText.size() > 1) {
-                groups.add(group(source, clauses, LegalDuplicateType.NEAR_DUPLICATE, LegalDuplicateType.UNKNOWN));
+                groups.add(group(source, clauses, LegalDuplicateType.NEAR_DUPLICATE,
+                        originFor(clauses, LegalDuplicateType.SOURCE_NEAR_DUPLICATE)));
             }
         }
         Map<String, Set<LegalContentRole>> roles = new HashMap<>();
@@ -144,6 +153,12 @@ public class LegalCorpusDiagnosticsService {
         return clauses.stream().map(LegalClause::rawText).distinct().count() == 1;
     }
 
+    private LegalDuplicateType originFor(List<LegalClause> clauses, LegalDuplicateType sourceOrigin) {
+        boolean sameSpan = clauses.stream().map(c -> c.sourceStartOffset() + ":" + c.sourceEndOffset()).distinct().count() == 1;
+        if (sameSpan) return LegalDuplicateType.PARSER_DUPLICATE;
+        return sourceOrigin;
+    }
+
     private List<LegalUnstructuredItem> unstructured(Path source, NormalizedLegalDocument document) {
         return document.unstructuredParagraphs().stream()
                 .map(element -> new LegalUnstructuredItem(source.getFileName().toString(), element.elementIndex(),
@@ -171,17 +186,57 @@ public class LegalCorpusDiagnosticsService {
         return List.copyOf(warnings);
     }
 
-    private double coverage(NormalizedLegalDocument document) {
-        int total = document.elements().stream().mapToInt(e -> e.normalizedText().length()).sum();
-        if (total == 0) return 0;
+    private Coverage coverage(NormalizedLegalDocument document, String canonicalSource) {
+        int total = canonicalSource == null ? 0 : (int) canonicalSource.chars().filter(ch -> !Character.isWhitespace(ch)).count();
+        if (total == 0) return new Coverage(0, 0, List.of(), 0);
         Set<Integer> covered = new HashSet<>();
         document.elements().forEach(e -> {
             if (e.structureType() != com.nageoffer.ai.ragent.legal.enums.LegalStructureType.UNKNOWN) covered.add(e.elementIndex());
         });
         document.unstructuredParagraphs().forEach(e -> covered.add(e.elementIndex()));
-        int coveredLength = document.elements().stream().filter(e -> covered.contains(e.elementIndex()))
-                .mapToInt(e -> e.normalizedText().length()).sum();
-        return (double) coveredLength / total;
+        int[] owner = new int[canonicalSource.length()];
+        java.util.Arrays.fill(owner, 0);
+        for (LegalDocumentElement element : document.elements()) {
+            if (!covered.contains(element.elementIndex())) continue;
+            int start = Math.min(element.sourceStartOffset(), canonicalSource.length());
+            int end = Math.min(element.sourceEndOffset(), canonicalSource.length());
+            for (int i = start; i < end; i++) owner[i] = 1;
+        }
+        int accounted = 0;
+        for (int i = 0; i < owner.length; i++) {
+            if (owner[i] == 1 && !Character.isWhitespace(canonicalSource.charAt(i))) accounted++;
+        }
+        List<String> fragments = new ArrayList<>();
+        int start = -1;
+        for (int i = 0; i <= owner.length; i++) {
+            boolean missing = i < owner.length && owner[i] == 0 && !Character.isWhitespace(canonicalSource.charAt(i));
+            if (missing && start < 0) start = i;
+            if (!missing && start >= 0) {
+                if (fragments.size() < 20) fragments.add(canonicalSource.substring(start, i));
+                start = -1;
+            }
+        }
+        Set<Integer> structured = new HashSet<>();
+        document.clauses().forEach(clause -> clause.children().forEach(child -> structured.add(child.elementIndex())));
+        int structuredLength = document.elements().stream().filter(e -> structured.contains(e.elementIndex()))
+                .mapToInt(e -> (int) e.normalizedText().chars().filter(ch -> !Character.isWhitespace(ch)).count()).sum();
+        return new Coverage(total, accounted, fragments, structuredLength);
+    }
+
+    private static String sha256(String value) {
+        try {
+            return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
+                    .digest((value == null ? "" : value).getBytes(StandardCharsets.UTF_8)));
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    private double ratio(int numerator, int denominator) {
+        return denominator == 0 ? 0D : (double) numerator / denominator;
+    }
+
+    private record Coverage(int sourceLength, int accountedLength, List<String> fragments, int structuredLength) {
     }
 
     private String normalizeForCompare(String text) {

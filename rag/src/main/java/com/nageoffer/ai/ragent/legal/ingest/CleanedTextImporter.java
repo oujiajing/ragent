@@ -78,7 +78,7 @@ public class CleanedTextImporter {
         NormalizedLegalDocument normalized = structureParser.parse(
                 extracted.metadata(), elements, extracted.warnings());
         List<LegalChunk> chunks = chunker.chunk(normalized);
-        return new CleanedTextImportResult(normalized, chunks, qualityService.assess(normalized, chunks));
+        return new CleanedTextImportResult(normalized, chunks, qualityService.assess(normalized, chunks), normalizedText);
     }
 
     private String decodeUtf8(byte[] bytes) {

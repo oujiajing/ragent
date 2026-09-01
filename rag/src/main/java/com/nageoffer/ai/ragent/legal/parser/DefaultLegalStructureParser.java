@@ -96,7 +96,7 @@ public class DefaultLegalStructureParser implements LegalStructureParser {
         Matcher chapter = LAW_CHAPTER.matcher(line);
         if (chapter.matches()) {
             state.flushClause();
-            state.enterNormativeIfFrontMatter();
+            state.enterNormativeForStructuralBoundary();
             state.chapterNo = chapter.group(1);
             state.chapterTitle = blankToNull(chapter.group(2));
             state.sectionNo = null;
@@ -107,7 +107,7 @@ public class DefaultLegalStructureParser implements LegalStructureParser {
         Matcher section = LAW_SECTION.matcher(line);
         if (section.matches()) {
             state.flushClause();
-            state.enterNormativeIfFrontMatter();
+            state.enterNormativeForStructuralBoundary();
             state.sectionNo = section.group(1);
             state.sectionTitle = blankToNull(section.group(2));
             state.add(element, LegalStructureType.SECTION, state.regionRole, state.sectionNo);
@@ -154,7 +154,7 @@ public class DefaultLegalStructureParser implements LegalStructureParser {
             int levels = (int) number.chars().filter(ch -> ch == '.').count() + 1;
             if (levels == 2 && looksLikeHeading(body)) {
                 state.flushClause();
-                state.enterNormativeIfFrontMatter();
+                state.enterNormativeForStructuralBoundary();
                 state.sectionNo = number;
                 state.sectionTitle = blankToNull(body);
                 state.add(element, LegalStructureType.SECTION, state.regionRole, number);
@@ -167,7 +167,16 @@ public class DefaultLegalStructureParser implements LegalStructureParser {
 
         Matcher numbered = NUMBERED_LINE.matcher(line);
         if (numbered.matches()) {
-            if (state.currentClause != null) {
+            if (state.currentClause != null && looksLikeChapterHeading(numbered.group(2))
+                    && numbered.group(1).length() <= 2) {
+                state.flushClause();
+                state.enterNormativeForStructuralBoundary();
+                state.chapterNo = numbered.group(1);
+                state.chapterTitle = numbered.group(2).strip();
+                state.sectionNo = null;
+                state.sectionTitle = null;
+                state.add(element, LegalStructureType.CHAPTER, state.regionRole, state.chapterNo);
+            } else if (state.currentClause != null) {
                 state.appendChild(element, LegalStructureType.ITEM, numbered.group(1), numbered.group(2));
             } else if (looksLikeChapterHeading(numbered.group(2))) {
                 state.enterNormativeIfFrontMatter();
@@ -255,6 +264,14 @@ public class DefaultLegalStructureParser implements LegalStructureParser {
 
         private void enterNormativeIfFrontMatter() {
             if (regionRole == LegalContentRole.FRONT_MATTER || regionRole == LegalContentRole.UNKNOWN) {
+                regionRole = LegalContentRole.NORMATIVE;
+            }
+        }
+
+        private void enterNormativeForStructuralBoundary() {
+            if (regionRole == LegalContentRole.FRONT_MATTER
+                    || regionRole == LegalContentRole.UNKNOWN
+                    || regionRole == LegalContentRole.APPENDIX) {
                 regionRole = LegalContentRole.NORMATIVE;
             }
         }
@@ -348,7 +365,9 @@ public class DefaultLegalStructureParser implements LegalStructureParser {
         private final String clauseNo;
         private final String hierarchy;
         private final String firstElementId;
-        private String lastElementId;
+            private String lastElementId;
+        private int sourceStartOffset;
+        private int sourceEndOffset;
         private final List<String> rawLines = new ArrayList<>();
         private final List<String> normalizedBodies = new ArrayList<>();
         private final List<LegalSubUnit> children = new ArrayList<>();
@@ -376,6 +395,8 @@ public class DefaultLegalStructureParser implements LegalStructureParser {
             this.hierarchy = hierarchy;
             this.firstElementId = first.elementId();
             this.lastElementId = first.elementId();
+            this.sourceStartOffset = first.sourceStartOffset();
+            this.sourceEndOffset = first.sourceEndOffset();
         }
 
         private void add(LegalDocumentElement element,
@@ -389,6 +410,8 @@ public class DefaultLegalStructureParser implements LegalStructureParser {
                 children.add(new LegalSubUnit(childType, marker, element.rawText(), normalized, element.elementIndex()));
             }
             lastElementId = element.elementId();
+            sourceStartOffset = Math.min(sourceStartOffset, element.sourceStartOffset());
+            sourceEndOffset = Math.max(sourceEndOffset, element.sourceEndOffset());
         }
 
         private LegalClause build() {
@@ -400,7 +423,7 @@ public class DefaultLegalStructureParser implements LegalStructureParser {
                     String.join("\n", normalizedBodies),
                     children,
                     firstElementId, lastElementId,
-                    null, null);
+                    null, null, sourceStartOffset, sourceEndOffset);
         }
     }
 }

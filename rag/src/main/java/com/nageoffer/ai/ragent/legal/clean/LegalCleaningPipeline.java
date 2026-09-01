@@ -42,6 +42,8 @@ public class LegalCleaningPipeline {
             String normalized = lines[sourceLine];
             for (LegalCleaningStep step : steps) normalized = step.normalize(normalized);
             if (normalized.isBlank()) continue;
+            int startOffset = result.isEmpty() ? 0 : result.get(result.size() - 1).sourceEndOffset() + 1;
+            int endOffset = startOffset + normalized.length();
             result.add(new LegalDocumentElement(
                     documentId + ":e:" + sourceLine,
                     documentId,
@@ -52,7 +54,10 @@ public class LegalCleaningPipeline {
                     LegalContentRole.UNKNOWN,
                     null,
                     null,
-                    null));
+                    null,
+                    sourceLine,
+                    startOffset,
+                    endOffset));
         }
         return List.copyOf(result);
     }

@@ -120,6 +120,36 @@ class CleanedTextImporterTest {
         assertTrue(result.document().clauses().get(0).hierarchyPath().contains("3.1 安全管理"));
     }
 
+    @Test
+    void shouldExitAppendixOnAFollowingChapterBoundary() {
+        String text = """
+                1 总则
+                1.0.1 正文。
+                附录A 资料
+                A.0.1 附录内容。
+                2 后续正文
+                2.0.1 后续正文条款。
+                """;
+        CleanedTextImportResult result = run("标准 JGJ 1-2020.txt", text);
+        assertEquals(LegalContentRole.APPENDIX, result.document().clauses().get(1).contentRole());
+        assertEquals(LegalContentRole.NORMATIVE, result.document().clauses().get(2).contentRole());
+    }
+
+    @Test
+    void shouldSplitHeadingResidueFromPreviousClause() {
+        String text = """
+                1 总则
+                1.0.1 正文内容。
+                5 拆除施工
+                5.1.1 拆除作业应安全。
+                """;
+        CleanedTextImportResult result = run("标准 JGJ 147-2016.txt", text);
+        assertEquals(2, result.document().clauses().size());
+        assertEquals("1.0.1", result.document().clauses().get(0).clauseNo());
+        assertEquals("5.1.1", result.document().clauses().get(1).clauseNo());
+        assertTrue(result.document().clauses().get(1).hierarchyPath().contains("5 拆除施工"));
+    }
+
     private CleanedTextImportResult run(String file, String text) {
         return LegalTestFixtures.importer().importText(
                 "2000000000000000001", file, text.getBytes(StandardCharsets.UTF_8), CleanedTextImportMode.DRY_RUN);

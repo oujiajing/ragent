@@ -30,7 +30,10 @@ public record LegalDocumentElement(
         LegalContentRole contentRole,
         String canonicalNumber,
         Integer pageStart,
-        Integer pageEnd
+        Integer pageEnd,
+        int sourceLineIndex,
+        int sourceStartOffset,
+        int sourceEndOffset
 ) {
     public LegalDocumentElement {
         if (elementId == null || elementId.isBlank()) {
@@ -42,6 +45,9 @@ public record LegalDocumentElement(
         if (elementIndex < 0) {
             throw new IllegalArgumentException("elementIndex 必须 >= 0");
         }
+        if (sourceLineIndex < 0 || sourceStartOffset < 0 || sourceEndOffset < sourceStartOffset) {
+            throw new IllegalArgumentException("source provenance 非法");
+        }
         rawText = rawText == null ? "" : rawText;
         normalizedText = normalizedText == null ? "" : normalizedText;
         structureType = structureType == null ? LegalStructureType.UNKNOWN : structureType;
@@ -50,6 +56,6 @@ public record LegalDocumentElement(
 
     public LegalDocumentElement classified(LegalStructureType type, LegalContentRole role, String number) {
         return new LegalDocumentElement(elementId, documentId, elementIndex, rawText, normalizedText,
-                type, role, number, pageStart, pageEnd);
+                type, role, number, pageStart, pageEnd, sourceLineIndex, sourceStartOffset, sourceEndOffset);
     }
 }
