@@ -30,6 +30,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
+import java.time.LocalDate;
 
 /**
  * 知识库文档实体
@@ -129,6 +130,30 @@ public class KnowledgeDocumentDO {
      * 仅在 processMode=pipeline 时有效
      */
     private String pipelineId;
+
+    private String docTitle;
+
+    private String docType;
+
+    private String standardNo;
+
+    private String issuingAuthority;
+
+    private LocalDate publishDate;
+
+    private LocalDate effectiveDate;
+
+    private String sourceFormat;
+
+    private String fileHash;
+
+    private String parserVersion;
+
+    private String ingestionStage;
+
+    private String ingestionRunId;
+
+    private String qualityStatus;
 
     /**
      * 状态：

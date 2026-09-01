@@ -29,6 +29,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
+import com.nageoffer.ai.ragent.framework.database.JsonbTypeHandler;
 
 /**
  * RAG 知识库文档分块表实体
@@ -88,6 +89,33 @@ public class KnowledgeChunkDO {
      * 渲染、图片去 URL 后的描述）只存在于这一列，用 content 重算会静默丢掉它们
      */
     private String embeddingText;
+
+    private String parentClauseId;
+
+    private String chunkType;
+
+    private String chapterNo;
+
+    private String chapterTitle;
+
+    private String sectionNo;
+
+    private String sectionTitle;
+
+    private String clauseNo;
+
+    private String hierarchyPath;
+
+    private String childRange;
+
+    private String contentRole;
+
+    private Integer pageStart;
+
+    private Integer pageEnd;
+
+    @TableField(typeHandler = JsonbTypeHandler.class)
+    private String metadata;
 
     /**
      * 是否启用 0：禁用 1：启用

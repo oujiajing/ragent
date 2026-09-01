@@ -197,6 +197,18 @@ CREATE TABLE t_knowledge_document (
     schedule_cron    VARCHAR(64),
     ingestion_spec   JSONB,
     pipeline_id      VARCHAR(20),
+    doc_title        VARCHAR(256),
+    doc_type         VARCHAR(32),
+    standard_no      VARCHAR(64),
+    issuing_authority VARCHAR(256),
+    publish_date     DATE,
+    effective_date   DATE,
+    source_format    VARCHAR(32),
+    file_hash        VARCHAR(64),
+    parser_version   VARCHAR(64),
+    ingestion_stage  VARCHAR(16),
+    ingestion_run_id VARCHAR(64),
+    quality_status   VARCHAR(16),
     created_by       VARCHAR(20)   NOT NULL,
     updated_by       VARCHAR(20),
     create_time      TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -204,6 +216,8 @@ CREATE TABLE t_knowledge_document (
     deleted          SMALLINT      NOT NULL DEFAULT 0
 );
 CREATE INDEX idx_kb_id ON t_knowledge_document (kb_id);
+CREATE INDEX idx_knowledge_document_standard_no ON t_knowledge_document (standard_no);
+CREATE INDEX idx_knowledge_document_file_hash ON t_knowledge_document (kb_id, file_hash);
 COMMENT ON TABLE t_knowledge_document IS '知识库文档表';
 
 CREATE TABLE t_knowledge_chunk (
@@ -216,6 +230,19 @@ CREATE TABLE t_knowledge_chunk (
     char_count     INTEGER,
     token_count    INTEGER,
     embedding_text TEXT,
+    parent_clause_id VARCHAR(64),
+    chunk_type      VARCHAR(32),
+    chapter_no      VARCHAR(64),
+    chapter_title   VARCHAR(256),
+    section_no      VARCHAR(64),
+    section_title   VARCHAR(256),
+    clause_no       VARCHAR(64),
+    hierarchy_path  VARCHAR(1024),
+    child_range     VARCHAR(128),
+    content_role    VARCHAR(32),
+    page_start      INTEGER,
+    page_end        INTEGER,
+    metadata        JSONB,
     enabled        SMALLINT    NOT NULL DEFAULT 1,
     created_by     VARCHAR(20) NOT NULL,
     updated_by     VARCHAR(20),
@@ -224,7 +251,95 @@ CREATE TABLE t_knowledge_chunk (
     deleted        SMALLINT    NOT NULL DEFAULT 0
 );
 CREATE INDEX idx_doc_id ON t_knowledge_chunk (doc_id);
+CREATE INDEX idx_knowledge_chunk_parent_clause ON t_knowledge_chunk (parent_clause_id);
+CREATE INDEX idx_knowledge_chunk_clause_role ON t_knowledge_chunk (doc_id, clause_no, content_role);
+CREATE INDEX idx_knowledge_chunk_metadata ON t_knowledge_chunk USING gin(metadata);
 COMMENT ON TABLE t_knowledge_chunk IS '知识库文档分块表';
+
+CREATE TABLE t_legal_document_element (
+    id               VARCHAR(64)  NOT NULL PRIMARY KEY,
+    document_id      VARCHAR(20)  NOT NULL,
+    element_index    INTEGER      NOT NULL,
+    raw_text         TEXT         NOT NULL,
+    normalized_text  TEXT         NOT NULL,
+    structure_type   VARCHAR(32)  NOT NULL,
+    content_role     VARCHAR(32)  NOT NULL,
+    canonical_number VARCHAR(64),
+    page_start       INTEGER,
+    page_end         INTEGER,
+    create_time      TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT uk_legal_element_order UNIQUE (document_id, element_index)
+);
+CREATE INDEX idx_legal_element_document ON t_legal_document_element (document_id);
+COMMENT ON TABLE t_legal_document_element IS '法规清洗文本的有序元素表';
+
+CREATE TABLE t_legal_clause (
+    id                 VARCHAR(64)  NOT NULL PRIMARY KEY,
+    document_id        VARCHAR(20)  NOT NULL,
+    content_role       VARCHAR(32)  NOT NULL,
+    structure_type     VARCHAR(32)  NOT NULL,
+    chapter_no         VARCHAR(64),
+    chapter_title      VARCHAR(256),
+    section_no         VARCHAR(64),
+    section_title      VARCHAR(256),
+    clause_no          VARCHAR(64)  NOT NULL,
+    hierarchy_path     VARCHAR(1024),
+    raw_text           TEXT         NOT NULL,
+    normalized_text    TEXT         NOT NULL,
+    children_json      JSONB,
+    first_element_id   VARCHAR(64)  NOT NULL,
+    last_element_id    VARCHAR(64)  NOT NULL,
+    page_start         INTEGER,
+    page_end           INTEGER,
+    create_time        TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX idx_legal_clause_document ON t_legal_clause (document_id);
+CREATE INDEX idx_legal_clause_number_role ON t_legal_clause (document_id, clause_no, content_role);
+COMMENT ON TABLE t_legal_clause IS '法规标准化条款表';
+
+CREATE TABLE t_legal_quality_report (
+    id                           VARCHAR(20)  NOT NULL PRIMARY KEY,
+    document_id                  VARCHAR(20)  NOT NULL,
+    page_count                   INTEGER,
+    table_count                  INTEGER      NOT NULL DEFAULT 0,
+    parsed_text_length           INTEGER      NOT NULL DEFAULT 0,
+    chapter_count                INTEGER      NOT NULL DEFAULT 0,
+    section_count                INTEGER      NOT NULL DEFAULT 0,
+    clause_count                 INTEGER      NOT NULL DEFAULT 0,
+    normative_clause_count       INTEGER      NOT NULL DEFAULT 0,
+    commentary_clause_count      INTEGER      NOT NULL DEFAULT 0,
+    supplementary_count          INTEGER      NOT NULL DEFAULT 0,
+    appendix_count               INTEGER      NOT NULL DEFAULT 0,
+    unknown_role_count           INTEGER      NOT NULL DEFAULT 0,
+    unstructured_paragraph_count INTEGER      NOT NULL DEFAULT 0,
+    duplicate_clause_count       INTEGER      NOT NULL DEFAULT 0,
+    chunk_count                  INTEGER      NOT NULL DEFAULT 0,
+    oversized_chunk_count        INTEGER      NOT NULL DEFAULT 0,
+    empty_chunk_count            INTEGER      NOT NULL DEFAULT 0,
+    quality_status               VARCHAR(16)  NOT NULL,
+    warnings                     JSONB,
+    create_time                  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX idx_legal_quality_document ON t_legal_quality_report (document_id, create_time);
+COMMENT ON TABLE t_legal_quality_report IS '法规TXT摄取质量报告表';
+
+CREATE TABLE t_legal_table (
+    id               VARCHAR(64) NOT NULL PRIMARY KEY,
+    document_id      VARCHAR(20) NOT NULL,
+    element_id       VARCHAR(64),
+    parent_clause_id VARCHAR(64),
+    table_no         VARCHAR(64),
+    table_title      VARCHAR(512),
+    table_text       TEXT,
+    table_html       TEXT,
+    cells_json       JSONB,
+    page_start       INTEGER,
+    page_end         INTEGER,
+    content_hash     VARCHAR(64),
+    create_time      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX idx_legal_table_document ON t_legal_table (document_id);
+COMMENT ON TABLE t_legal_table IS '法规表格预留表，Phase 2A cleaned TXT 不写入';
 
 CREATE TABLE t_knowledge_document_chunk_log (
     id                 VARCHAR(20)      NOT NULL PRIMARY KEY,
