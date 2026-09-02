@@ -19,22 +19,27 @@ package com.nageoffer.ai.ragent.agent.integration.safeteam;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nageoffer.ai.ragent.agent.config.ConditionalOnAgentEngine;
 import com.nageoffer.ai.ragent.rag.eval.HazardAssessment;
 import com.nageoffer.ai.ragent.rag.eval.RectificationTaskCreator;
+import io.modelcontextprotocol.spec.McpSchema.CallToolResult;
+import io.modelcontextprotocol.spec.McpSchema.TextContent;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
-import io.modelcontextprotocol.spec.McpSchema.CallToolResult;
-import io.modelcontextprotocol.spec.McpSchema.TextContent;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
-import com.nageoffer.ai.ragent.agent.config.ConditionalOnAgentEngine;
 
 @Component
 @ConditionalOnAgentEngine
 public class SafeTeamRectificationTaskCreator implements RectificationTaskCreator {
     private final SafeTeamToolExecutor executor;
     private final ObjectMapper mapper;
-    public SafeTeamRectificationTaskCreator(SafeTeamToolExecutor executor, ObjectMapper mapper) { this.executor = executor; this.mapper = mapper; }
+    public SafeTeamRectificationTaskCreator(
+            @Qualifier("createRectificationOrder") SafeTeamToolExecutor executor, ObjectMapper mapper) {
+        this.executor = executor;
+        this.mapper = mapper;
+    }
     @Override public TaskCreationResult create(HazardAssessment a) {
         Map<String,Object> params = Map.of("businessDate", LocalDate.now(), "items", List.of(Map.of(
                 "riskType", a.category(), "checkItem", a.riskSummary(), "hazardDescription", a.hazardDescription(),
