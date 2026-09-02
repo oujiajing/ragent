@@ -17,23 +17,15 @@
 
 package com.nageoffer.ai.ragent.rag.eval;
 
-import com.nageoffer.ai.ragent.legal.model.LegalEvidence;
-import java.util.List;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-public record HazardAssessmentResult(
-        String hazard,
-        String category,
-        String riskLevel,
-        String riskExplanation,
-        List<LegalEvidence> evidence,
-        List<String> suggestion,
-        Action action,
-        String assessmentId) {
-
-    public record Action(
-            boolean needCreateTask,
-            boolean requiresConfirmation,
-            String toolName,
-            String status) {
+@Configuration
+public class HazardAssessmentConfiguration {
+    @Bean
+    @ConditionalOnMissingBean(RectificationTaskCreator.class)
+    RectificationTaskCreator unavailableTaskCreator() {
+        return assessment -> new RectificationTaskCreator.TaskCreationResult(false, null, null, "Safe-team 执行器未启用");
     }
 }

@@ -17,23 +17,11 @@
 
 package com.nageoffer.ai.ragent.rag.eval;
 
-import com.nageoffer.ai.ragent.legal.model.LegalEvidence;
-import java.util.List;
-
-public record HazardAssessmentResult(
-        String hazard,
-        String category,
-        String riskLevel,
-        String riskExplanation,
-        List<LegalEvidence> evidence,
-        List<String> suggestion,
-        Action action,
-        String assessmentId) {
-
-    public record Action(
-            boolean needCreateTask,
-            boolean requiresConfirmation,
-            String toolName,
-            String status) {
-    }
+public interface HazardAssessmentRepository {
+    void save(HazardAssessment assessment);
+    void update(HazardAssessment assessment);
+    HazardAssessment find(String assessmentId);
+    boolean markConfirmed(String assessmentId);
+    void markTaskCreated(String assessmentId, String taskId, String taskStatus);
+    void markFailed(String assessmentId, String reason);
 }

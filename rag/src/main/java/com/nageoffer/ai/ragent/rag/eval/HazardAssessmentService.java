@@ -26,7 +26,9 @@ import com.nageoffer.ai.ragent.legal.model.LegalEvidence;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import lombok.RequiredArgsConstructor;
+import java.time.Instant;
+import java.util.UUID;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -34,20 +36,34 @@ import org.springframework.stereotype.Service;
  * returns a proposal; it deliberately does not execute Safe-team write tools.
  */
 @Service
-@RequiredArgsConstructor
 public class HazardAssessmentService {
     private static final String CREATE_TOOL = "create_rectification_order";
 
     private final LegalAnswerService legalAnswerService;
     private final LLMService llmService;
     private final ObjectMapper objectMapper;
+    private final HazardAssessmentRepository repository;
+    private final RectificationTaskCreator taskCreator;
+
+    public HazardAssessmentService(LegalAnswerService legalAnswerService, LLMService llmService, ObjectMapper objectMapper) {
+        this(legalAnswerService, llmService, objectMapper, new InMemoryHazardAssessmentRepository(), assessment -> new RectificationTaskCreator.TaskCreationResult(false, null, null, "未配置 Safe-team 执行器"));
+    }
+
+    @Autowired
+    public HazardAssessmentService(LegalAnswerService legalAnswerService, LLMService llmService, ObjectMapper objectMapper,
+            HazardAssessmentRepository repository, RectificationTaskCreator taskCreator) {
+        this.legalAnswerService = legalAnswerService; this.llmService = llmService; this.objectMapper = objectMapper;
+        this.repository = repository; this.taskCreator = taskCreator;
+    }
 
     public HazardAssessmentResult assess(String hazardDescription) {
         String hazard = requireHazard(hazardDescription);
         LegalAnswerResponse legal = legalAnswerService.answer(hazard);
         if (legal.evidence().isEmpty()) {
-            return new HazardAssessmentResult(hazard, classify(hazard), "待核实",
-                    LegalAnswerService.NO_EVIDENCE, List.of(), List.of("补充现场照片、位置、作业类型和责任班组后再评估"), proposal());
+            HazardAssessmentResult result = new HazardAssessmentResult(hazard, classify(hazard), "待核实",
+                    LegalAnswerService.NO_EVIDENCE, List.of(), List.of("补充现场照片、位置、作业类型和责任班组后再评估"), proposal(), UUID.randomUUID().toString());
+            repository.save(new HazardAssessment(result.assessmentId(), hazard, result.category(), result.riskLevel(), result.riskExplanation(), result.suggestion(), List.of(), result.evidence(), "CONFIRMATION_REQUIRED", result.action(), null, null, null, Instant.now(), null, List.of(new HazardAssessment.TraceStep("WAIT_CONFIRM", "无 Evidence，等待补充材料"))));
+            return result;
         }
 
         String generated = llmService.chat(ChatRequest.builder()
@@ -56,9 +72,31 @@ public class HazardAssessmentService {
                         ChatMessage.user(prompt(hazard, legal.evidence()))))
                 .temperature(0D).topP(1D).thinking(false).build());
         Advice advice = parseAdvice(generated, legal.answer());
-        return new HazardAssessmentResult(hazard, classify(hazard), riskLevel(hazard), advice.riskExplanation(),
-                legal.evidence(), advice.suggestion(), proposal());
+        HazardAssessmentResult result = new HazardAssessmentResult(hazard, classify(hazard), riskLevel(hazard), advice.riskExplanation(),
+                legal.evidence(), advice.suggestion(), proposal(), UUID.randomUUID().toString());
+        List<String> criteria = advice.suggestion().stream().filter(s -> s.startsWith("验收标准：")).map(s -> s.substring(5)).toList();
+        HazardAssessment assessment = new HazardAssessment(result.assessmentId(), result.hazard(), result.category(), result.riskLevel(), result.riskExplanation(),
+                result.suggestion(), criteria, result.evidence(), HazardAssessment.Status.CONFIRMATION_REQUIRED.name(), result.action(), null, null, null, Instant.now(), null,
+                List.of(new HazardAssessment.TraceStep("UNDERSTAND_HAZARD", "识别为" + result.category()), new HazardAssessment.TraceStep("RETRIEVE_EVIDENCE", "检索施工安全法规依据"), new HazardAssessment.TraceStep("GENERATE_SUGGESTION", "生成整改建议"), new HazardAssessment.TraceStep("WAIT_CONFIRM", "等待用户确认创建整改任务")));
+        repository.save(assessment);
+        return result;
     }
+
+    public HazardAssessmentResult createAssessment(String hazardDescription) { return assess(hazardDescription); }
+    public HazardAssessment get(String id) { return repository.find(id); }
+    public ConfirmationResult confirm(String id) {
+        HazardAssessment a = repository.find(id);
+        if (a == null) return new ConfirmationResult("NOT_FOUND", null, "评估不存在");
+        if (HazardAssessment.Status.TASK_CREATED.name().equals(a.status())) return new ConfirmationResult("ALREADY_CREATED", a.taskId(), null);
+        if (!HazardAssessment.Status.CONFIRMATION_REQUIRED.name().equals(a.status())) return new ConfirmationResult("INVALID_STATUS", a.taskId(), "当前状态不允许确认");
+        if (a.evidence() == null || a.evidence().isEmpty()) { repository.markFailed(id, "无 Evidence，禁止创建任务"); return new ConfirmationResult("FAILED", null, "无 Evidence，禁止创建任务"); }
+        if (!repository.markConfirmed(id)) return new ConfirmationResult("ALREADY_CREATED", a.taskId(), null);
+        HazardAssessment confirmed = repository.find(id);
+        RectificationTaskCreator.TaskCreationResult created = taskCreator.create(confirmed);
+        if (created.success()) { repository.markTaskCreated(id, created.taskId(), created.taskStatus()); return new ConfirmationResult("TASK_CREATED", created.taskId(), null); }
+        repository.markFailed(id, created.errorReason()); return new ConfirmationResult("FAILED", null, created.errorReason());
+    }
+    public record ConfirmationResult(String status, String taskId, String errorReason) {}
 
     private String prompt(String hazard, List<LegalEvidence> evidence) {
         StringBuilder result = new StringBuilder("隐患：").append(hazard).append("\nEvidence：\n");

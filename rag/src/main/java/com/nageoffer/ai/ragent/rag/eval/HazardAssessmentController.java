@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.PathVariable;
 
 /** Phase 3 SafeGuard demo endpoint; the context path contributes /api/ragent. */
 @RestController
@@ -37,6 +38,12 @@ public class HazardAssessmentController {
     public HazardAssessmentResult assess(@Valid @RequestBody HazardAssessmentRequest body) {
         return service.assess(body.hazardDescription());
     }
+
+    @GetMapping("/agent/hazard-assessment/{assessmentId}")
+    public HazardAssessment detail(@PathVariable String assessmentId) { return service.get(assessmentId); }
+
+    @PostMapping("/agent/hazard-assessment/{assessmentId}/confirm")
+    public HazardAssessmentService.ConfirmationResult confirm(@PathVariable String assessmentId) { return service.confirm(assessmentId); }
 
     @GetMapping("/agent/hazard-assessment")
     public HazardAssessmentResult assessByQuery(@RequestParam String hazardDescription) {

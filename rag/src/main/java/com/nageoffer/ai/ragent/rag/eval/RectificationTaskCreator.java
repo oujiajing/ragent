@@ -17,23 +17,7 @@
 
 package com.nageoffer.ai.ragent.rag.eval;
 
-import com.nageoffer.ai.ragent.legal.model.LegalEvidence;
-import java.util.List;
-
-public record HazardAssessmentResult(
-        String hazard,
-        String category,
-        String riskLevel,
-        String riskExplanation,
-        List<LegalEvidence> evidence,
-        List<String> suggestion,
-        Action action,
-        String assessmentId) {
-
-    public record Action(
-            boolean needCreateTask,
-            boolean requiresConfirmation,
-            String toolName,
-            String status) {
-    }
+public interface RectificationTaskCreator {
+    TaskCreationResult create(HazardAssessment assessment);
+    record TaskCreationResult(boolean success, String taskId, String taskStatus, String errorReason) {}
 }

@@ -38,7 +38,7 @@ public class SafeTeamToolConfiguration {
     }
 
     @Bean
-    public McpToolExecutor createRectificationOrder(SafeTeamApiClient client, ObjectMapper mapper) {
+    public SafeTeamToolExecutor createRectificationOrder(SafeTeamApiClient client, ObjectMapper mapper) {
         return SafeTeamToolExecutor.create(client, mapper);
     }
 
