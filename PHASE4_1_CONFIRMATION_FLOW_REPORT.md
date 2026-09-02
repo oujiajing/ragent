@@ -20,7 +20,7 @@ Agent 只生成 proposal；用户确认后，Assessment Service 调用 `Rectific
 
 ## 5. 测试结果
 
-`HazardAssessmentServiceTest` 12 项、`HazardAssessmentConfirmationTest` 2 项、`SafeTeamToolExecutorTest` 3 项通过；编译通过。
+`HazardAssessmentServiceTest` 12 项、`HazardAssessmentConfirmationTest` 2 项、`HazardAssessmentE2ETest` 1 项、`SafeTeamToolExecutorTest` 3 项通过；编译通过。
 
 ## 6. Demo
 

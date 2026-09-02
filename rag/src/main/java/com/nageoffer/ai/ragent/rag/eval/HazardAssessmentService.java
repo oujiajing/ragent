@@ -93,8 +93,21 @@ public class HazardAssessmentService {
         if (!repository.markConfirmed(id)) return new ConfirmationResult("ALREADY_CREATED", a.taskId(), null);
         HazardAssessment confirmed = repository.find(id);
         RectificationTaskCreator.TaskCreationResult created = taskCreator.create(confirmed);
-        if (created.success()) { repository.markTaskCreated(id, created.taskId(), created.taskStatus()); return new ConfirmationResult("TASK_CREATED", created.taskId(), null); }
-        repository.markFailed(id, created.errorReason()); return new ConfirmationResult("FAILED", null, created.errorReason());
+        if (created.success()) {
+            repository.markTaskCreated(id, created.taskId(), created.taskStatus());
+            HazardAssessment latest = repository.find(id);
+            repository.update(withTrace(latest, new HazardAssessment.TraceStep("TOOL_CALL", "调用 create_rectification_order"), new HazardAssessment.TraceStep("TASK_RESULT", "整改任务已创建：" + created.taskId())));
+            return new ConfirmationResult("TASK_CREATED", created.taskId(), null);
+        }
+        repository.markFailed(id, created.errorReason());
+        HazardAssessment latest = repository.find(id);
+        repository.update(withTrace(latest, new HazardAssessment.TraceStep("TOOL_CALL", "调用 create_rectification_order"), new HazardAssessment.TraceStep("TASK_RESULT", "整改任务创建失败：" + created.errorReason())));
+        return new ConfirmationResult("FAILED", null, created.errorReason());
+    }
+    private HazardAssessment withTrace(HazardAssessment a, HazardAssessment.TraceStep... steps) {
+        List<HazardAssessment.TraceStep> trace = new ArrayList<>(a.trace() == null ? List.of() : a.trace());
+        trace.addAll(List.of(steps));
+        return new HazardAssessment(a.assessmentId(), a.hazardDescription(), a.category(), a.riskLevel(), a.riskSummary(), a.rectificationSuggestions(), a.acceptanceCriteria(), a.evidence(), a.status(), a.toolProposal(), a.taskId(), a.taskStatus(), a.errorReason(), a.createdTime(), a.confirmedTime(), trace);
     }
     public record ConfirmationResult(String status, String taskId, String errorReason) {}
 
