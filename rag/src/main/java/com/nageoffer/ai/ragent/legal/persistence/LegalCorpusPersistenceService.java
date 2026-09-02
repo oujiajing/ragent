@@ -63,6 +63,18 @@ public class LegalCorpusPersistenceService {
                 result.document().elements().size(), result.document().clauses().size(), result.chunks().size());
     }
 
+    @Transactional
+    public LegalPersistenceResult replaceText(String sourceFile, byte[] rawBytes) {
+        String documentId = documentIdFor(rawBytes);
+        jdbcTemplate.update("DELETE FROM t_knowledge_vector WHERE collection_name = ? AND metadata->>'doc_id' = ?", COLLECTION, documentId);
+        jdbcTemplate.update("DELETE FROM t_knowledge_chunk WHERE doc_id = ?", documentId);
+        jdbcTemplate.update("DELETE FROM t_legal_quality_report WHERE document_id = ?", documentId);
+        jdbcTemplate.update("DELETE FROM t_legal_clause WHERE document_id = ?", documentId);
+        jdbcTemplate.update("DELETE FROM t_legal_document_element WHERE document_id = ?", documentId);
+        jdbcTemplate.update("DELETE FROM t_knowledge_document WHERE id = ?", documentId);
+        return importText(sourceFile, rawBytes);
+    }
+
     private String findImported(String fileHash, String parserVersion) {
         List<String> ids = jdbcTemplate.query(
                 "SELECT id FROM t_knowledge_document WHERE kb_id = ? AND file_hash = ? AND parser_version = ? AND deleted = 0 LIMIT 1",
@@ -75,7 +87,7 @@ public class LegalCorpusPersistenceService {
                 INSERT INTO t_knowledge_base (id, name, embedding_model, collection_name, created_by, updated_by)
                 VALUES (?, ?, ?, ?, ?, ?)
                 ON CONFLICT (id) DO NOTHING
-                """, KB_ID, "施工安全法规 Phase 2B", "qwen-emb-8b", COLLECTION, ACTOR, ACTOR);
+                """, KB_ID, "施工安全法规 Phase 2B", "bge-m3", COLLECTION, ACTOR, ACTOR);
     }
 
     private void persistDocument(LegalDocumentMetadata metadata, CleanedTextImportResult result) {

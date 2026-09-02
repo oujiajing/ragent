@@ -58,7 +58,10 @@ public class LegalCorpusImportRunner implements CommandLineRunner {
 
     private void importOne(Path path) {
         try {
-            LegalPersistenceResult result = persistenceService.importText(path.getFileName().toString(), Files.readAllBytes(path));
+            byte[] bytes = Files.readAllBytes(path);
+            LegalPersistenceResult result = Boolean.getBoolean("rag.legal.phase2b.reimport-enabled")
+                    ? persistenceService.replaceText(path.getFileName().toString(), bytes)
+                    : persistenceService.importText(path.getFileName().toString(), bytes);
             log.info("Phase 2B legal import: file={}, status={}, documentId={}, elements={}, clauses={}, chunks={}",
                     path.getFileName(), result.status(), result.documentId(), result.elementCount(), result.clauseCount(), result.chunkCount());
         } catch (Exception e) {

@@ -33,6 +33,8 @@ public enum ModelProvider {
      */
     OLLAMA("ollama"),
 
+    TEI("tei"),
+
     /**
      * 阿里云百炼大模型平台
      */

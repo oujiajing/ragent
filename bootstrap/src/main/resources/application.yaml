@@ -223,6 +223,10 @@ ai:
       endpoints:
         chat: /v1/chat/completions
         embedding: /v1/embeddings
+    tei:
+      url: http://127.0.0.1:18080
+      endpoints:
+        embedding: /v1/embeddings
     bailian:
       url: https://dashscope.aliyuncs.com
       api-key: ${BAILIAN_API_KEY:sk-ea27150744824f8380aa8a11c7e845f6}
@@ -288,8 +292,13 @@ ai:
         timeout-ms: 180000
 
   embedding:
-    default-model: qwen-emb-8b
+    default-model: bge-m3
     candidates:
+      - id: bge-m3
+        provider: tei
+        model: bge-m3
+        dimension: ${rag.default.dimension}
+        priority: 1
       - id: qwen-emb-8b
         provider: bailian
         model: text-embedding-v4

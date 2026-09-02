@@ -60,7 +60,7 @@ public class LegalCorpusIndexingService {
                 """, (rs, n) -> new Row(rs.getString("id"), rs.getString("doc_id"), rs.getInt("chunk_index"),
                 rs.getString("content"), rs.getString("embedding_text"), rs.getString("metadata")), LegalCorpusPersistenceService.KB_ID);
         Map<String, List<Row>> byDoc = rows.stream().collect(Collectors.groupingBy(Row::docId, LinkedHashMap::new, Collectors.toList()));
-        VectorTarget target = new VectorTarget(LegalCorpusPersistenceService.COLLECTION, "qwen-emb-8b", 1536);
+        VectorTarget target = new VectorTarget(LegalCorpusPersistenceService.COLLECTION, "bge-m3", 1536);
         for (var entry : byDoc.entrySet()) {
             List<Chunk> chunks = entry.getValue().stream().map(this::toChunk).toList();
             List<EmbeddedChunk> embedded = embeddingService.embed(chunks, target);
