@@ -72,4 +72,60 @@ class LegalChunkerTest {
         assertEquals(1, result.chunks().size());
         assertEquals("1.0.1", result.chunks().get(0).metadata().clauseNo());
     }
+
+    @Test
+    void shouldPreserveDigitItemMarkersInShortClause() {
+        String text = """
+                城市住宅小区竣工综合验收管理办法
+                第六条 住宅小区竣工综合验收必须符合下列要求：
+                1 所有建设项目按批准的小区规划全部建成；
+                2 单项工程全部验收合格；
+                3 各类建筑物符合规划设计要求。
+                """;
+
+        CleanedTextImportResult result = LegalTestFixtures.importer().importText(
+                "2000000000000000004", "城市住宅小区竣工综合验收管理办法.txt",
+                text.getBytes(StandardCharsets.UTF_8), CleanedTextImportMode.DRY_RUN);
+
+        assertEquals(1, result.chunks().size());
+        String content = result.chunks().get(0).content();
+        assertTrue(content.contains("1 所有建设项目"));
+        assertTrue(content.contains("2 单项工程"));
+        assertTrue(content.contains("3 各类建筑物"));
+    }
+
+    @Test
+    void shouldPreserveChineseItemMarkersInShortClause() {
+        String text = """
+                城市住宅小区竣工综合验收管理办法
+                第六条 住宅小区竣工综合验收必须符合下列要求：
+                （一）所有建设项目全部建成；
+                （二）单项工程全部验收合格；
+                （三）各类建筑物符合规划设计要求。
+                """;
+
+        CleanedTextImportResult result = LegalTestFixtures.importer().importText(
+                "2000000000000000005", "城市住宅小区竣工综合验收管理办法.txt",
+                text.getBytes(StandardCharsets.UTF_8), CleanedTextImportMode.DRY_RUN);
+
+        String content = result.chunks().get(0).content();
+        assertTrue(content.contains("(一) 所有建设项目"));
+        assertTrue(content.contains("(二) 单项工程"));
+        assertTrue(content.contains("(三) 各类建筑物"));
+    }
+
+    @Test
+    void shouldKeepOrdinaryClauseUnchangedByStructuredRendering() {
+        String text = """
+                城市住宅小区竣工综合验收管理办法
+                第五条 城市人民政府建设行政主管部门应当组织验收。
+                """;
+
+        CleanedTextImportResult result = LegalTestFixtures.importer().importText(
+                "2000000000000000006", "城市住宅小区竣工综合验收管理办法.txt",
+                text.getBytes(StandardCharsets.UTF_8), CleanedTextImportMode.DRY_RUN);
+
+        assertEquals(1, result.chunks().size());
+        assertTrue(result.chunks().get(0).content().contains("第五条\n城市人民政府建设行政主管部门应当组织验收。"));
+    }
 }

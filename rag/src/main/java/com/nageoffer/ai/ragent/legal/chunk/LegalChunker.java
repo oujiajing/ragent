@@ -63,8 +63,9 @@ public class LegalChunker {
                                          int firstChunkIndex) {
         int maxTokens = properties.getChunk().getMaxTokens();
         if (tokens(clause.normalizedText()) <= maxTokens) {
+            String body = renderClauseBody(clause);
             return List.of(build(document, clause, firstChunkIndex, 0,
-                    clause.normalizedText(), null, LegalChunkType.CLAUSE));
+                    body, null, LegalChunkType.CLAUSE));
         }
 
         List<Unit> units = expandableUnits(clause, maxTokens);
@@ -78,6 +79,15 @@ public class LegalChunker {
                     body, range, LegalChunkType.CLAUSE_PART));
         }
         return chunks;
+    }
+
+    private String renderClauseBody(LegalClause clause) {
+        if (clause.children().isEmpty()) return clause.normalizedText();
+        return clause.children().stream()
+                .map(child -> renderChild(child.marker(), child.normalizedText()))
+                .filter(text -> !text.isBlank())
+                .reduce((a, b) -> a + "\n" + b)
+                .orElse("");
     }
 
     private List<Unit> expandableUnits(LegalClause clause, int maxTokens) {
