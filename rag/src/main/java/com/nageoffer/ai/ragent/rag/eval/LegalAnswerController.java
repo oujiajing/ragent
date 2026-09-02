@@ -31,7 +31,8 @@ public class LegalAnswerController {
 
     private final LegalAnswerService legalAnswerService;
 
-    @GetMapping("/api/ragent/rag/legal-answer")
+    // The application context path already contributes /api/ragent.
+    @GetMapping("/rag/legal-answer")
     public LegalAnswerResponse answer(@RequestParam String question) {
         return legalAnswerService.answer(question);
     }
