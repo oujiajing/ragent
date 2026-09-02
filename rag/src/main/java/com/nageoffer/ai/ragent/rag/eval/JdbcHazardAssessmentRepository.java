@@ -20,6 +20,8 @@ package com.nageoffer.ai.ragent.rag.eval;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.Instant;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -36,11 +38,11 @@ public class JdbcHazardAssessmentRepository implements HazardAssessmentRepositor
     @Override public void save(HazardAssessment a) {
         try {
             String payload = mapper.writeValueAsString(a);
-            jdbc.update("INSERT INTO safeguard_hazard_assessment(assessment_id,payload,status,created_time) VALUES (?,?,?,?)", a.assessmentId(), payload, a.status(), a.createdTime());
+            jdbc.update("INSERT INTO safeguard_hazard_assessment(assessment_id,payload,status,created_time) VALUES (?,?,?,?)", a.assessmentId(), payload, a.status(), timestamp(a.createdTime()));
         } catch (Exception e) { throw new IllegalStateException("保存隐患评估失败", e); }
     }
     @Override public void update(HazardAssessment a) {
-        try { jdbc.update("UPDATE safeguard_hazard_assessment SET payload=?, status=?, task_id=?, task_status=?, error_reason=?, confirmed_time=? WHERE assessment_id=?", mapper.writeValueAsString(a), a.status(), a.taskId(), a.taskStatus(), a.errorReason(), a.confirmedTime(), a.assessmentId()); }
+        try { jdbc.update("UPDATE safeguard_hazard_assessment SET payload=?, status=?, task_id=?, task_status=?, error_reason=?, confirmed_time=? WHERE assessment_id=?", mapper.writeValueAsString(a), a.status(), a.taskId(), a.taskStatus(), a.errorReason(), timestamp(a.confirmedTime()), a.assessmentId()); }
         catch (Exception e) { throw new IllegalStateException("更新隐患评估失败", e); }
     }
     @Override public HazardAssessment find(String id) {
@@ -56,4 +58,5 @@ public class JdbcHazardAssessmentRepository implements HazardAssessmentRepositor
         java.sql.Timestamp confirmed = rs.getTimestamp(6);
         return new HazardAssessment(a.assessmentId(), a.hazardDescription(), a.category(), a.riskLevel(), a.riskSummary(), a.rectificationSuggestions(), a.acceptanceCriteria(), a.evidence(), rs.getString(2), a.toolProposal(), rs.getString(3), rs.getString(4), rs.getString(5), a.createdTime(), confirmed == null ? a.confirmedTime() : confirmed.toInstant(), a.trace());
     } catch (Exception e) { throw new SQLException("读取隐患评估失败", e); } }
+    private Timestamp timestamp(Instant value) { return value == null ? null : Timestamp.from(value); }
 }
