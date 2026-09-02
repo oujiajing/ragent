@@ -41,7 +41,7 @@ public class OllamaChatClient extends AbstractOpenAIStyleChatClient {
 
     @Override
     protected void customizeRequestBody(JsonObject body, ChatRequest request) {
-        body.addProperty("think", false);
+        body.addProperty("reasoning_effort", "none");
     }
 
     @Override
