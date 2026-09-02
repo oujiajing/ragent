@@ -1,0 +1,127 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.nageoffer.ai.ragent.rag.eval;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nageoffer.ai.ragent.framework.convention.ChatMessage;
+import com.nageoffer.ai.ragent.framework.convention.ChatRequest;
+import com.nageoffer.ai.ragent.infra.chat.LLMService;
+import com.nageoffer.ai.ragent.legal.model.LegalEvidence;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+/**
+ * SafeGuard Phase 3 composition layer.  It consumes the existing legal RAG facade and
+ * returns a proposal; it deliberately does not execute Safe-team write tools.
+ */
+@Service
+@RequiredArgsConstructor
+public class HazardAssessmentService {
+    private static final String CREATE_TOOL = "create_rectification_order";
+
+    private final LegalAnswerService legalAnswerService;
+    private final LLMService llmService;
+    private final ObjectMapper objectMapper;
+
+    public HazardAssessmentResult assess(String hazardDescription) {
+        String hazard = requireHazard(hazardDescription);
+        LegalAnswerResponse legal = legalAnswerService.answer(hazard);
+        if (legal.evidence().isEmpty()) {
+            return new HazardAssessmentResult(hazard, classify(hazard), "待核实",
+                    LegalAnswerService.NO_EVIDENCE, List.of(), List.of("补充现场照片、位置、作业类型和责任班组后再评估"), proposal());
+        }
+
+        String generated = llmService.chat(ChatRequest.builder()
+                .messages(List.of(
+                        ChatMessage.system("你是施工安全隐患整改助手。只能依据 Evidence 输出 JSON，不得编造法规、标准号、条款号或业务字段。JSON 字段必须为 riskExplanation(字符串)、suggestion(字符串数组)、acceptanceCriteria(字符串数组)。suggestion 必须是可执行整改措施，acceptanceCriteria 必须是现场验收标准。"),
+                        ChatMessage.user(prompt(hazard, legal.evidence()))))
+                .temperature(0D).topP(1D).thinking(false).build());
+        Advice advice = parseAdvice(generated, legal.answer());
+        return new HazardAssessmentResult(hazard, classify(hazard), riskLevel(hazard), advice.riskExplanation(),
+                legal.evidence(), advice.suggestion(), proposal());
+    }
+
+    private String prompt(String hazard, List<LegalEvidence> evidence) {
+        StringBuilder result = new StringBuilder("隐患：").append(hazard).append("\nEvidence：\n");
+        for (LegalEvidence item : evidence) {
+            result.append('[').append(item.evidenceId()).append("] ")
+                    .append(item.documentTitle()).append(' ').append(item.standardNo()).append(' ')
+                    .append(item.clauseNo()).append("：").append(item.content()).append('\n');
+        }
+        return result.append("只返回合法 JSON，不要 Markdown 代码围栏。风险说明、整改措施和验收标准都必须能由上述 Evidence 支持。").toString();
+    }
+
+    private Advice parseAdvice(String generated, String fallback) {
+        try {
+            JsonNode root = objectMapper.readTree(generated);
+            String explanation = text(root, "riskExplanation", fallback);
+            List<String> measures = strings(root, "suggestion");
+            List<String> criteria = strings(root, "acceptanceCriteria");
+            List<String> combined = new ArrayList<>(measures);
+            criteria.forEach(item -> combined.add("验收标准：" + item));
+            if (!combined.isEmpty()) return new Advice(explanation, combined);
+        } catch (Exception ignored) {
+            // LLM 输出异常时仍返回可审计的原文建议，不伪造法规结论。
+        }
+        return new Advice(fallback, List.of("依据检索证据制定整改方案，并由现场安全管理人员复核后执行"));
+    }
+
+    private List<String> strings(JsonNode root, String field) {
+        List<String> result = new ArrayList<>();
+        JsonNode values = root.path(field);
+        if (values.isArray()) values.forEach(value -> { if (value.isTextual() && !value.asText().isBlank()) result.add(value.asText()); });
+        return result;
+    }
+
+    private String text(JsonNode root, String field, String fallback) {
+        String value = root.path(field).asText("").trim();
+        return value.isBlank() ? fallback : value;
+    }
+
+    private HazardAssessmentResult.Action proposal() {
+        return new HazardAssessmentResult.Action(true, true, CREATE_TOOL, "CONFIRMATION_REQUIRED");
+    }
+
+    private String classify(String hazard) {
+        String value = hazard.toLowerCase(Locale.ROOT);
+        if (value.contains("脚手架") || value.contains("剪刀撑")) return "脚手架";
+        if (value.contains("配电") || value.contains("电箱") || value.contains("临电")) return "临时用电";
+        if (value.contains("基坑") || value.contains("支护")) return "基坑工程";
+        if (value.contains("吊装") || value.contains("起重")) return "起重吊装";
+        if (value.contains("高处") || value.contains("安全带") || value.contains("洞口")) return "高处作业";
+        if (value.contains("临边") || value.contains("防护栏")) return "临边防护";
+        return "施工安全综合隐患";
+    }
+
+    private String riskLevel(String hazard) {
+        String value = hazard.toLowerCase(Locale.ROOT);
+        if (value.contains("坍塌") || value.contains("触电") || value.contains("吊装") || value.contains("临边") || value.contains("高处")) return "高";
+        return "中";
+    }
+
+    private String requireHazard(String value) {
+        if (value == null || value.isBlank()) throw new IllegalArgumentException("hazardDescription 不能为空");
+        return value.trim();
+    }
+
+    private record Advice(String riskExplanation, List<String> suggestion) {}
+}
