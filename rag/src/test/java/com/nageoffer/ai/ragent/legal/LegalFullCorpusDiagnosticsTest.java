@@ -27,6 +27,8 @@ import com.nageoffer.ai.ragent.legal.enums.LegalContentRole;
 import com.nageoffer.ai.ragent.legal.model.LegalClause;
 import com.nageoffer.ai.ragent.legal.model.LegalChunk;
 import com.nageoffer.ai.ragent.legal.model.LegalQualityReport;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 
@@ -130,7 +132,7 @@ class LegalFullCorpusDiagnosticsTest {
                 .append("4. Filename/body metadata gaps for regulations without standard numbers.\n")
                 .append("5. Long clauses above 450 tokens need human review despite safe chunk output.\n")
                 .append("\n## Recommendation\n\n")
-                .append("Do not formally ingest yet. Run Phase 2A-3 hardening for the highest-frequency duplicate and unstructured patterns, then repeat full read-only dry-run.\n");
+                .append("本轮结果保留 source duplicate / source-format REVIEW；是否进入下一阶段以 Phase 2A-3 Before / After 报告中的硬条件判定为准。\n");
         return out.toString();
     }
 
@@ -174,21 +176,22 @@ class LegalFullCorpusDiagnosticsTest {
     }
 
     private String buildBeforeAfterReport(Path baselinePath, List<LegalDocumentDiagnostics> documents) throws IOException {
-        Map<String, BaselineRow> before = new LinkedHashMap<>();
-        if (Files.exists(baselinePath)) {
-            String json = Files.readString(baselinePath, StandardCharsets.UTF_8);
-            var matcher = java.util.regex.Pattern.compile("\\{\\\"document\\\":\\\"([^\\\"]+)\\\".*?\\\"clauseCount\\\":(\\d+).*?\\\"chunkCount\\\":(\\d+).*?\\\"unstructured\\\":(\\d+).*?\\\"appendix\\\":(\\d+).*?\\\"qc\\\":\\\"([^\\\"]+)\\\"}").matcher(json);
-            while (matcher.find()) before.put(matcher.group(1), new BaselineRow(
-                    Integer.parseInt(matcher.group(2)), Integer.parseInt(matcher.group(3)),
-                    Integer.parseInt(matcher.group(4)), Integer.parseInt(matcher.group(5)), matcher.group(6)));
-        }
+        Map<String, BaselineRow> before = loadBaseline(baselinePath, documents);
         StringBuilder out = new StringBuilder("# Phase 2A-3 Before / After\n\n")
                 .append("Baseline: `PHASE2A2_BASELINE.json`\n\n")
+                .append("- baseline documents loaded: ").append(before.size()).append("/93\n")
+                .append("- PARSER_DUPLICATE groups: ").append(countOrigin(documents, LegalDuplicateType.PARSER_DUPLICATE)).append("\n")
+                .append("- SOURCE_EXACT_DUPLICATE groups: ").append(countOrigin(documents, LegalDuplicateType.SOURCE_EXACT_DUPLICATE)).append("\n")
+                .append("- SOURCE_NEAR_DUPLICATE groups: ").append(countOrigin(documents, LegalDuplicateType.SOURCE_NEAR_DUPLICATE)).append("\n")
+                .append("- unaccounted text total: ").append(documents.stream().mapToInt(LegalDocumentDiagnostics::unaccountedTextLength).sum()).append("\n")
+                .append("- >10% clause delta documents: ").append(documents.stream().filter(d -> Math.abs(clauseDelta(before.get(d.document()), d.quality().clauseCount())) > 10).count()).append("\n")
+                .append("- REVIEW → PASS: ").append(countTransition(before, documents, "REVIEW", "PASS")).append("\n")
+                .append("- PASS → REVIEW: ").append(countTransition(before, documents, "PASS", "REVIEW")).append("\n")
                 .append("| document | clause before | clause after | delta % | chunk before | chunk after | unstructured before | unstructured after | appendix before | appendix after | QC before | QC after | coverage | deterministic |\n")
                 .append("|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|---|---:|---|\n");
         for (LegalDocumentDiagnostics d : documents) {
             LegalQualityReport q = d.quality();
-            BaselineRow b = before.getOrDefault(d.document(), new BaselineRow(q.clauseCount(), q.chunkCount(), q.unstructuredParagraphCount(), q.appendixCount(), q.qualityStatus().name()));
+            BaselineRow b = before.get(d.document());
             double delta = b.clauseCount() == 0 ? 0 : ((double) q.clauseCount() - b.clauseCount()) / b.clauseCount() * 100;
             out.append("| ").append(cell(d.document())).append(" | ").append(b.clauseCount()).append(" | ").append(q.clauseCount()).append(" | ")
                     .append(String.format("%.2f%%", delta)).append(" | ").append(b.chunkCount()).append(" | ").append(q.chunkCount())
@@ -196,7 +199,66 @@ class LegalFullCorpusDiagnosticsTest {
                     .append(" | ").append(b.qualityStatus()).append(" | ").append(q.qualityStatus()).append(" | ").append(String.format("%.4f", d.sourceTextCoverageRatio()))
                     .append(" | ").append(d.deterministic()).append(" |\n");
         }
+        boolean hardConditions = documents.size() == 93
+                && documents.stream().allMatch(LegalDocumentDiagnostics::deterministic)
+                && documents.stream().allMatch(d -> d.result().qualityReport().emptyChunkCount() == 0)
+                && documents.stream().allMatch(d -> d.result().qualityReport().oversizedChunkCount() == 0)
+                && documents.stream().flatMap(d -> d.duplicateGroups().stream())
+                .noneMatch(g -> g.duplicateOrigin() == LegalDuplicateType.PARSER_DUPLICATE)
+                && documents.stream().mapToInt(LegalDocumentDiagnostics::unaccountedTextLength).sum() == 0;
+        out.append("\n## Recommendation\n\n")
+                .append(hardConditions
+                        ? "建议进入 Phase 2A-4：93/93 deterministic，空/超大 chunk、PARSER_DUPLICATE 与 unaccounted text 均为 0，且 baseline 已完整加载。\n"
+                        : "暂不建议进入 Phase 2A-4：未满足全部验收硬条件；请根据上表和诊断报告处理 deterministic、chunk、parser duplicate、baseline 或 unaccounted text 问题。\n");
         return out.toString();
+    }
+
+    private long countOrigin(List<LegalDocumentDiagnostics> documents, LegalDuplicateType origin) {
+        return documents.stream().flatMap(d -> d.duplicateGroups().stream())
+                .filter(g -> g.duplicateOrigin() == origin).count();
+    }
+
+    private double clauseDelta(BaselineRow baseline, int after) {
+        return baseline == null || baseline.clauseCount() == 0 ? 0 : ((double) after - baseline.clauseCount()) / baseline.clauseCount() * 100;
+    }
+
+    private long countTransition(Map<String, BaselineRow> before, List<LegalDocumentDiagnostics> documents,
+                                 String from, String to) {
+        return documents.stream().filter(d -> from.equals(before.get(d.document()).qualityStatus())
+                && to.equals(d.quality().qualityStatus().name())).count();
+    }
+
+    private Map<String, BaselineRow> loadBaseline(Path baselinePath, List<LegalDocumentDiagnostics> documents) throws IOException {
+        assertTrue(Files.exists(baselinePath), "baseline 文件不存在: " + baselinePath);
+        JsonNode root = new ObjectMapper().readTree(Files.readString(baselinePath, StandardCharsets.UTF_8));
+        JsonNode rows = root.get("documents");
+        assertTrue(rows != null && rows.isArray(), "baseline.documents 必须是数组");
+        assertEquals(93, rows.size(), "baseline document count 必须为 93");
+        Map<String, BaselineRow> loaded = new LinkedHashMap<>();
+        for (JsonNode row : rows) {
+            String document = requiredText(row, "document");
+            assertTrue(loaded.put(document, new BaselineRow(
+                    requiredInt(row, "clauseCount"), requiredInt(row, "chunkCount"),
+                    requiredInt(row, "unstructured"), requiredInt(row, "appendix"),
+                    requiredText(row, "qc"))) == null, "baseline document 重复: " + document);
+        }
+        assertEquals(93, loaded.size(), "baseline document 必须唯一");
+        for (LegalDocumentDiagnostics document : documents) {
+            assertTrue(loaded.containsKey(document.document()), "当前 document 缺少 baseline: " + document.document());
+        }
+        return loaded;
+    }
+
+    private String requiredText(JsonNode row, String field) {
+        JsonNode value = row.get(field);
+        assertTrue(value != null && value.isTextual(), "baseline 字段必须是文本: " + field);
+        return value.textValue();
+    }
+
+    private int requiredInt(JsonNode row, String field) {
+        JsonNode value = row.get(field);
+        assertTrue(value != null && value.canConvertToInt(), "baseline 字段必须是整数: " + field);
+        return value.intValue();
     }
 
     private String buildDuplicateReport(List<LegalDocumentDiagnostics> docs) {
