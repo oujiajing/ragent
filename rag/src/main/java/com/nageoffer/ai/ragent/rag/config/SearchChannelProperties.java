@@ -48,6 +48,12 @@ public class SearchChannelProperties implements InitializingBean {
      */
     private int recallBudget = 20;
 
+    /** Evaluation-facing fused candidate pool; 0 keeps the existing fusion limit. */
+    private Retrieval retrieval = new Retrieval();
+
+    /** Evaluation-facing final rerank/evidence count; 0 keeps default-top-k. */
+    private Rerank rerank = new Rerank();
+
     /**
      * 检索作用域配置
      * 决定「本次请求该看哪些知识库」，与用什么模态检索无关，故与 channels 平级、由各通道共读
@@ -74,7 +80,19 @@ public class SearchChannelProperties implements InitializingBean {
      * 解析召回扇出基数：优先使用显式 recallBudget，未配置（<=0）时回退到最终条数
      */
     public int resolveRecallBudget(int contextTopK) {
-        return recallBudget > 0 ? recallBudget : contextTopK;
+        int configured = recallBudget > 0 ? recallBudget : contextTopK;
+        return Math.max(configured, resolveCandidateTopK());
+    }
+
+    public int resolveCandidateTopK() {
+        if (retrieval.getCandidateTopK() > 0) {
+            return retrieval.getCandidateTopK();
+        }
+        return fusion.getRerankCandidateLimit() > 0 ? fusion.getRerankCandidateLimit() : resolveFinalTopK();
+    }
+
+    public int resolveFinalTopK() {
+        return rerank.getFinalTopK() > 0 ? rerank.getFinalTopK() : defaultTopK;
     }
 
     /**
@@ -84,7 +102,7 @@ public class SearchChannelProperties implements InitializingBean {
      */
     @Override
     public void afterPropertiesSet() {
-        int contextTopK = defaultTopK;
+        int contextTopK = resolveFinalTopK();
         if (contextTopK <= 0) {
             throw new IllegalStateException("rag.search.default-top-k 必须为正数，当前：" + contextTopK);
         }
@@ -95,7 +113,7 @@ public class SearchChannelProperties implements InitializingBean {
                             + "请调大 rag.search.recall-budget 或调小 rag.search.default-top-k",
                     resolvedRecall, contextTopK));
         }
-        int candidateLimit = fusion.getRerankCandidateLimit();
+        int candidateLimit = resolveCandidateTopK();
         if (candidateLimit > 0 && candidateLimit < contextTopK) {
             throw new IllegalStateException(String.format(
                     "检索预算漏斗不变式被破坏：candidateLimit(%d) < contextTopK(%d)，送入 Rerank 的候选池不得小于最终条数，"
@@ -133,6 +151,16 @@ public class SearchChannelProperties implements InitializingBean {
                             + "高于 1 会让全部证据被闸门丢弃、KB 侧恒为空；关闭闸门请填 0",
                     minRerankScore));
         }
+    }
+
+    @Data
+    public static class Retrieval {
+        private int candidateTopK = 0;
+    }
+
+    @Data
+    public static class Rerank {
+        private int finalTopK = 0;
     }
 
     /**

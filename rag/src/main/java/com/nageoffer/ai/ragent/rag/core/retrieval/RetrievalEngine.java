@@ -88,10 +88,11 @@ public class RetrievalEngine {
 
         // 一次算好检索预算：全 subquestion 共用。最终条数即配置的 default-top-k（启动已校验 >0），是 contextTopK 段唯一真源，
         // 不再被 max(意图节点 topK) 抬高（node.topK 只覆盖向量定向路的召回深度，见 VectorSearchChannel.resolveDirectedBudget）
-        int contextTopK = searchProperties.getDefaultTopK();
+        int contextTopK = searchProperties.resolveFinalTopK();
+        int candidateTopK = searchProperties.resolveCandidateTopK();
         RetrievalBudget budget = new RetrievalBudget(
-                searchProperties.resolveRecallBudget(contextTopK),
-                searchProperties.getFusion().getRerankCandidateLimit(),
+                Math.max(searchProperties.resolveRecallBudget(contextTopK), candidateTopK),
+                candidateTopK,
                 contextTopK
         );
         List<CompletableFuture<SubQuestionContext>> tasks = subIntents.stream()

@@ -34,7 +34,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -61,15 +60,15 @@ public class LegalAnswerService {
         List<SubQuestionIntent> intents = intentResolver.resolve(rewrite);
         RetrievalContext context = retrievalEngine.retrieve(intents);
         List<RetrievedChunk> chunks = flatten(context);
-        List<LegalEvidence> evidence = resolveEvidence(chunks);
+        List<LegalEvidence> evidence = withEvidenceIds(resolveEvidence(chunks));
         if (evidence.isEmpty()) {
-            return new LegalAnswerResponse(question, NO_EVIDENCE, List.of(), List.of());
+            return new LegalAnswerResponse(NO_EVIDENCE, List.of(), List.of());
         }
 
         String groundedPrompt = buildGroundedPrompt(question, evidence);
         String answer = llmService.chat(ChatRequest.builder()
                 .messages(List.of(
-                        ChatMessage.system("你是施工安全法规问答助手。只能依据用户提供的 Evidence 回答，不得补充或猜测法规数字、标准编号或条款。每个关键结论后标注对应证据编号，如 [E1]。如果证据不足，原样回答：" + NO_EVIDENCE),
+                        ChatMessage.system("你是施工安全法规问答助手。只能依据用户提供的 Evidence 回答，不得补充或猜测法规数字、标准编号或条款。每个关键结论后标注对应证据编号，如 [evidence-1]。禁止生成 Citation 的文档、标准号或条款号；这些字段由系统生成。如果证据不足，原样回答：" + NO_EVIDENCE),
                         ChatMessage.user(groundedPrompt)))
                 .temperature(0D)
                 .topP(1D)
@@ -79,10 +78,9 @@ public class LegalAnswerService {
             answer = NO_EVIDENCE;
         }
         List<LegalAnswerResponse.Citation> citations = evidence.stream()
-                .map(e -> new LegalAnswerResponse.Citation(
-                        e.documentTitle(), e.standardNo(), e.clauseNo(), e.evidenceText()))
+                .map(e -> new LegalAnswerResponse.Citation(e.evidenceId(), referenceText(e)))
                 .toList();
-        return new LegalAnswerResponse(question, answer, evidence, citations);
+        return new LegalAnswerResponse(answer, evidence, citations);
     }
 
     private List<RetrievedChunk> flatten(RetrievalContext context) {
@@ -108,16 +106,18 @@ public class LegalAnswerService {
                         JOIN t_knowledge_document d ON d.id = c.doc_id
                         WHERE c.id = ?
                         """, (rs, rowNum) -> new LegalEvidence(
+                        "evidence-pending",
                         rs.getString("doc_title"),
                         rs.getString("standard_no"),
                         rs.getString("clause_no"),
                         rs.getString("hierarchy_path"),
                         rs.getString("content_role"),
                         rs.getString("content"),
+                        chunk.getId(),
                         rs.getObject("page_start", Integer.class),
                         chunk.getScore(),
                         chunk.getRerankScore()), chunk.getId());
-                if (evidence != null && evidence.evidenceText() != null && !evidence.evidenceText().isBlank()) {
+                if (evidence != null && evidence.content() != null && !evidence.content().isBlank()) {
                     result.add(evidence);
                 }
             } catch (Exception ignored) {
@@ -128,13 +128,12 @@ public class LegalAnswerService {
     }
 
     private String buildGroundedPrompt(String question, List<LegalEvidence> evidence) {
-        String sources = java.util.stream.IntStream.range(0, evidence.size())
-                .mapToObj(i -> {
-                    LegalEvidence e = evidence.get(i);
-                    return "[E" + (i + 1) + "] 文档=" + safe(e.documentTitle())
+        String sources = evidence.stream()
+                .map(e -> {
+                    return "[" + e.evidenceId() + "] 文档=" + safe(e.documentTitle())
                             + "；标准=" + safe(e.standardNo())
                             + "；条款=" + safe(e.clauseNo())
-                            + "；证据=" + e.evidenceText();
+                            + "；证据=" + e.content();
                 }).collect(Collectors.joining("\n"));
         return "用户问题：" + question + "\n\nEvidence（唯一事实来源）：\n" + sources
                 + "\n\n请用中文简洁回答。只能陈述 Evidence 明确支持的内容；不能把证据外的常识当作法规要求。";
@@ -142,5 +141,21 @@ public class LegalAnswerService {
 
     private String safe(String value) {
         return value == null ? "" : value;
+    }
+
+    private List<LegalEvidence> withEvidenceIds(List<LegalEvidence> evidence) {
+        return java.util.stream.IntStream.range(0, evidence.size())
+                .mapToObj(i -> {
+                    LegalEvidence e = evidence.get(i);
+                    return new LegalEvidence("evidence-" + (i + 1), e.documentTitle(), e.standardNo(),
+                            e.clauseNo(), e.hierarchyPath(), e.contentRole(), e.content(), e.chunkId(),
+                            e.pageNo(), e.retrievalScore(), e.rerankScore());
+                })
+                .toList();
+    }
+
+    private String referenceText(LegalEvidence evidence) {
+        return "《" + safe(evidence.documentTitle()) + "》 "
+                + safe(evidence.standardNo()) + " " + safe(evidence.clauseNo());
     }
 }

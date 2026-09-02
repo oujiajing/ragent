@@ -20,6 +20,7 @@ package com.nageoffer.ai.ragent.rag.eval;
 import com.nageoffer.ai.ragent.framework.convention.RetrievedChunk;
 import com.nageoffer.ai.ragent.infra.rerank.RerankService;
 import com.nageoffer.ai.ragent.rag.core.keyword.KeywordRetrieverService;
+import com.nageoffer.ai.ragent.rag.config.SearchChannelProperties;
 import com.nageoffer.ai.ragent.rag.core.retrieval.RetrieveRequest;
 import com.nageoffer.ai.ragent.rag.core.vector.VectorRetrieverService;
 import lombok.RequiredArgsConstructor;
@@ -43,24 +44,25 @@ import java.util.Map;
 public class LegalRetrievalDebugController {
 
     private static final String COLLECTION = "legal_corpus_2b";
-    private static final int TOP_K = 20;
-
     private final VectorRetrieverService vectorRetriever;
     private final ObjectProvider<KeywordRetrieverService> keywordProvider;
     private final RerankService rerankService;
     private final JdbcTemplate jdbcTemplate;
+    private final SearchChannelProperties searchProperties;
 
     @GetMapping("/rag/eval/legal-debug")
     public Map<String, Object> debug(@RequestParam String question) {
+        int candidateTopK = searchProperties.resolveCandidateTopK();
+        int finalTopK = searchProperties.resolveFinalTopK();
         List<RetrievedChunk> vector = vectorRetriever.retrieve(RetrieveRequest.builder()
-                .query(question).topK(TOP_K).collectionName(COLLECTION).build());
+                .query(question).topK(candidateTopK).collectionName(COLLECTION).build());
         KeywordRetrieverService keywordRetriever = keywordProvider.getIfAvailable();
         List<RetrievedChunk> keyword = keywordRetriever == null
-                ? List.of() : keywordRetriever.search(question, List.of(COLLECTION), TOP_K);
+                ? List.of() : keywordRetriever.search(question, List.of(COLLECTION), candidateTopK);
         List<RetrievedChunk> hybrid = rrf(vector, keyword);
-        List<RetrievedChunk> rerankCandidates = new ArrayList<>(hybrid.subList(0, Math.min(TOP_K, hybrid.size())));
+        List<RetrievedChunk> rerankCandidates = new ArrayList<>(hybrid.subList(0, Math.min(candidateTopK, hybrid.size())));
         List<RetrievedChunk> reranked = rerankCandidates.isEmpty()
-                ? List.of() : rerankService.rerank(question, rerankCandidates, 5);
+                ? List.of() : rerankService.rerank(question, rerankCandidates, finalTopK);
         return Map.of(
                 "query", question,
                 "vector", enrich(vector),
@@ -75,14 +77,15 @@ public class LegalRetrievalDebugController {
         addRrf(vector, chunks, scores);
         addRrf(keyword, chunks, scores);
         chunks.forEach((id, chunk) -> chunk.setScore(scores.get(id)));
-        return chunks.values().stream().sorted(RetrievedChunk.BY_SCORE_DESC).limit(TOP_K).toList();
+        return chunks.values().stream().sorted(RetrievedChunk.BY_SCORE_DESC)
+                .limit(searchProperties.resolveCandidateTopK()).toList();
     }
 
     private void addRrf(List<RetrievedChunk> input, Map<String, RetrievedChunk> chunks, Map<String, Float> scores) {
         for (int i = 0; i < input.size(); i++) {
             RetrievedChunk chunk = input.get(i);
             chunks.putIfAbsent(chunk.getId(), chunk);
-            scores.merge(chunk.getId(), 1f / (60 + i + 1), Float::sum);
+            scores.merge(chunk.getId(), 1f / (searchProperties.getFusion().getRrfK() + i + 1), Float::sum);
         }
     }
 

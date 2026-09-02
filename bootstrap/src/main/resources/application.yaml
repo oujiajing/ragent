@@ -164,6 +164,10 @@ rag:
     # 检索漏斗三段预算，各自独立、单调收窄，启动时校验 recall-budget ≥ default-top-k 且 rerank-candidate-limit ≥ default-top-k
     default-top-k: 5            # ③ Phase 2B Legal MVP 最终返回条数
     recall-budget: 20           # ① 每通道召回条数（绝对值，向量意图路/关键词/图谱共用）；须 ≥ default-top-k，0=回退 default-top-k
+    retrieval:
+      candidate-top-k: 20       # Phase 2D evaluation candidate pool: 20 or 50
+    rerank:
+      final-top-k: 5             # Phase 2D evaluation final evidence count: 5 or 10
     # 检索作用域：本次请求该看哪些知识库，与用什么模态检索无关，故与 channels 平级、三条通道共读
     # 判定只看 KB 意图最高分，不看意图个数；关掉任一通道都不影响其余通道的作用域
     scope:

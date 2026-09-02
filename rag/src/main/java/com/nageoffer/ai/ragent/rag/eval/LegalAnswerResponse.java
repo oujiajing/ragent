@@ -22,11 +22,10 @@ import com.nageoffer.ai.ragent.legal.model.LegalEvidence;
 import java.util.List;
 
 public record LegalAnswerResponse(
-        String question,
         String answer,
         List<LegalEvidence> evidence,
         List<Citation> citations
 ) {
-    public record Citation(String document, String standardNo, String clauseNo, String evidence) {
+    public record Citation(String evidenceId, String referenceText) {
     }
 }
