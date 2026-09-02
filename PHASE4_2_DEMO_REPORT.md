@@ -1,77 +1,86 @@
 # Phase 4.2 Live Demo Report
 
-日期：2026-09-02  
-结论：**BLOCKED（Bean 歧义已修复；Chat 模型不可用；未产生业务写入）**
+日期：2026-09-03
+结论：**PASS**
 
 ## 1. 环境配置
 
-- Safe-team 仓库：`D:\1-project\Pingan_Banzu`
-- Safe-team profile：`local`
-- 既定端口 `18080`：被本机 Clash Verge 网络服务占用/拦截，当前会话停止服务时返回 `Access is denied`
-- 回退端口：`http://localhost:18081`
+- Safe-team：`http://localhost:18081`，profile=`local`
 - Safe-team PostgreSQL：`localhost:15433/pingan_banzu_verify`
-- ragent profile：`local`
-- ragent 目标地址：`http://localhost:19090/api/ragent`
-- `SAFE_TEAM_BASE_URL`：运行时注入 `http://127.0.0.1:18081`
-- `SAFE_TEAM_DEV_TOKEN`：通过真实登录动态获取，仅注入子进程环境，未打印、未写文件
-- `SAFE_TEAM_LIVE=true`
+- ragent：`http://localhost:19090/api/ragent`，profile=`local`
+- Ollama：`http://localhost:11434`
+- Chat 模型：`qwen3.5:4b`，Q4_K_M，GPU 推理
+- Embedding：既有 TEI/BGE-M3，端口 `18080`
+- `SAFE_TEAM_DEV_TOKEN`：通过 Safe-team `/api/auth/login` 动态获取，仅注入 ragent 子进程，未打印、未写文件
+
+18080 实际由 `tei-bge-m3` 容器使用，因此 Safe-team 按已确认回退方案运行在 18081。
 
 ## 2. 服务启动与 JWT 认证
 
-Safe-team 使用 `--server.port=18081` 启动成功，Actuator health 返回 `UP`。登录接口 `POST /api/auth/login` 使用 admin 本地测试账号成功返回 `accessToken`。
+Safe-team Actuator health 返回 `UP`，admin 登录成功并取得真实 JWT。ragent 启动时注入 `SAFE_TEAM_BASE_URL=http://127.0.0.1:18081`、JWT、`SAFE_TEAM_LIVE=true` 与 local profile。四个 Safe-team Tool 注册成功。
 
-- token 获取时间：2026-09-02 20:00:29 +08:00
-- 当前登录身份：admin
-- token 未记录明文
+Ollama `/v1/chat/completions` 使用 `reasoning_effort=none`，解决 Qwen3.5 reasoning 占满输出、`message.content` 为空的问题。
 
-## 3. ragent 启动结果
+## 3. 完整请求链路
 
-停止了占用旧 bootstrap JAR 的 public-cloud ragent PID 37660，随后重新打包成功。以 local profile、19090 端口及真实 Safe-team JWT 启动时，Spring Context 初始化失败：
+输入：`地下室临边没有设置防护栏杆`
+
+1. `POST /api/ragent/agent/hazard-assessment`：成功
+2. `GET /api/ragent/agent/hazard-assessment/{assessmentId}`：成功，持久化数据完整
+3. `POST /api/ragent/agent/hazard-assessment/{assessmentId}/confirm`：显式传入 companyId=4、departmentId=101109、teamId=1011001，成功创建 Safe-team 任务
+4. 再次调用 confirm：返回 `ALREADY_CREATED`，未重复创建
+
+## 4. Assessment 状态变化
+
+- assessmentId：`231af5ca-8e62-4411-a914-556ca4be505a`
+- riskLevel：`高`
+- Evidence：5 条
+- 初始状态：`CONFIRMATION_REQUIRED`
+- 确认后状态：`TASK_CREATED`
 
 ```text
-SafeTeamRectificationTaskCreator constructor parameter 0
-required a single SafeTeamToolExecutor bean, but 4 were found:
-searchRectificationOrders
-getRectificationOrder
-createRectificationOrder
-issueRectification
+CONFIRMATION_REQUIRED -> CONFIRMED -> TASK_CREATED
 ```
 
-经用户授权，已在 `SafeTeamRectificationTaskCreator` 构造参数上增加 `@Qualifier("createRectificationOrder")`，只消除上述 Bean 歧义。专项测试 4 项通过，ragent 随后以 local profile 在 19090 启动成功，四个 Safe-team Tool 注册成功。
+## 5. Safe-team 任务结果
 
-真实评估请求随后进入 Legal RAG，但 Chat 模型全部不可用：
+- taskId：`48`
+- taskStatus：`PENDING_ASSIGN`
+- Tool：`create_rectification_order`
+- 创建次数：1
 
-- 百炼：HTTP 400 `Arrearage`（账号欠费）
-- Ollama：本机 11434 未运行，且没有配置所需的 `qwen3:8b-fp16`
-- OpenAI-compatible 环境地址：TLS 主机名与证书不匹配
-- 证书覆盖的候选域名：HTTP 502
-- 标准 OpenAI 端点：当前两组环境 key 均返回 HTTP 401
+## 6. 幂等验证
 
-最终接口返回 `C000001: No Chat model candidates available`，未生成 Assessment。
+同一 assessmentId 第二次 confirm 返回：
 
-## 4. 完整请求链路
+```text
+status=ALREADY_CREATED
+taskId=48
+```
 
-请求执行结果：
+Safe-team 未创建重复任务。
 
-1. ragent `/auth/login`：成功，admin userId=`2001523723396308993`
-2. `POST /api/ragent/agent/hazard-assessment`：失败，`No Chat model candidates available`
-3. 因无 `assessmentId`，未执行 GET、confirm 和重复 confirm
+## 7. Agent Trace
 
-## 5. Assessment 状态与 Safe-team 任务结果
+最终 Trace 包含：
 
-- Assessment：未创建
-- Assessment 状态变化：未发生
-- Safe-team taskId：无
-- Safe-team taskStatus：无
-- Safe-team 业务写入：0 次
+1. `UNDERSTAND_HAZARD`
+2. `RETRIEVE_EVIDENCE`
+3. `GENERATE_SUGGESTION`
+4. `WAIT_CONFIRM`
+5. `TOOL_CALL`：调用 `create_rectification_order`
+6. `TASK_RESULT`：整改任务已创建，taskId=48
 
-## 6. 幂等验证与 Agent Trace
+## 8. 测试与修复
 
-由于 ragent 启动失败，未执行真实 confirm 幂等验证，也未获得真实 Trace。现有实现中的最终步骤名称为 `TOOL_CALL` 和 `TASK_RESULT`，与本阶段期望的 `CREATE_RECTIFICATION_TASK` 命名不一致；本轮遵守“不要修改代码”，未调整。
+- Ollama 请求体测试：9 项通过
+- Assessment/Safe-team 相关测试：18 项通过
+- PostgreSQL `Instant` 参数已显式转换为 JDBC `Timestamp`
+- Confirm API 新增显式组织归属参数，业务 ID 不由 LLM 生成或猜测
 
-## 7. 已知限制与恢复条件
+## 9. 已知限制
 
-1. 18080 需由管理员权限停止/调整 Clash Verge 服务，或继续使用已验证可用的 18081。
-2. `SafeTeamToolExecutor` Bean 注入歧义已完成最小修复。
-3. 必须恢复至少一个可用 Chat 模型后，才能生成 Assessment 并继续真实 confirm。
-4. Safe-team 18081、ragent 19090、PostgreSQL 和 MinIO 当前保持运行。
+1. Safe-team 端口使用 18081；18080 保留给 TEI Embedding。
+2. 本地 Qwen3.5 仅用于 Chat，Legal RAG 的 Embedding/检索架构未改变。
+3. Trace 当前最终步骤名为 `TOOL_CALL`、`TASK_RESULT`，尚未统一为 `CREATE_RECTIFICATION_TASK`。
+4. Confirm 的组织归属必须由调用方显式提供，Safe-team 继续负责权限、数据范围和业务状态校验。

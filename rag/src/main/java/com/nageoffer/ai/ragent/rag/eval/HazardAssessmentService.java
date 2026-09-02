@@ -46,7 +46,7 @@ public class HazardAssessmentService {
     private final RectificationTaskCreator taskCreator;
 
     public HazardAssessmentService(LegalAnswerService legalAnswerService, LLMService llmService, ObjectMapper objectMapper) {
-        this(legalAnswerService, llmService, objectMapper, new InMemoryHazardAssessmentRepository(), assessment -> new RectificationTaskCreator.TaskCreationResult(false, null, null, "未配置 Safe-team 执行器"));
+        this(legalAnswerService, llmService, objectMapper, new InMemoryHazardAssessmentRepository(), (assessment, context) -> new RectificationTaskCreator.TaskCreationResult(false, null, null, "未配置 Safe-team 执行器"));
     }
 
     @Autowired
@@ -85,6 +85,9 @@ public class HazardAssessmentService {
     public HazardAssessmentResult createAssessment(String hazardDescription) { return assess(hazardDescription); }
     public HazardAssessment get(String id) { return repository.find(id); }
     public ConfirmationResult confirm(String id) {
+        return confirm(id, new RectificationTaskCreator.TaskCreationContext(null, null, null));
+    }
+    public ConfirmationResult confirm(String id, RectificationTaskCreator.TaskCreationContext context) {
         HazardAssessment a = repository.find(id);
         if (a == null) return new ConfirmationResult("NOT_FOUND", null, "评估不存在");
         if (HazardAssessment.Status.TASK_CREATED.name().equals(a.status())) return new ConfirmationResult("ALREADY_CREATED", a.taskId(), null);
@@ -92,7 +95,7 @@ public class HazardAssessmentService {
         if (a.evidence() == null || a.evidence().isEmpty()) { repository.markFailed(id, "无 Evidence，禁止创建任务"); return new ConfirmationResult("FAILED", null, "无 Evidence，禁止创建任务"); }
         if (!repository.markConfirmed(id)) return new ConfirmationResult("ALREADY_CREATED", a.taskId(), null);
         HazardAssessment confirmed = repository.find(id);
-        RectificationTaskCreator.TaskCreationResult created = taskCreator.create(confirmed);
+        RectificationTaskCreator.TaskCreationResult created = taskCreator.create(confirmed, context);
         if (created.success()) {
             repository.markTaskCreated(id, created.taskId(), created.taskStatus());
             HazardAssessment latest = repository.find(id);

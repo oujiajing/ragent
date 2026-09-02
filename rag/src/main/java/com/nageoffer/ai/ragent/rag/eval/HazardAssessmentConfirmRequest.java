@@ -17,9 +17,4 @@
 
 package com.nageoffer.ai.ragent.rag.eval;
 
-public interface RectificationTaskCreator {
-    TaskCreationResult create(HazardAssessment assessment, TaskCreationContext context);
-
-    record TaskCreationContext(Long companyId, Long departmentId, Long teamId) {}
-    record TaskCreationResult(boolean success, String taskId, String taskStatus, String errorReason) {}
-}
+public record HazardAssessmentConfirmRequest(Long companyId, Long departmentId, Long teamId) {}

@@ -34,12 +34,12 @@ class HazardAssessmentConfirmationTest {
         when(legal.answer(any())).thenReturn(new LegalAnswerResponse("依据", List.of(e), List.of()));
         when(llm.chat(any())).thenReturn("{\"riskExplanation\":\"有风险\",\"suggestion\":[\"设置栏杆\"],\"acceptanceCriteria\":[\"牢固\"]}");
         HazardAssessmentRepository repo = new InMemoryHazardAssessmentRepository(); RectificationTaskCreator creator = mock(RectificationTaskCreator.class);
-        when(creator.create(any())).thenReturn(new RectificationTaskCreator.TaskCreationResult(true, "T1", "CREATED", null));
+        when(creator.create(any(), any())).thenReturn(new RectificationTaskCreator.TaskCreationResult(true, "T1", "CREATED", null));
         HazardAssessmentService service = new HazardAssessmentService(legal, llm, new ObjectMapper(), repo, creator);
         HazardAssessmentResult result = service.assess("地下室临边无栏杆");
         assertThat(service.confirm(result.assessmentId()).status()).isEqualTo("TASK_CREATED");
         assertThat(service.confirm(result.assessmentId()).status()).isEqualTo("ALREADY_CREATED");
-        verify(creator, times(1)).create(any());
+        verify(creator, times(1)).create(any(), any());
     }
 
     @Test void missingEvidenceCannotCreateTask() {

@@ -43,7 +43,13 @@ public class HazardAssessmentController {
     public HazardAssessment detail(@PathVariable String assessmentId) { return service.get(assessmentId); }
 
     @PostMapping("/agent/hazard-assessment/{assessmentId}/confirm")
-    public HazardAssessmentService.ConfirmationResult confirm(@PathVariable String assessmentId) { return service.confirm(assessmentId); }
+    public HazardAssessmentService.ConfirmationResult confirm(
+            @PathVariable String assessmentId,
+            @RequestBody(required = false) HazardAssessmentConfirmRequest body) {
+        if (body == null) return service.confirm(assessmentId);
+        return service.confirm(assessmentId,
+                new RectificationTaskCreator.TaskCreationContext(body.companyId(), body.departmentId(), body.teamId()));
+    }
 
     @GetMapping("/agent/hazard-assessment")
     public HazardAssessmentResult assessByQuery(@RequestParam String hazardDescription) {

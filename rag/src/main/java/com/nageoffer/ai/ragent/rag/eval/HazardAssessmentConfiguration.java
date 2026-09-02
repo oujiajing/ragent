@@ -26,6 +26,6 @@ public class HazardAssessmentConfiguration {
     @Bean
     @ConditionalOnMissingBean(RectificationTaskCreator.class)
     RectificationTaskCreator unavailableTaskCreator() {
-        return assessment -> new RectificationTaskCreator.TaskCreationResult(false, null, null, "Safe-team 执行器未启用");
+        return (assessment, context) -> new RectificationTaskCreator.TaskCreationResult(false, null, null, "Safe-team 执行器未启用");
     }
 }

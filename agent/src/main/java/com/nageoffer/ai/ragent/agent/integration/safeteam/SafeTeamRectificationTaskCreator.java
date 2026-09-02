@@ -40,8 +40,12 @@ public class SafeTeamRectificationTaskCreator implements RectificationTaskCreato
         this.executor = executor;
         this.mapper = mapper;
     }
-    @Override public TaskCreationResult create(HazardAssessment a) {
-        Map<String,Object> params = Map.of("businessDate", LocalDate.now(), "items", List.of(Map.of(
+    @Override public TaskCreationResult create(HazardAssessment a, TaskCreationContext context) {
+        if (context.companyId() == null) return new TaskCreationResult(false, null, null, "公司不能为空");
+        if (context.departmentId() == null) return new TaskCreationResult(false, null, null, "部门不能为空");
+        if (context.teamId() == null) return new TaskCreationResult(false, null, null, "班组不能为空");
+        Map<String,Object> params = Map.of("companyId", context.companyId(), "departmentId", context.departmentId(),
+                "teamId", context.teamId(), "businessDate", LocalDate.now(), "items", List.of(Map.of(
                 "riskType", a.category(), "checkItem", a.riskSummary(), "hazardDescription", a.hazardDescription(),
                 "defaultFollowUpPlan", String.join("；", a.rectificationSuggestions()))));
         CallToolResult result = executor.executeForDevelopment(params);

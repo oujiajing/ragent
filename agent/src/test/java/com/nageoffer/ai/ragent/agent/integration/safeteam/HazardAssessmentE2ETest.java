@@ -51,7 +51,7 @@ class HazardAssessmentE2ETest {
             when(legal.answer(any())).thenReturn(new LegalAnswerResponse("栏杆依据[e1]", List.of(new LegalEvidence("e1", "规范", "GB-1", "1", null, "CLAUSE", "应设置栏杆", "c", 1, .9F, .9F)), List.of()));
             when(llm.chat(any())).thenReturn("{\"riskExplanation\":\"有坠落风险\",\"suggestion\":[\"设置栏杆\"],\"acceptanceCriteria\":[\"牢固连续\"]}");
             server.enqueue(new MockResponse.Builder().code(200).setHeader("Content-Type", "application/json").body("{\"code\":0,\"data\":{\"id\":\"T-E2E\",\"status\":\"CREATED\"},\"message\":\"ok\"}").build());
-            RectificationTaskCreator creator = a -> { var result = tool.executeForDevelopment(Map.of("businessDate", LocalDate.now(), "items", List.of(Map.of("hazardDescription", a.hazardDescription())))); return new RectificationTaskCreator.TaskCreationResult(!result.isError(), "T-E2E", "CREATED", null); };
+            RectificationTaskCreator creator = (a, context) -> { var result = tool.executeForDevelopment(Map.of("businessDate", LocalDate.now(), "items", List.of(Map.of("hazardDescription", a.hazardDescription())))); return new RectificationTaskCreator.TaskCreationResult(!result.isError(), "T-E2E", "CREATED", null); };
             HazardAssessmentService service = new HazardAssessmentService(legal, llm, mapper, new InMemoryHazardAssessmentRepository(), creator);
             HazardAssessmentResult assessment = service.assess("地下室临边没有设置防护栏杆");
             assertThat(assessment.assessmentId()).isNotBlank(); assertThat(service.confirm(assessment.assessmentId()).status()).isEqualTo("TASK_CREATED");
