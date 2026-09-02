@@ -81,9 +81,12 @@ class ChatRequestThinkingParamTest {
     }
 
     @Test
-    void ollamaShouldNeverCarryThinkingFlag() {
+    void ollamaShouldDisableThinkingWithoutDashscopeFlag() {
         assertFalse(buildBody(new OllamaChatClient(), Boolean.TRUE).has(FIELD));
         assertFalse(buildBody(new OllamaChatClient(), Boolean.FALSE).has(FIELD));
+        JsonObject body = buildBody(new OllamaChatClient(), Boolean.TRUE);
+        assertTrue(body.has("think"));
+        assertFalse(body.get("think").getAsBoolean());
     }
 
     /**

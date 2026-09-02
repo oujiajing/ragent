@@ -17,6 +17,7 @@
 
 package com.nageoffer.ai.ragent.infra.chat;
 
+import com.google.gson.JsonObject;
 import com.nageoffer.ai.ragent.framework.convention.ChatRequest;
 import com.nageoffer.ai.ragent.framework.trace.RagTraceNode;
 import com.nageoffer.ai.ragent.infra.enums.ModelProvider;
@@ -36,6 +37,11 @@ public class OllamaChatClient extends AbstractOpenAIStyleChatClient {
     @Override
     protected boolean requiresApiKey() {
         return false;
+    }
+
+    @Override
+    protected void customizeRequestBody(JsonObject body, ChatRequest request) {
+        body.addProperty("think", false);
     }
 
     @Override
