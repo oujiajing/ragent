@@ -16,6 +16,9 @@ ALTER TABLE t_knowledge_document ADD COLUMN IF NOT EXISTS quality_status VARCHAR
 
 CREATE INDEX IF NOT EXISTS idx_knowledge_document_standard_no ON t_knowledge_document (standard_no);
 CREATE INDEX IF NOT EXISTS idx_knowledge_document_file_hash ON t_knowledge_document (kb_id, file_hash);
+CREATE UNIQUE INDEX IF NOT EXISTS uk_legal_document_hash_parser
+    ON t_knowledge_document (kb_id, file_hash, parser_version)
+    WHERE file_hash IS NOT NULL AND parser_version IS NOT NULL AND deleted = 0;
 
 ALTER TABLE t_knowledge_chunk ADD COLUMN IF NOT EXISTS parent_clause_id VARCHAR(64);
 ALTER TABLE t_knowledge_chunk ADD COLUMN IF NOT EXISTS chunk_type VARCHAR(32);
@@ -30,10 +33,17 @@ ALTER TABLE t_knowledge_chunk ADD COLUMN IF NOT EXISTS content_role VARCHAR(32);
 ALTER TABLE t_knowledge_chunk ADD COLUMN IF NOT EXISTS page_start INTEGER;
 ALTER TABLE t_knowledge_chunk ADD COLUMN IF NOT EXISTS page_end INTEGER;
 ALTER TABLE t_knowledge_chunk ADD COLUMN IF NOT EXISTS metadata JSONB;
+ALTER TABLE t_knowledge_chunk ADD COLUMN IF NOT EXISTS index_eligible BOOLEAN NOT NULL DEFAULT TRUE;
+ALTER TABLE t_knowledge_chunk ADD COLUMN IF NOT EXISTS duplicate_of_clause_id VARCHAR(64);
 
 CREATE INDEX IF NOT EXISTS idx_knowledge_chunk_parent_clause ON t_knowledge_chunk (parent_clause_id);
 CREATE INDEX IF NOT EXISTS idx_knowledge_chunk_clause_role ON t_knowledge_chunk (doc_id, clause_no, content_role);
 CREATE INDEX IF NOT EXISTS idx_knowledge_chunk_metadata ON t_knowledge_chunk USING gin(metadata);
+CREATE INDEX IF NOT EXISTS idx_knowledge_chunk_index_eligible ON t_knowledge_chunk (index_eligible);
+
+ALTER TABLE t_legal_clause ADD COLUMN IF NOT EXISTS provenance JSONB;
+ALTER TABLE t_legal_clause ADD COLUMN IF NOT EXISTS index_eligible BOOLEAN NOT NULL DEFAULT TRUE;
+ALTER TABLE t_legal_clause ADD COLUMN IF NOT EXISTS duplicate_of_clause_id VARCHAR(64);
 
 CREATE TABLE IF NOT EXISTS t_legal_document_element (
     id               VARCHAR(64)  NOT NULL PRIMARY KEY,
@@ -69,10 +79,14 @@ CREATE TABLE IF NOT EXISTS t_legal_clause (
     last_element_id    VARCHAR(64)  NOT NULL,
     page_start         INTEGER,
     page_end           INTEGER,
+    provenance         JSONB,
+    index_eligible     BOOLEAN      NOT NULL DEFAULT TRUE,
+    duplicate_of_clause_id VARCHAR(64),
     create_time        TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 CREATE INDEX IF NOT EXISTS idx_legal_clause_document ON t_legal_clause (document_id);
 CREATE INDEX IF NOT EXISTS idx_legal_clause_number_role ON t_legal_clause (document_id, clause_no, content_role);
+CREATE INDEX IF NOT EXISTS idx_legal_clause_index_eligible ON t_legal_clause (index_eligible);
 
 CREATE TABLE IF NOT EXISTS t_legal_quality_report (
     id                           VARCHAR(20)  NOT NULL PRIMARY KEY,
@@ -116,4 +130,3 @@ CREATE TABLE IF NOT EXISTS t_legal_table (
     create_time      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 CREATE INDEX IF NOT EXISTS idx_legal_table_document ON t_legal_table (document_id);
-

@@ -1,0 +1,203 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.nageoffer.ai.ragent.legal.persistence;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nageoffer.ai.ragent.legal.ingest.CleanedTextImportMode;
+import com.nageoffer.ai.ragent.legal.ingest.CleanedTextImporter;
+import com.nageoffer.ai.ragent.legal.model.CleanedTextImportResult;
+import com.nageoffer.ai.ragent.legal.model.LegalChunk;
+import com.nageoffer.ai.ragent.legal.model.LegalClause;
+import com.nageoffer.ai.ragent.legal.model.LegalDocumentElement;
+import com.nageoffer.ai.ragent.legal.model.LegalDocumentMetadata;
+import lombok.RequiredArgsConstructor;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+/** Formal, deterministic persistence for the legal corpus. Indexing is intentionally a later phase. */
+@Service
+@RequiredArgsConstructor
+public class LegalCorpusPersistenceService {
+
+    public static final String KB_ID = "legal-corpus-2b";
+    public static final String COLLECTION = "legal_corpus_2b";
+    private static final String ACTOR = "phase2b";
+
+    private final JdbcTemplate jdbcTemplate;
+    private final ObjectMapper objectMapper;
+    private final CleanedTextImporter importer;
+
+    @Transactional
+    public LegalPersistenceResult importText(String sourceFile, byte[] rawBytes) {
+        CleanedTextImportResult result = importer.importText(
+                documentIdFor(rawBytes), sourceFile, rawBytes, CleanedTextImportMode.FORMAL);
+        LegalDocumentMetadata metadata = result.document().metadata();
+        String existing = findImported(metadata.fileHash(), metadata.parserVersion());
+        if (existing != null) {
+            return new LegalPersistenceResult(existing, "ALREADY_IMPORTED", 0, 0, 0);
+        }
+        ensureKnowledgeBase();
+        persistDocument(metadata, result);
+        return new LegalPersistenceResult(metadata.documentId(), "IMPORTED",
+                result.document().elements().size(), result.document().clauses().size(), result.chunks().size());
+    }
+
+    private String findImported(String fileHash, String parserVersion) {
+        List<String> ids = jdbcTemplate.query(
+                "SELECT id FROM t_knowledge_document WHERE kb_id = ? AND file_hash = ? AND parser_version = ? AND deleted = 0 LIMIT 1",
+                (rs, rowNum) -> rs.getString(1), KB_ID, fileHash, parserVersion);
+        return ids.isEmpty() ? null : ids.get(0);
+    }
+
+    private void ensureKnowledgeBase() {
+        jdbcTemplate.update("""
+                INSERT INTO t_knowledge_base (id, name, embedding_model, collection_name, created_by, updated_by)
+                VALUES (?, ?, ?, ?, ?, ?)
+                ON CONFLICT (id) DO NOTHING
+                """, KB_ID, "施工安全法规 Phase 2B", "qwen-emb-8b", COLLECTION, ACTOR, ACTOR);
+    }
+
+    private void persistDocument(LegalDocumentMetadata metadata, CleanedTextImportResult result) {
+        jdbcTemplate.update("""
+                INSERT INTO t_knowledge_document
+                (id, kb_id, doc_name, enabled, chunk_count, file_url, file_type, mime_type, file_size,
+                 process_mode, status, source_type, source_location, doc_title, doc_type, standard_no,
+                 issuing_authority, publish_date, effective_date, source_format, file_hash, parser_version,
+                 ingestion_stage, ingestion_run_id, quality_status, created_by, updated_by)
+                VALUES (?, ?, ?, 1, ?, ?, 'txt', 'text/plain', ?, 'chunk', 'success', 'legal', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'PERSISTED', ?, ?, ?, ?)
+                """, metadata.documentId(), KB_ID, metadata.sourceFile(), result.chunks().size(),
+                metadata.sourceFile(), result.canonicalSourceText().getBytes(java.nio.charset.StandardCharsets.UTF_8).length,
+                metadata.sourceFile(), metadata.docTitle(), metadata.docType(), metadata.standardNo(),
+                metadata.issuingAuthority(), metadata.publishDate(), metadata.effectiveDate(), metadata.sourceFormat().name(),
+                metadata.fileHash(), metadata.parserVersion(), metadata.fileHash().substring(0, 32),
+                result.qualityReport().qualityStatus().name(), ACTOR, ACTOR);
+
+        persistElements(metadata.documentId(), result.document().elements());
+        List<LegalClause> clauses = markDuplicates(result.document().clauses());
+        persistClauses(clauses);
+        persistQuality(result);
+        persistChunks(metadata.documentId(), result.chunks(), clauses);
+    }
+
+    private void persistElements(String documentId, List<LegalDocumentElement> elements) {
+        jdbcTemplate.batchUpdate("""
+                INSERT INTO t_legal_document_element
+                (id, document_id, element_index, raw_text, normalized_text, structure_type, content_role,
+                 canonical_number, page_start, page_end)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """, elements, elements.size(), (ps, e) -> {
+            ps.setString(1, e.elementId()); ps.setString(2, documentId); ps.setInt(3, e.elementIndex());
+            ps.setString(4, e.rawText()); ps.setString(5, e.normalizedText()); ps.setString(6, e.structureType().name());
+            ps.setString(7, e.contentRole().name()); ps.setString(8, e.canonicalNumber());
+            ps.setObject(9, e.pageStart()); ps.setObject(10, e.pageEnd());
+        });
+    }
+
+    private List<LegalClause> markDuplicates(List<LegalClause> clauses) {
+        Map<String, LegalClause> canonical = new LinkedHashMap<>();
+        List<LegalClause> result = new ArrayList<>(clauses.size());
+        for (LegalClause clause : clauses) {
+            String key = clause.contentRole().name() + "\u0000" + clause.clauseNo() + "\u0000" + clause.normalizedText();
+            LegalClause first = canonical.putIfAbsent(key, clause);
+            result.add(first == null ? clause : clause);
+        }
+        return result;
+    }
+
+    private void persistClauses(List<LegalClause> clauses) {
+        Map<String, LegalClause> canonical = new LinkedHashMap<>();
+        jdbcTemplate.batchUpdate("""
+                INSERT INTO t_legal_clause
+                (id, document_id, content_role, structure_type, chapter_no, chapter_title, section_no, section_title,
+                 clause_no, hierarchy_path, raw_text, normalized_text, children_json, first_element_id, last_element_id,
+                 page_start, page_end, provenance, index_eligible, duplicate_of_clause_id)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?::jsonb, ?, ?, ?, ?, ?::jsonb, ?, ?)
+                """, clauses, clauses.size(), (ps, c) -> {
+            String key = c.contentRole().name() + "\u0000" + c.clauseNo() + "\u0000" + c.normalizedText();
+            LegalClause first = canonical.putIfAbsent(key, c);
+            ps.setString(1, c.clauseId()); ps.setString(2, c.documentId()); ps.setString(3, c.contentRole().name());
+            ps.setString(4, c.structureType().name()); ps.setString(5, c.chapterNo()); ps.setString(6, c.chapterTitle());
+            ps.setString(7, c.sectionNo()); ps.setString(8, c.sectionTitle()); ps.setString(9, c.clauseNo());
+            ps.setString(10, c.hierarchyPath()); ps.setString(11, c.rawText()); ps.setString(12, c.normalizedText());
+            ps.setString(13, json(c.children())); ps.setString(14, c.firstElementId());
+            ps.setString(15, c.lastElementId()); ps.setObject(16, c.pageStart()); ps.setObject(17, c.pageEnd());
+            ps.setString(18, json(Map.of("start", c.sourceStartOffset(), "end", c.sourceEndOffset())));
+            ps.setBoolean(19, first == null); ps.setString(20, first == null ? null : first.clauseId());
+        });
+    }
+
+    private void persistQuality(CleanedTextImportResult result) {
+        var q = result.qualityReport();
+        jdbcTemplate.update("""
+                INSERT INTO t_legal_quality_report
+                (id, document_id, page_count, table_count, parsed_text_length, chapter_count, section_count,
+                 clause_count, normative_clause_count, commentary_clause_count, supplementary_count, appendix_count,
+                 unknown_role_count, unstructured_paragraph_count, duplicate_clause_count, chunk_count,
+                 oversized_chunk_count, empty_chunk_count, quality_status, warnings)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?::jsonb)
+                """, com.nageoffer.ai.ragent.legal.util.LegalHashes.shortHash(q.documentId() + ":quality"), q.documentId(),
+                q.pageCount(), q.tableCount(), q.parsedTextLength(), q.chapterCount(), q.sectionCount(), q.clauseCount(),
+                q.normativeClauseCount(), q.commentaryClauseCount(), q.supplementaryCount(), q.appendixCount(), q.unknownRoleCount(),
+                q.unstructuredParagraphCount(), q.duplicateClauseCount(), q.chunkCount(), q.oversizedChunkCount(), q.emptyChunkCount(),
+                q.qualityStatus().name(), objectMapper.valueToTree(q.warnings()).toString());
+    }
+
+    private void persistChunks(String documentId, List<LegalChunk> chunks, List<LegalClause> clauses) {
+        Map<String, LegalClause> byId = clauses.stream().collect(java.util.stream.Collectors.toMap(LegalClause::clauseId, c -> c));
+        Map<String, String> duplicateByClauseId = new LinkedHashMap<>();
+        Map<String, String> canonicalByKey = new LinkedHashMap<>();
+        for (LegalClause clause : clauses) {
+            String key = clause.contentRole().name() + "\u0000" + clause.clauseNo() + "\u0000" + clause.normalizedText();
+            String canonical = canonicalByKey.putIfAbsent(key, clause.clauseId());
+            if (canonical != null) duplicateByClauseId.put(clause.clauseId(), canonical);
+        }
+        jdbcTemplate.batchUpdate("""
+                INSERT INTO t_knowledge_chunk
+                (id, kb_id, doc_id, chunk_index, content, content_hash, char_count, token_count, embedding_text,
+                 parent_clause_id, chunk_type, chapter_no, chapter_title, section_no, section_title, clause_no,
+                 hierarchy_path, child_range, content_role, page_start, page_end, metadata, index_eligible, duplicate_of_clause_id,
+                 enabled, created_by, updated_by)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?::jsonb, ?, ?, 1, ?, ?)
+                """, chunks, chunks.size(), (ps, c) -> {
+            var m = c.metadata(); LegalClause clause = byId.get(m.parentClauseId());
+            boolean eligible = clause == null || !duplicateByClauseId.containsKey(clause.clauseId());
+            String duplicateOf = clause == null ? null : duplicateByClauseId.get(clause.clauseId());
+            ps.setString(1, c.chunkId()); ps.setString(2, KB_ID); ps.setString(3, documentId); ps.setInt(4, c.chunkIndex());
+            ps.setString(5, c.content()); ps.setString(6, com.nageoffer.ai.ragent.legal.util.LegalHashes.sha256(c.content().getBytes(java.nio.charset.StandardCharsets.UTF_8)));
+            ps.setInt(7, c.content().length()); ps.setInt(8, c.tokenCount()); ps.setString(9, c.content()); ps.setString(10, m.parentClauseId());
+            ps.setString(11, m.chunkType().name()); ps.setString(12, m.chapterNo()); ps.setString(13, m.chapterTitle()); ps.setString(14, m.sectionNo());
+            ps.setString(15, m.sectionTitle()); ps.setString(16, m.clauseNo()); ps.setString(17, m.hierarchyPath()); ps.setString(18, m.childRange());
+            ps.setString(19, m.contentRole().name()); ps.setObject(20, m.pageStart()); ps.setObject(21, m.pageEnd());
+            ps.setString(22, json(m.toMap())); ps.setBoolean(23, eligible); ps.setString(24, duplicateOf);
+            ps.setString(25, ACTOR); ps.setString(26, ACTOR);
+        });
+    }
+
+    private String documentIdFor(byte[] bytes) { return "leg" + com.nageoffer.ai.ragent.legal.util.LegalHashes.sha256(bytes).substring(0, 17); }
+
+    private String json(Object value) {
+        try { return objectMapper.writeValueAsString(value); }
+        catch (Exception e) { throw new IllegalStateException("Legal metadata JSON 序列化失败", e); }
+    }
+}

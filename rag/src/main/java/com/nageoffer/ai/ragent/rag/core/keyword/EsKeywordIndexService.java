@@ -227,6 +227,7 @@ public class EsKeywordIndexService implements KeywordIndexService {
         doc.put("collection_name", collectionName);
         doc.put("doc_id", docId);
         doc.put("chunk_index", chunk.index());
+        doc.putAll(chunk.metadata().toMap());
         return doc;
     }
 

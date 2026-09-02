@@ -117,6 +117,10 @@ public class KnowledgeChunkDO {
     @TableField(typeHandler = JsonbTypeHandler.class)
     private String metadata;
 
+    private Boolean indexEligible;
+
+    private String duplicateOfClauseId;
+
     /**
      * 是否启用 0：禁用 1：启用
      */

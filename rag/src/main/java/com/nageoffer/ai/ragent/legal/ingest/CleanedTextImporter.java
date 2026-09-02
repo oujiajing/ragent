@@ -63,9 +63,7 @@ public class CleanedTextImporter {
                                               String sourceFile,
                                               byte[] rawBytes,
                                               CleanedTextImportMode mode) {
-        if (mode != CleanedTextImportMode.DRY_RUN) {
-            throw new IllegalArgumentException("Phase 2A-1 只支持 DRY_RUN");
-        }
+        if (mode == null) throw new IllegalArgumentException("导入模式不能为空");
         if (rawBytes == null || rawBytes.length == 0) {
             throw new IllegalArgumentException("TXT bytes 不能为空");
         }

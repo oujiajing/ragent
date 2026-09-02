@@ -162,7 +162,7 @@ rag:
 
   search:
     # 检索漏斗三段预算，各自独立、单调收窄，启动时校验 recall-budget ≥ default-top-k 且 rerank-candidate-limit ≥ default-top-k
-    default-top-k: 10           # ③ 最终进 LLM 的条数（产品语义的 topK）
+    default-top-k: 5            # ③ Phase 2B Legal MVP 最终返回条数
     recall-budget: 20           # ① 每通道召回条数（绝对值，向量意图路/关键词/图谱共用）；须 ≥ default-top-k，0=回退 default-top-k
     # 检索作用域：本次请求该看哪些知识库，与用什么模态检索无关，故与 channels 平级、三条通道共读
     # 判定只看 KB 意图最高分，不看意图个数；关掉任一通道都不影响其余通道的作用域
@@ -186,7 +186,7 @@ rag:
     fusion:
       strategy: rrf
       rrf-k: 20                   # 候选池通常仅 20~40 条，k=60 会过度平滑名次；调低至 20 让头部更有区分度（配合「检索归因」日志校准）
-      rerank-candidate-limit: 40  # ② RRF 融合后送入 Rerank 的候选池上限，<=0 不截断（经验值 40~100）
+      rerank-candidate-limit: 20  # ② Phase 2B Legal MVP RRF Top20 -> Rerank
       channel-weights:
         vector: 1.0
         keyword: 1.0

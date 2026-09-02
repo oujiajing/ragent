@@ -55,5 +55,9 @@ public class LegalClauseDO {
     private String lastElementId;
     private Integer pageStart;
     private Integer pageEnd;
+    @TableField(typeHandler = JsonbTypeHandler.class)
+    private String provenance;
+    private Boolean indexEligible;
+    private String duplicateOfClauseId;
     private Date createTime;
 }

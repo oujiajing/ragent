@@ -15,9 +15,7 @@
  * limitations under the License.
  */
 
-package com.nageoffer.ai.ragent.legal.ingest;
+package com.nageoffer.ai.ragent.legal.persistence;
 
-public enum CleanedTextImportMode {
-    DRY_RUN,
-    FORMAL
+public record LegalPersistenceResult(String documentId, String status, int elementCount, int clauseCount, int chunkCount) {
 }
