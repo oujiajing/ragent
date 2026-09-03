@@ -79,11 +79,12 @@ public class LegalQualityService {
             warnings.add(String.format("UNKNOWN contentRole 比例 %.2f%% 超过阈值", unknownRatio * 100));
         }
         if (warnings.stream().anyMatch(w -> w.contains("冲突"))) review = true;
+        if (warnings.stream().anyMatch(w -> w.startsWith("PDF_"))) review = true;
 
         LegalQualityStatus status = failed ? LegalQualityStatus.FAILED
                 : review ? LegalQualityStatus.REVIEW : LegalQualityStatus.PASS;
         return new LegalQualityReport(
-                document.metadata().documentId(), null, 0,
+                document.metadata().documentId(), null, countType(document.elements(), LegalStructureType.TABLE),
                 parsedTextLength, chapterCount, sectionCount, document.clauses().size(),
                 normative, commentary, supplementary, appendix, unknown, unstructured,
                 duplicates, chunks.size(), oversized, empty, status, warnings);

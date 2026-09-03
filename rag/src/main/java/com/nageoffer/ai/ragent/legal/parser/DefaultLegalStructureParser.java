@@ -19,6 +19,7 @@ package com.nageoffer.ai.ragent.legal.parser;
 
 import com.nageoffer.ai.ragent.legal.enums.LegalContentRole;
 import com.nageoffer.ai.ragent.legal.enums.LegalStructureType;
+import com.nageoffer.ai.ragent.legal.enums.LegalSourceFormat;
 import com.nageoffer.ai.ragent.legal.model.LegalClause;
 import com.nageoffer.ai.ragent.legal.model.LegalDocumentElement;
 import com.nageoffer.ai.ragent.legal.model.LegalDocumentMetadata;
@@ -50,12 +51,14 @@ public class DefaultLegalStructureParser implements LegalStructureParser {
     private static final Pattern COMMENTARY_HEADING = Pattern.compile("^(条文说明|条文解释)$");
     private static final Pattern SUPPLEMENTARY_HEADING = Pattern.compile("^本(?:标准|规范|规程)用词说明$");
     private static final Pattern SENTENCE_PUNCTUATION = Pattern.compile("[。！？；;:]$");
+    private static final Pattern PDF_CHAPTER = Pattern.compile("^(\\d{1,2})\\s*([\\p{IsHan}].*)$");
+    private static final Pattern PDF_REFERENCE = Pattern.compile("^第?\\s*(?:[A-Za-z]\\.)?\\d+(?:\\.\\d+)+\\s*条.*$");
 
     @Override
     public NormalizedLegalDocument parse(LegalDocumentMetadata metadata,
                                          List<LegalDocumentElement> elements,
                                          List<String> initialWarnings) {
-        ParseState state = new ParseState(metadata, initialWarnings);
+        ParseState state = new ParseState(metadata, initialWarnings, elements);
         for (LegalDocumentElement element : elements) parseOne(state, element);
         state.flushClause();
         return new NormalizedLegalDocument(
@@ -68,6 +71,8 @@ public class DefaultLegalStructureParser implements LegalStructureParser {
 
     private void parseOne(ParseState state, LegalDocumentElement element) {
         String line = element.normalizedText().strip();
+        if (state.pdfBlocks && element.structureType() != LegalStructureType.UNKNOWN
+                && parsePdfBlock(state, element, line)) return;
 
         if (SUPPLEMENTARY_HEADING.matcher(line).matches()) {
             state.flushClause();
@@ -220,6 +225,90 @@ public class DefaultLegalStructureParser implements LegalStructureParser {
         }
     }
 
+    /** PDF elements represent independent MinerU Blocks, not individual soft-wrapped lines. */
+    private boolean parsePdfBlock(ParseState state, LegalDocumentElement element, String line) {
+        if (element.contentRole() == LegalContentRole.NORMATIVE) state.enterNormativeIfFrontMatter();
+        if (element.structureType() == LegalStructureType.TABLE || element.structureType() == LegalStructureType.ITEM) {
+            state.pdfContent(element, element.structureType(), line);
+            return true;
+        }
+        if (PDF_REFERENCE.matcher(line).matches()) {
+            state.pdfContent(element, LegalStructureType.PARAGRAPH, line);
+            return true;
+        }
+        boolean heading = element.structureType() == LegalStructureType.SOURCE_HEADING;
+        Matcher chapter = PDF_CHAPTER.matcher(line);
+        if (heading && chapter.matches() && !SENTENCE_PUNCTUATION.matcher(chapter.group(2)).find()
+                && !containsNormativeVerb(chapter.group(2))) {
+            int number = Integer.parseInt(chapter.group(1));
+            if (state.chapterNo == null || !state.chapterNo.matches("\\d+")
+                    || number >= Integer.parseInt(state.chapterNo)
+                    && (number <= Integer.parseInt(state.chapterNo) + 1 || state.hasChapterEvidence(element, chapter.group(1)))) {
+                state.flushClause();
+                state.enterNormativeForStructuralBoundary();
+                state.chapterNo = chapter.group(1);
+                state.chapterTitle = chapter.group(2).strip();
+                state.sectionNo = null;
+                state.sectionTitle = null;
+                state.add(element, LegalStructureType.CHAPTER, state.regionRole, state.chapterNo);
+                return true;
+            }
+            state.warnings.add("PDF_HEADING_NUMBER_UNCERTAIN: " + line);
+            state.pdfContent(element, LegalStructureType.PARAGRAPH, line);
+            return true;
+        }
+        Matcher range = DECIMAL_RANGE.matcher(line);
+        Matcher decimal = DECIMAL.matcher(line);
+        if (range.matches() || decimal.matches()) {
+            boolean ranged = range.matches();
+            String number = LegalNumberNormalizer.canonical(ranged ? range.group(1) : decimal.group(1));
+            String body = (ranged ? range.group(4) : decimal.group(2)).strip();
+            String end = ranged ? LegalNumberNormalizer.canonical(range.group(3)) : number;
+            if (body.isBlank() || body.startsWith("条") || !state.legalPdfNumber(number) || !state.legalPdfNumber(end)) {
+                state.warnings.add("PDF_NUMBER_NOT_A_NEW_CLAUSE: " + line);
+                state.pdfContent(element, LegalStructureType.PARAGRAPH, line);
+                return true;
+            }
+            int levels = number.split("\\.").length;
+            if (heading && levels == 2 && looksLikeHeading(body)) {
+                state.flushClause();
+                state.enterNormativeForStructuralBoundary();
+                if (state.chapterNo == null) state.chapterNo = number.split("\\.")[0];
+                state.sectionNo = number;
+                state.sectionTitle = body;
+                state.add(element, LegalStructureType.SECTION, state.regionRole, number);
+            } else {
+                if (state.chapterNo == null) state.chapterNo = number.split("\\.")[0];
+                state.startClause(element, ranged ? number + "~" + end : number,
+                        levels >= 4 ? LegalStructureType.SUBCLAUSE : LegalStructureType.CLAUSE, body);
+            }
+            return true;
+        }
+        Matcher article = LAW_ARTICLE.matcher(line);
+        if (article.matches()) {
+            if (article.group(2).isBlank()) {
+                state.pdfContent(element, LegalStructureType.PARAGRAPH, line);
+                return true;
+            }
+            return false; // Existing Chinese legal article handling.
+        }
+        if (LAW_CHAPTER.matcher(line).matches() || LAW_SECTION.matcher(line).matches()
+                || COMMENTARY_HEADING.matcher(line).matches() || SUPPLEMENTARY_HEADING.matcher(line).matches()
+                || APPENDIX.matcher(line).matches()) return false;
+
+        if (heading && state.currentClause != null && state.currentClause.type != LegalStructureType.PARAGRAPH) {
+            // OCR-damaged headings cannot silently borrow the previous legal clause number.
+            state.flushClause();
+        }
+        Matcher item = NUMBERED_LINE.matcher(line);
+        if (!heading && item.matches() && state.currentClause != null) {
+            state.appendChild(element, LegalStructureType.ITEM, item.group(1), item.group(2));
+        } else {
+            state.pdfContent(element, LegalStructureType.PARAGRAPH, line);
+        }
+        return true;
+    }
+
     private boolean looksLikeHeading(String body) {
         return body != null && !body.isBlank() && body.length() <= 30
                 && !SENTENCE_PUNCTUATION.matcher(body).find()
@@ -243,6 +332,8 @@ public class DefaultLegalStructureParser implements LegalStructureParser {
     private static final class ParseState {
         private final LegalDocumentMetadata metadata;
         private final boolean inlineCommentaryCandidate;
+        private final boolean pdfBlocks;
+        private final List<LegalDocumentElement> sourceElements;
         private final List<LegalDocumentElement> classified = new ArrayList<>();
         private final List<LegalClause> clauses = new ArrayList<>();
         private final List<LegalDocumentElement> unstructured = new ArrayList<>();
@@ -256,10 +347,41 @@ public class DefaultLegalStructureParser implements LegalStructureParser {
         private ClauseBuilder currentClause;
         private LegalClause lastClause;
 
-        private ParseState(LegalDocumentMetadata metadata, List<String> initialWarnings) {
+        private ParseState(LegalDocumentMetadata metadata, List<String> initialWarnings, List<LegalDocumentElement> sourceElements) {
             this.metadata = metadata;
+            this.sourceElements = sourceElements;
+            this.pdfBlocks = metadata.sourceFormat() == LegalSourceFormat.MINERU_PDF;
             this.inlineCommentaryCandidate = metadata.sourceFile().contains("附条文说明");
             if (initialWarnings != null) warnings.addAll(initialWarnings);
+        }
+
+        private boolean hasChapterEvidence(LegalDocumentElement heading, String number) {
+            int position = sourceElements.indexOf(heading);
+            for (int i = position + 1; i < Math.min(sourceElements.size(), position + 33); i++) {
+                Matcher child = DECIMAL.matcher(sourceElements.get(i).normalizedText());
+                if (child.matches() && child.group(1).startsWith(number + ".") && !child.group(2).isBlank()) return true;
+            }
+            return false;
+        }
+
+        private boolean legalPdfNumber(String number) {
+            String[] parts = number.split("\\.");
+            if (!parts[0].matches("\\d+")) return regionRole == LegalContentRole.APPENDIX;
+            if (chapterNo != null && chapterNo.matches("\\d+") && !chapterNo.equals(parts[0])) return false;
+            return parts.length < 3 || sectionNo == null || !sectionNo.matches("\\d+\\.\\d+")
+                    || number.startsWith(sectionNo + ".");
+        }
+
+        private void pdfContent(LegalDocumentElement element, LegalStructureType type, String text) {
+            if (currentClause != null) {
+                appendChild(element, type, null, text);
+            } else if (regionRole == LegalContentRole.NORMATIVE) {
+                String technicalNumber = (type == LegalStructureType.TABLE ? "TABLE@" : "UNNUMBERED@") + element.elementIndex();
+                warnings.add("PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: " + technicalNumber);
+                startClause(element, technicalNumber, type == LegalStructureType.TABLE ? type : LegalStructureType.PARAGRAPH, text);
+            } else {
+                addUnstructured(element);
+            }
         }
 
         private void enterNormativeIfFrontMatter() {
@@ -305,7 +427,7 @@ public class DefaultLegalStructureParser implements LegalStructureParser {
                     metadata.documentId(), clauseRole, type,
                     chapterNo, chapterTitle, sectionNo, sectionTitle,
                     clauseNo, hierarchy(clauseNo), element);
-            currentClause.add(element, LegalStructureType.PARAGRAPH, null, body);
+            currentClause.add(element, type == LegalStructureType.TABLE ? type : LegalStructureType.PARAGRAPH, null, body);
             add(element, type, clauseRole, clauseNo);
         }
 

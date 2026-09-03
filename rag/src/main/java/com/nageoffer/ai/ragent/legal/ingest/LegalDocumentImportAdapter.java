@@ -26,8 +26,8 @@ import com.nageoffer.ai.ragent.core.parser.model.ListBlock;
 import com.nageoffer.ai.ragent.core.parser.model.ParagraphBlock;
 import com.nageoffer.ai.ragent.core.parser.model.ParsedDocument;
 import com.nageoffer.ai.ragent.core.parser.model.TableBlock;
-import com.nageoffer.ai.ragent.legal.enums.LegalSourceFormat;
 import com.nageoffer.ai.ragent.legal.model.CleanedTextImportResult;
+import com.nageoffer.ai.ragent.legal.model.LegalSourceBlock;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -52,9 +52,21 @@ public class LegalDocumentImportAdapter {
         if (parsed == null || parsed.blocks() == null || parsed.blocks().isEmpty()) {
             throw new IllegalArgumentException("MinerU ParsedDocument 为空");
         }
-        String text = renderForLegalParser(parsed.blocks());
-        return importer.importCanonicalText(documentId, sourceFile, text, originalPdf, mode,
-                LegalSourceFormat.MINERU_PDF, PARSER_VERSION);
+        java.util.ArrayList<LegalSourceBlock> source = new java.util.ArrayList<>();
+        Object bodyIndex = parsed.metadata() == null ? null : parsed.metadata().get("legalBodyStartBlock");
+        int bodyStart = bodyIndex instanceof Number n ? n.intValue() : Integer.MAX_VALUE;
+        for (int i = 0; i < parsed.blocks().size(); i++) {
+            Block block = parsed.blocks().get(i);
+            LegalSourceBlock.Kind kind = block instanceof HeadingBlock ? LegalSourceBlock.Kind.HEADING
+                    : block instanceof HtmlTableBlock || block instanceof TableBlock ? LegalSourceBlock.Kind.TABLE
+                    : block instanceof ListBlock ? LegalSourceBlock.Kind.LIST
+                    : block instanceof ImageBlock ? LegalSourceBlock.Kind.IMAGE
+                    : block instanceof CodeBlock ? LegalSourceBlock.Kind.CODE : LegalSourceBlock.Kind.PARAGRAPH;
+            source.add(new LegalSourceBlock(renderForLegalParser(List.of(block)), kind, i >= bodyStart));
+        }
+        Object filterWarnings = parsed.metadata() == null ? null : parsed.metadata().get("legalSectionFilterWarnings");
+        List<String> warnings = filterWarnings instanceof List<?> values ? values.stream().map(Object::toString).toList() : List.of();
+        return importer.importPdfBlocks(documentId, sourceFile, originalPdf, mode, PARSER_VERSION, source, warnings);
     }
 
     static String renderForLegalParser(List<Block> blocks) {

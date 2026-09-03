@@ -96,7 +96,9 @@ public class LegalChunker {
         List<Unit> result = new ArrayList<>();
         for (LegalSubUnit child : children) {
             String rendered = renderChild(child.marker(), child.normalizedText());
-            if (tokens(rendered) <= maxTokens) {
+            // HTML entities and cell punctuation are not sentence boundaries. Keep a table
+            // intact; the existing quality gate still flags tables above the hard limit.
+            if (child.structureType() == LegalStructureType.TABLE || tokens(rendered) <= maxTokens) {
                 result.add(new Unit(rendered, child.marker()));
                 continue;
             }

@@ -25,6 +25,7 @@ import com.nageoffer.ai.ragent.legal.metadata.MetadataExtractionResult;
 import com.nageoffer.ai.ragent.legal.model.CleanedTextImportResult;
 import com.nageoffer.ai.ragent.legal.model.LegalChunk;
 import com.nageoffer.ai.ragent.legal.model.LegalDocumentElement;
+import com.nageoffer.ai.ragent.legal.model.LegalSourceBlock;
 import com.nageoffer.ai.ragent.legal.model.NormalizedLegalDocument;
 import com.nageoffer.ai.ragent.legal.parser.LegalStructureParser;
 import com.nageoffer.ai.ragent.legal.qc.LegalQualityService;
@@ -93,13 +94,29 @@ public class CleanedTextImporter {
         if (sourceFormat == null || parserVersion == null || parserVersion.isBlank()) {
             throw new IllegalArgumentException("法规来源格式和解析器版本不能为空");
         }
-        String fileHash = LegalHashes.sha256(originalBytes);
         List<LegalDocumentElement> elements = cleaningPipeline.clean(documentId, canonicalText);
+        return importElements(documentId, sourceFile, originalBytes, sourceFormat, parserVersion, elements, List.of());
+    }
+
+    public CleanedTextImportResult importPdfBlocks(String documentId, String sourceFile, byte[] originalBytes,
+                                                   CleanedTextImportMode mode, String parserVersion,
+                                                   List<LegalSourceBlock> blocks, List<String> warnings) {
+        if (mode == null || originalBytes == null || originalBytes.length == 0 || blocks == null || blocks.isEmpty()
+                || parserVersion == null || parserVersion.isBlank()) throw new IllegalArgumentException("PDF 导入参数不能为空");
+        return importElements(documentId, sourceFile, originalBytes, LegalSourceFormat.MINERU_PDF, parserVersion,
+                cleaningPipeline.cleanBlocks(documentId, blocks), warnings);
+    }
+
+    private CleanedTextImportResult importElements(String documentId, String sourceFile, byte[] originalBytes,
+                                                   LegalSourceFormat sourceFormat, String parserVersion,
+                                                   List<LegalDocumentElement> elements, List<String> warnings) {
+        String fileHash = LegalHashes.sha256(originalBytes);
         String normalizedText = String.join("\n", elements.stream().map(LegalDocumentElement::normalizedText).toList());
         MetadataExtractionResult extracted = metadataExtractor.extract(
                 documentId, sourceFile, originalBytes, normalizedText, parserVersion, fileHash, sourceFormat);
-        NormalizedLegalDocument normalized = structureParser.parse(
-                extracted.metadata(), elements, extracted.warnings());
+        java.util.ArrayList<String> allWarnings = new java.util.ArrayList<>(extracted.warnings());
+        if (warnings != null) allWarnings.addAll(warnings);
+        NormalizedLegalDocument normalized = structureParser.parse(extracted.metadata(), elements, allWarnings);
         List<LegalChunk> chunks = chunker.chunk(normalized);
         return new CleanedTextImportResult(normalized, chunks, qualityService.assess(normalized, chunks), normalizedText);
     }

@@ -65,7 +65,7 @@ class LegalPdfOfflineAuditTest {
             expectations = json.readTree(input);
         }
         StringBuilder report = new StringBuilder("# PDF 离线质量诊断\n\n")
-                .append("本次回放网络调用=0；无 Spring/数据库/Embedding/VLM。生产解析、过滤、清洗、分块实现保持原样。\n\n")
+                .append("本次回放网络调用=0；无 Spring/数据库/Embedding/VLM。回放当前工作区中的生产解析、过滤、清洗、分块实现，不写入知识库。\n\n")
                 .append("人工标注的正文起止位置独立于 contentRole。页码为缓存 origin.pdf 的物理页码（JSON page_idx+1），重复匹配列出候选页，不猜唯一页。\n\n")
                 .append("|样本|Clause 前/后|Chunk 前/后|正文误删 Block|非正文残留 Block|疑似噪声 Chunk|未覆盖正文 Block|条号/层级字段完整率|\n")
                 .append("|---|---:|---:|---:|---:|---:|---:|---|\n");
@@ -152,9 +152,11 @@ class LegalPdfOfflineAuditTest {
             long oversized = after.chunks().stream().filter(c -> c.tokenCount() > 600).count();
             long empty = after.chunks().stream().filter(c -> c.sourceText().isBlank()).count();
             List<String> hierarchyMismatch = after.document().clauses().stream()
-                    .filter(c -> c.chapterNo() != null && c.chapterNo().matches("\\d+")
-                            && c.clauseNo().matches("\\d+(?:\\.\\d+){2,}")
-                            && !c.clauseNo().startsWith(c.chapterNo() + "."))
+                    .filter(c -> c.clauseNo().matches("\\d+(?:\\.\\d+){2,}")
+                            && (c.chapterNo() != null && c.chapterNo().matches("\\d+")
+                            && !c.clauseNo().startsWith(c.chapterNo() + ".")
+                            || c.sectionNo() != null && c.sectionNo().matches("\\d+\\.\\d+")
+                            && !c.clauseNo().startsWith(c.sectionNo() + ".")))
                     .map(c -> c.clauseNo() + " @ " + c.hierarchyPath()).toList();
             boolean pass = lostBody == 0 && retainedNoise == 0 && noisyChunkIds.isEmpty() && uncoveredBody == 0
                     && missingClauses.isEmpty() && blankNo == 0 && blankHierarchy == 0 && oversized == 0 && empty == 0
@@ -180,6 +182,10 @@ class LegalPdfOfflineAuditTest {
             summary.put("emptyChunks", empty);
             summary.put("blankClauseNo", blankNo);
             summary.put("blankHierarchy", blankHierarchy);
+            long technicalClauses = after.document().clauses().stream()
+                    .filter(c -> c.clauseNo().startsWith("TABLE@") || c.clauseNo().startsWith("UNNUMBERED@")).count();
+            summary.put("technicalClauseCount", technicalClauses);
+            summary.put("recognizedClauseCount", after.document().clauses().size() - technicalClauses);
             summaries.add(summary);
             Path sampleOut = output.resolve(expected.path("sha256").asText());
             Files.createDirectories(sampleOut);
@@ -216,6 +222,19 @@ class LegalPdfOfflineAuditTest {
         writeJson(output.resolve("summary.json"), summaries);
         Files.writeString(output.resolve("REPORT.md"), report, StandardCharsets.UTF_8);
         System.out.println("OFFLINE_AUDIT " + output + " review=" + failures + " network=0");
+        if (Boolean.getBoolean("legal.pdf.audit.hardening")) {
+            assertEquals(expectations.size(), summaries.size(), "Every annotated real sample must finish");
+            for (var sample : summaries) {
+                assertAll(sample.get("sample").toString(),
+                        () -> assertEquals(0, sample.get("bodyBlocksRemoved")),
+                        () -> assertEquals(0, sample.get("nonBodyBlocksRetained")),
+                        () -> assertTrue(((Set<?>) sample.get("noiseChunkIds")).isEmpty()),
+                        () -> assertTrue(((List<?>) sample.get("hierarchyMismatchCandidates")).isEmpty()),
+                        () -> assertEquals(0, sample.get("tablesNotFullyCovered")),
+                        () -> assertEquals(0, sample.get("bodyBlocksNotFullyCovered")));
+            }
+            assertTrue(probes.stream().allMatch(p -> Boolean.TRUE.equals(p.get("pass"))), "Required section-title variants");
+        }
         if (Boolean.getBoolean("legal.pdf.audit.strict")) {
             int reviewCount = failures;
             assertAll("offline quality gate",
