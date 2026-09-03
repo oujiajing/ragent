@@ -31,6 +31,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -49,9 +50,11 @@ class LegalPdfCorpusDryRunTest {
         List<Path> pdfs;
         try (var files = Files.list(corpus)) {
             pdfs = files.filter(path -> path.getFileName().toString().toLowerCase().endsWith(".pdf"))
+                    .filter(path -> selectedFiles().isEmpty()
+                            || selectedFiles().contains(path.getFileName().toString()))
                     .sorted(Comparator.comparing(path -> path.getFileName().toString())).toList();
         }
-        assertEquals(10, pdfs.size(), "MVP 应包含 10 份法规 PDF");
+        assertTrue(pdfs.size() > 0 && pdfs.size() <= 10, "PDF 运行样本数应为 1-10");
 
         StringBuilder report = new StringBuilder("# Phase 5.1 PDF Dry Run\n\n")
                 .append("| file | clauses | chunks | clause_no | hierarchy | quality |\n")
@@ -94,5 +97,10 @@ class LegalPdfCorpusDryRunTest {
 
     private String rate(long numerator, long denominator) {
         return denominator == 0 ? "0.00%" : String.format("%.2f%%", numerator * 100.0 / denominator);
+    }
+
+    private Set<String> selectedFiles() {
+        String configured = System.getProperty("legal.pdf.files", "").strip();
+        return configured.isBlank() ? Set.of() : Set.of(configured.split("\\s*;\\s*"));
     }
 }
