@@ -58,7 +58,19 @@ public class LegalCorpusPersistenceService {
             return new LegalPersistenceResult(existing, "ALREADY_IMPORTED", 0, 0, 0);
         }
         ensureKnowledgeBase();
-        persistDocument(metadata, result);
+        persistDocument(metadata, result, "txt", "text/plain");
+        return new LegalPersistenceResult(metadata.documentId(), "IMPORTED",
+                result.document().elements().size(), result.document().clauses().size(), result.chunks().size());
+    }
+
+    @Transactional
+    public LegalPersistenceResult importPdf(String sourceFile, byte[] rawBytes, CleanedTextImportResult result) {
+        if (result == null || result.document() == null) throw new IllegalArgumentException("PDF 法规解析结果不能为空");
+        LegalDocumentMetadata metadata = result.document().metadata();
+        String existing = findImported(metadata.fileHash(), metadata.parserVersion());
+        if (existing != null) return new LegalPersistenceResult(existing, "ALREADY_IMPORTED", 0, 0, 0);
+        ensureKnowledgeBase();
+        persistDocument(metadata, result, "pdf", "application/pdf");
         return new LegalPersistenceResult(metadata.documentId(), "IMPORTED",
                 result.document().elements().size(), result.document().clauses().size(), result.chunks().size());
     }
@@ -75,7 +87,7 @@ public class LegalCorpusPersistenceService {
         return importText(sourceFile, rawBytes);
     }
 
-    private String findImported(String fileHash, String parserVersion) {
+    public String findImported(String fileHash, String parserVersion) {
         List<String> ids = jdbcTemplate.query(
                 "SELECT id FROM t_knowledge_document WHERE kb_id = ? AND file_hash = ? AND parser_version = ? AND deleted = 0 LIMIT 1",
                 (rs, rowNum) -> rs.getString(1), KB_ID, fileHash, parserVersion);
@@ -90,15 +102,17 @@ public class LegalCorpusPersistenceService {
                 """, KB_ID, "施工安全法规 Phase 2B", "bge-m3", COLLECTION, ACTOR, ACTOR);
     }
 
-    private void persistDocument(LegalDocumentMetadata metadata, CleanedTextImportResult result) {
+    private void persistDocument(LegalDocumentMetadata metadata, CleanedTextImportResult result,
+                                 String fileType, String mimeType) {
         jdbcTemplate.update("""
                 INSERT INTO t_knowledge_document
                 (id, kb_id, doc_name, enabled, chunk_count, file_url, file_type, mime_type, file_size,
                  process_mode, status, source_type, source_location, doc_title, doc_type, standard_no,
                  issuing_authority, publish_date, effective_date, source_format, file_hash, parser_version,
                  ingestion_stage, ingestion_run_id, quality_status, created_by, updated_by)
-                VALUES (?, ?, ?, 1, ?, ?, 'txt', 'text/plain', ?, 'chunk', 'success', 'legal', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'PERSISTED', ?, ?, ?, ?)
+                VALUES (?, ?, ?, 1, ?, ?, ?, ?, ?, 'chunk', 'success', 'legal', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'PERSISTED', ?, ?, ?, ?)
                 """, metadata.documentId(), KB_ID, metadata.sourceFile(), result.chunks().size(),
+                metadata.sourceFile(), fileType, mimeType,
                 metadata.sourceFile(), result.canonicalSourceText().getBytes(java.nio.charset.StandardCharsets.UTF_8).length,
                 metadata.sourceFile(), metadata.docTitle(), metadata.docType(), metadata.standardNo(),
                 metadata.issuingAuthority(), metadata.publishDate(), metadata.effectiveDate(), metadata.sourceFormat().name(),
