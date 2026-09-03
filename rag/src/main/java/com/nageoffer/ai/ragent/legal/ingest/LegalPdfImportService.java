@@ -20,7 +20,9 @@ package com.nageoffer.ai.ragent.legal.ingest;
 import com.nageoffer.ai.ragent.core.parser.mineru.MinerUDocumentParser;
 import com.nageoffer.ai.ragent.core.parser.model.ParsedDocument;
 import com.nageoffer.ai.ragent.legal.model.CleanedTextImportResult;
+import com.nageoffer.ai.ragent.legal.filter.LegalSectionFilter;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Map;
 
@@ -30,16 +32,26 @@ public class LegalPdfImportService {
 
     private final MinerUDocumentParser minerUParser;
     private final LegalDocumentImportAdapter adapter;
+    private final LegalSectionFilter sectionFilter;
 
-    public LegalPdfImportService(MinerUDocumentParser minerUParser, LegalDocumentImportAdapter adapter) {
+    @Autowired
+    public LegalPdfImportService(MinerUDocumentParser minerUParser, LegalDocumentImportAdapter adapter,
+                                 LegalSectionFilter sectionFilter) {
         this.minerUParser = minerUParser;
         this.adapter = adapter;
+        this.sectionFilter = sectionFilter;
+    }
+
+    /** Backward-compatible constructor for focused unit tests and non-Spring callers. */
+    public LegalPdfImportService(MinerUDocumentParser minerUParser, LegalDocumentImportAdapter adapter) {
+        this(minerUParser, adapter, new LegalSectionFilter());
     }
 
     public CleanedTextImportResult dryRun(String documentId, String sourceFile, byte[] pdfBytes) {
         ParsedDocument parsed = minerUParser.parseStructured(pdfBytes, "application/pdf", Map.of(
                 MinerUDocumentParser.OPT_SOURCE_FILE, sourceFile,
                 MinerUDocumentParser.OPT_DOCUMENT_ID, documentId));
-        return adapter.importPdf(documentId, sourceFile, pdfBytes, parsed, CleanedTextImportMode.DRY_RUN);
+        ParsedDocument filtered = sectionFilter.filter(documentId, parsed).document();
+        return adapter.importPdf(documentId, sourceFile, pdfBytes, filtered, CleanedTextImportMode.DRY_RUN);
     }
 }

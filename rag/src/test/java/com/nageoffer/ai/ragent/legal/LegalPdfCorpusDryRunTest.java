@@ -19,6 +19,11 @@ package com.nageoffer.ai.ragent.legal;
 
 import com.nageoffer.ai.ragent.TestRagentApplication;
 import com.nageoffer.ai.ragent.legal.ingest.LegalPdfImportService;
+import com.nageoffer.ai.ragent.core.parser.mineru.MinerUDocumentParser;
+import com.nageoffer.ai.ragent.core.parser.model.ParsedDocument;
+import com.nageoffer.ai.ragent.legal.filter.LegalSectionFilter;
+import com.nageoffer.ai.ragent.legal.ingest.CleanedTextImportMode;
+import com.nageoffer.ai.ragent.legal.ingest.LegalDocumentImportAdapter;
 import com.nageoffer.ai.ragent.legal.model.CleanedTextImportResult;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
@@ -43,6 +48,15 @@ class LegalPdfCorpusDryRunTest {
     @Autowired
     private LegalPdfImportService importService;
 
+    @Autowired
+    private MinerUDocumentParser minerUParser;
+
+    @Autowired
+    private LegalDocumentImportAdapter adapter;
+
+    @Autowired
+    private LegalSectionFilter sectionFilter;
+
     @Test
     void dryRunsTenPdfDocumentsThroughMineruAndLegalParser() throws Exception {
         Path corpus = Path.of(System.getProperty("legal.pdf.dir")).toAbsolutePath().normalize();
@@ -56,24 +70,41 @@ class LegalPdfCorpusDryRunTest {
         }
         assertTrue(pdfs.size() > 0 && pdfs.size() <= 30, "PDF 运行样本数应为 1-30");
 
-        StringBuilder report = new StringBuilder("# Phase 5.1 PDF Dry Run\n\n")
-                .append("| file | clauses | chunks | clause_no | hierarchy | quality |\n")
-                .append("|---|---:|---:|---:|---:|---|\n");
+        StringBuilder report = new StringBuilder("# Phase 5.3 Non-Body Filter Report\n\n")
+                .append("## Per-document before/after\n\n")
+                .append("| file | before clauses | after clauses | before chunks | after chunks | clause_no | hierarchy | quality |\n")
+                .append("|---|---:|---:|---:|---:|---:|---:|---|\n");
+        java.util.Map<String, Integer> filteredSections = new java.util.TreeMap<>();
+        int beforeClauses = 0, afterClauses = 0, beforeChunks = 0, afterChunks = 0, noiseChunks = 0;
         int succeeded = 0;
         for (int i = 0; i < pdfs.size(); i++) {
             Path pdf = pdfs.get(i);
             byte[] bytes = Files.readAllBytes(pdf);
             String documentId = "pdfdry" + i;
             try {
-                CleanedTextImportResult result = importService.dryRun(documentId,
-                        pdf.getFileName().toString(), bytes);
+                ParsedDocument parsed = minerUParser.parseStructured(bytes, "application/pdf", java.util.Map.of(
+                        MinerUDocumentParser.OPT_SOURCE_FILE, pdf.getFileName().toString(),
+                        MinerUDocumentParser.OPT_DOCUMENT_ID, documentId));
+                CleanedTextImportResult before = adapter.importPdf(documentId, pdf.getFileName().toString(), bytes,
+                        parsed, CleanedTextImportMode.DRY_RUN);
+                LegalSectionFilter.FilterResult filtered = sectionFilter.filter(documentId, parsed);
+                CleanedTextImportResult result = adapter.importPdf(documentId, pdf.getFileName().toString(), bytes,
+                        filtered.document(), CleanedTextImportMode.DRY_RUN);
                 var metadata = result.document().metadata();
                 var quality = result.qualityReport();
+                beforeClauses += before.qualityReport().clauseCount();
+                afterClauses += quality.clauseCount();
+                beforeChunks += before.qualityReport().chunkCount();
+                afterChunks += quality.chunkCount();
+                filtered.logs().forEach(log -> filteredSections.merge(log.sectionType(), 1, Integer::sum));
+                noiseChunks += (int) result.chunks().stream().filter(chunk -> containsNoise(chunk.content())).count();
                 long clauseNo = result.document().clauses().stream().filter(c -> c.clauseNo() != null).count();
                 long hierarchy = result.document().clauses().stream().filter(c -> c.hierarchyPath() != null
                         && !c.hierarchyPath().isBlank()).count();
                 report.append('|').append(pdf.getFileName().toString().replace("|", "\\|"))
+                        .append(" | ").append(before.qualityReport().clauseCount())
                         .append(" | ").append(quality.clauseCount())
+                        .append(" | ").append(before.qualityReport().chunkCount())
                         .append(" | ").append(quality.chunkCount())
                         .append(" | ").append(rate(clauseNo, quality.clauseCount()))
                         .append(" | ").append(rate(hierarchy, quality.clauseCount()))
@@ -89,10 +120,26 @@ class LegalPdfCorpusDryRunTest {
                         .append(" |\n");
             }
         }
-        assertTrue(succeeded > 0, "10 份 PDF 均未完成 MinerU Dry Run");
-        Path output = Path.of("target", "phase5-1-pdf-dry-run.md");
+        report.append("\n## Corpus totals\n\n")
+                .append("| metric | before | after |\n|---|---:|---:|\n")
+                .append("| Clause | ").append(beforeClauses).append(" | ").append(afterClauses).append(" |\n")
+                .append("| Chunk | ").append(beforeChunks).append(" | ").append(afterChunks).append(" |\n")
+                .append("\n## Filtered sections\n\n| section_type | removed blocks |\n|---|---:|\n");
+        filteredSections.forEach((type, count) -> report.append('|').append(type).append(" | ").append(count).append(" |\n"));
+        report.append("\n## Noise chunk check\n\n")
+                .append("Forbidden section content in resulting chunks: ").append(noiseChunks).append("\n\n")
+                .append("Acceptance: directory/preface/referenced standards/terminology/appendix chunks must be zero; "
+                        + "Clause_no and hierarchy completeness are reported per document.\n");
+        Path output = Path.of("..", "PHASE5_3_NON_BODY_FILTER_REPORT.md").normalize();
         Files.createDirectories(output.getParent());
         Files.writeString(output, report, StandardCharsets.UTF_8);
+        assertTrue(succeeded > 0, "30 份 PDF 均未完成 MinerU Dry Run；报告已写入 " + output.toAbsolutePath());
+    }
+
+    private boolean containsNoise(String text) {
+        String upper = text == null ? "" : text.toUpperCase(java.util.Locale.ROOT);
+        return text.contains("前言") || text.contains("引用标准名录") || text.contains("本标准用词说明")
+                || text.contains("本规范用词说明") || text.contains("附录") || upper.contains("CONTENTS");
     }
 
     private String rate(long numerator, long denominator) {
