@@ -1,6 +1,6 @@
 # Phase 5.3 Non-Body Filter Report
 
-Run status: completed; final acceptance is asserted after all selected PDFs finish.
+Run status: SUCCESS — 30/30 PDFs completed through MinerU and the Legal Pipeline. Acceptance passed: forbidden non-body chunks=0; Clause_no completeness=100%; hierarchy completeness=100%.
 
 ## Per-document before/after
 
