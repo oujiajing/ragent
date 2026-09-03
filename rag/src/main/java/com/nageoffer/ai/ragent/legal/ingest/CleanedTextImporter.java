@@ -19,6 +19,7 @@ package com.nageoffer.ai.ragent.legal.ingest;
 
 import com.nageoffer.ai.ragent.legal.chunk.LegalChunker;
 import com.nageoffer.ai.ragent.legal.clean.LegalCleaningPipeline;
+import com.nageoffer.ai.ragent.legal.enums.LegalSourceFormat;
 import com.nageoffer.ai.ragent.legal.metadata.LegalMetadataExtractor;
 import com.nageoffer.ai.ragent.legal.metadata.MetadataExtractionResult;
 import com.nageoffer.ai.ragent.legal.model.CleanedTextImportResult;
@@ -63,16 +64,40 @@ public class CleanedTextImporter {
                                               String sourceFile,
                                               byte[] rawBytes,
                                               CleanedTextImportMode mode) {
-        if (mode == null) throw new IllegalArgumentException("导入模式不能为空");
         if (rawBytes == null || rawBytes.length == 0) {
             throw new IllegalArgumentException("TXT bytes 不能为空");
         }
-        String rawText = decodeUtf8(rawBytes);
-        String fileHash = LegalHashes.sha256(rawBytes);
-        List<LegalDocumentElement> elements = cleaningPipeline.clean(documentId, rawText);
+        return importCanonicalText(documentId, sourceFile, decodeUtf8(rawBytes), rawBytes, mode,
+                LegalSourceFormat.CLEANED_TXT, PARSER_VERSION);
+    }
+
+    /**
+     * 把已经由通用 Document Parser 产出的文本送入同一套法规清洗、结构化、分块和质检链路。
+     * originalBytes 用于幂等 hash，canonicalText 只作为法规解析输入，避免用 MinerU Markdown
+     * 覆盖原始 PDF 身份。
+     */
+    public CleanedTextImportResult importCanonicalText(String documentId,
+                                                       String sourceFile,
+                                                       String canonicalText,
+                                                       byte[] originalBytes,
+                                                       CleanedTextImportMode mode,
+                                                       LegalSourceFormat sourceFormat,
+                                                       String parserVersion) {
+        if (mode == null) throw new IllegalArgumentException("导入模式不能为空");
+        if (originalBytes == null || originalBytes.length == 0) {
+            throw new IllegalArgumentException("原始文档 bytes 不能为空");
+        }
+        if (canonicalText == null || canonicalText.isBlank()) {
+            throw new IllegalArgumentException("法规解析文本不能为空");
+        }
+        if (sourceFormat == null || parserVersion == null || parserVersion.isBlank()) {
+            throw new IllegalArgumentException("法规来源格式和解析器版本不能为空");
+        }
+        String fileHash = LegalHashes.sha256(originalBytes);
+        List<LegalDocumentElement> elements = cleaningPipeline.clean(documentId, canonicalText);
         String normalizedText = String.join("\n", elements.stream().map(LegalDocumentElement::normalizedText).toList());
         MetadataExtractionResult extracted = metadataExtractor.extract(
-                documentId, sourceFile, rawBytes, normalizedText, PARSER_VERSION, fileHash);
+                documentId, sourceFile, originalBytes, normalizedText, parserVersion, fileHash, sourceFormat);
         NormalizedLegalDocument normalized = structureParser.parse(
                 extracted.metadata(), elements, extracted.warnings());
         List<LegalChunk> chunks = chunker.chunk(normalized);

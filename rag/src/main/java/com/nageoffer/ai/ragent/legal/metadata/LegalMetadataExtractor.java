@@ -45,8 +45,19 @@ public class LegalMetadataExtractor {
                                             String normalizedText,
                                             String parserVersion,
                                             String fileHash) {
+        return extract(documentId, sourceFile, bytes, normalizedText, parserVersion, fileHash,
+                LegalSourceFormat.CLEANED_TXT);
+    }
+
+    public MetadataExtractionResult extract(String documentId,
+                                            String sourceFile,
+                                            byte[] bytes,
+                                            String normalizedText,
+                                            String parserVersion,
+                                            String fileHash,
+                                            LegalSourceFormat sourceFormat) {
         List<String> warnings = new ArrayList<>();
-        String baseName = sourceFile.replaceFirst("(?i)\\.txt$", "");
+        String baseName = sourceFile.replaceFirst("(?i)\\.(txt|pdf)$", "");
         String header = firstLines(normalizedText, 60);
 
         String fileStandard = findStandard(baseName);
@@ -74,7 +85,7 @@ public class LegalMetadataExtractor {
                 publishDate,
                 effectiveDate,
                 sourceFile,
-                LegalSourceFormat.CLEANED_TXT,
+                sourceFormat,
                 fileHash,
                 parserVersion);
         return new MetadataExtractionResult(metadata, warnings);

@@ -18,5 +18,6 @@
 package com.nageoffer.ai.ragent.legal.enums;
 
 public enum LegalSourceFormat {
-    CLEANED_TXT
+    CLEANED_TXT,
+    MINERU_PDF
 }
