@@ -25,9 +25,9 @@ services:
       - "10912:10912"
       - "10911:10911"
       - "10909:10909"
-      - "8080:8080"
-      - "8081:8081"
-      - "8082:8082"                              # ← dashboard 端口也从这里暴露
+      - "18080:8080"
+      - "18081:8081"
+      - "18082:8082"                              # host ports isolated from Safe-team 8080
     environment:
       NAMESRV_ADDR: "rmqnamesrv:9876"
       JAVA_OPT_EXT: "-Xms512m -Xmx512m"

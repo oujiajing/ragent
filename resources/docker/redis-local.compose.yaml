@@ -1,0 +1,19 @@
+name: ragent-local-redis
+
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: ragent-redis-dev
+    command: redis-server --requirepass ${RAGENT_REDIS_PASSWORD:-123456}
+    ports:
+      - "${RAGENT_REDIS_PORT:-6379}:6379"
+    volumes:
+      - ragent-redis-data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a \"$${RAGENT_REDIS_PASSWORD:-123456}\" ping | grep PONG"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  ragent-redis-data:

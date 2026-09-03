@@ -12,7 +12,7 @@
 
 ## 依赖服务
 
-PostgreSQL + pgvector：`127.0.0.1:15432`；Redis：`127.0.0.1:6379`；RustFS API：`http://localhost:9000`；RocketMQ NameServer：`127.0.0.1:9876`（按需）；Ollama：`http://localhost:11434`（可选）；Elasticsearch：`127.0.0.1:9200`，当前 `rag.keyword.type=none`；MinerU：外部 API，可选。
+PostgreSQL + pgvector：`127.0.0.1:15432`；Redis：`127.0.0.1:6379`，密码 `123456`；RustFS API：`http://localhost:9000`；RocketMQ NameServer：`127.0.0.1:9876`，proxy 宿主机端口 `18080-18082`（按需）；Ollama：`http://localhost:11434`（可选）；Elasticsearch：`127.0.0.1:9200`，当前 `rag.keyword.type=none`；MinerU：外部 API，可选。
 
 ## 第一次启动
 
@@ -48,4 +48,5 @@ Ollama 不可用不会阻止启动，会输出 `[WARN] Ollama unavailable`。Min
 - 9090 或 5173 被占用：先执行 `check-dev.ps1`，脚本不会停止非本项目进程。
 - Ollama unavailable：可选依赖，可使用其他已配置 provider。
 - RocketMQ 未启动：需要消息消费或异步 RAG 流程时加 `-StartRocketMq`。
+- Redis 密码不一致：统一使用 `resources/docker/redis-local.compose.yaml` 启动的 Redis，密码为 `123456`；脚本会停止旧的无密码 `ragent-redis-phase1`，但不会删除其 volume。
 - Elasticsearch 默认未启用，不修改配置默认值。
