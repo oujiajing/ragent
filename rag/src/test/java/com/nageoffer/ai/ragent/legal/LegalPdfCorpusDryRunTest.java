@@ -54,7 +54,7 @@ class LegalPdfCorpusDryRunTest {
                             || selectedFiles().contains(path.getFileName().toString()))
                     .sorted(Comparator.comparing(path -> path.getFileName().toString())).toList();
         }
-        assertTrue(pdfs.size() > 0 && pdfs.size() <= 10, "PDF 运行样本数应为 1-10");
+        assertTrue(pdfs.size() > 0 && pdfs.size() <= 30, "PDF 运行样本数应为 1-30");
 
         StringBuilder report = new StringBuilder("# Phase 5.1 PDF Dry Run\n\n")
                 .append("| file | clauses | chunks | clause_no | hierarchy | quality |\n")
