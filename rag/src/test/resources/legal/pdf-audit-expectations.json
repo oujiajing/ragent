@@ -1,0 +1,26 @@
+[
+  {
+    "sha256": "467cf4ca7017a40e7884b08fed362bcdd2f092170a19852ace0ab4f365d3cf99",
+    "label": "供用电规范",
+    "nonBodyStart": "前言",
+    "bodyStart": "1总则",
+    "bodyEnd": "附录A外壳防护等级(IP代码)",
+    "expectedClauses": ["1.0.1", "1.0.2", "7.5.2", "13.0.1"]
+  },
+  {
+    "sha256": "ee1668c18709dff5a9b4b4ae4a6f66060c13e7aa4994d07c29bb71c15c844226",
+    "label": "安全帽",
+    "nonBodyStart": "目次",
+    "bodyStart": "头部防护安全帽",
+    "bodyEnd": "附录A",
+    "expectedClauses": ["3.1", "3.2", "5.2.1", "5.2.4", "5.2.16", "5.2.17"]
+  },
+  {
+    "sha256": "eea49cb9d5fd815e21339a3a99398674fc2c7026e312464bc0d4db55409c68f0",
+    "label": "建设工程安全生产管理条例",
+    "nonBodyStart": "",
+    "bodyStart": "第一章总则",
+    "bodyEnd": "",
+    "expectedClauses": ["第一条", "第二十六条", "第七十一条"]
+  }
+]
