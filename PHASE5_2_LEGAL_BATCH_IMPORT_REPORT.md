@@ -120,3 +120,7 @@ PENDING -> PARSING -> STRUCTURED -> INDEXED
 2. 外部服务不稳定：大文件曾出现 MinerU 上传/下载超时；有限重试后 5 份全部成功。
 3. 可选能力依赖：内嵌图片 VLM 描述因阿里云账户欠费被跳过；文本法规解析仍成功。
 4. 运行期任务快照目前保存在 Job 内存中；若需要跨进程恢复，应在后续阶段接入专用任务表，但不应复制 Safe-team 状态机。
+
+## 9. 实际入库核验
+
+本次使用 `persist=true` 重跑后，数据库核验结果为：法规知识库中 PDF 文档 30 个，关联 Clause 8,130 个、Chunk 8,439 个，文档状态均为 `success`，`source_format=MINERU_PDF`，`file_type=pdf`。由于 TEI Embedding 服务健康检查返回 HTTP 502，本次未生成 PDF 向量；文档列表数据已入库，向量检索需在 Embedding 服务恢复后执行既有 `LegalCorpusIndexingService`。

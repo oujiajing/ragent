@@ -76,7 +76,8 @@ public class LegalPdfBatchImportJob {
         byte[] bytes = Files.readAllBytes(file);
         String fileName = file.getFileName().toString();
         String hash = LegalHashes.sha256(bytes);
-        LegalPdfImportTask task = new LegalPdfImportTask("pdf-task-" + hash.substring(0, 16), fileName, hash);
+        // t_knowledge_document.id is varchar(20); keep the same 20-char identity convention as TXT imports.
+        LegalPdfImportTask task = new LegalPdfImportTask("leg" + hash.substring(0, 17), fileName, hash);
         if (persist && persistenceService.findImported(hash, LegalDocumentImportAdapter.PARSER_VERSION) != null) {
             task.structured(0, 0);
             return task;

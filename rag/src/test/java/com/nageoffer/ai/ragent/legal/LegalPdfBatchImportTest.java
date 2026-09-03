@@ -58,6 +58,7 @@ class LegalPdfBatchImportTest {
         assertEquals(1, result.successCount());
         assertEquals(1, result.failedCount());
         assertEquals(LegalPdfImportTaskStatus.STRUCTURED, result.tasks().get(0).status());
+        assertEquals(20, result.tasks().get(0).id().length());
         assertEquals(LegalPdfImportTaskStatus.FAILED, result.tasks().get(1).status());
     }
 

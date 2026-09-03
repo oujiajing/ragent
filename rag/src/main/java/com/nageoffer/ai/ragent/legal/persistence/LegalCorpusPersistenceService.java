@@ -113,7 +113,7 @@ public class LegalCorpusPersistenceService {
                 VALUES (?, ?, ?, 1, ?, ?, ?, ?, ?, 'chunk', 'success', 'legal', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'PERSISTED', ?, ?, ?, ?)
                 """, metadata.documentId(), KB_ID, metadata.sourceFile(), result.chunks().size(),
                 metadata.sourceFile(), fileType, mimeType,
-                metadata.sourceFile(), result.canonicalSourceText().getBytes(java.nio.charset.StandardCharsets.UTF_8).length,
+                result.canonicalSourceText().getBytes(java.nio.charset.StandardCharsets.UTF_8).length,
                 metadata.sourceFile(), metadata.docTitle(), metadata.docType(), metadata.standardNo(),
                 metadata.issuingAuthority(), metadata.publishDate(), metadata.effectiveDate(), metadata.sourceFormat().name(),
                 metadata.fileHash(), metadata.parserVersion(), metadata.fileHash().substring(0, 32),
