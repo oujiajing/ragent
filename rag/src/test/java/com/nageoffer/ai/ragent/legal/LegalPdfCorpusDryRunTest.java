@@ -22,6 +22,7 @@ import com.nageoffer.ai.ragent.legal.ingest.LegalPdfImportService;
 import com.nageoffer.ai.ragent.core.parser.mineru.MinerUDocumentParser;
 import com.nageoffer.ai.ragent.core.parser.model.ParsedDocument;
 import com.nageoffer.ai.ragent.legal.filter.LegalSectionFilter;
+import com.nageoffer.ai.ragent.legal.enums.LegalContentRole;
 import com.nageoffer.ai.ragent.legal.ingest.CleanedTextImportMode;
 import com.nageoffer.ai.ragent.legal.ingest.LegalDocumentImportAdapter;
 import com.nageoffer.ai.ragent.legal.model.CleanedTextImportResult;
@@ -71,6 +72,7 @@ class LegalPdfCorpusDryRunTest {
         assertTrue(pdfs.size() > 0 && pdfs.size() <= 30, "PDF 运行样本数应为 1-30");
 
         StringBuilder report = new StringBuilder("# Phase 5.3 Non-Body Filter Report\n\n")
+                .append("Run status: completed; final acceptance is asserted after all selected PDFs finish.\n\n")
                 .append("## Per-document before/after\n\n")
                 .append("| file | before clauses | after clauses | before chunks | after chunks | clause_no | hierarchy | quality |\n")
                 .append("|---|---:|---:|---:|---:|---:|---:|---|\n");
@@ -97,7 +99,7 @@ class LegalPdfCorpusDryRunTest {
                 beforeChunks += before.qualityReport().chunkCount();
                 afterChunks += quality.chunkCount();
                 filtered.logs().forEach(log -> filteredSections.merge(log.sectionType(), 1, Integer::sum));
-                noiseChunks += (int) result.chunks().stream().filter(chunk -> containsNoise(chunk.content())).count();
+                noiseChunks += (int) result.chunks().stream().filter(this::containsNoise).count();
                 long clauseNo = result.document().clauses().stream().filter(c -> c.clauseNo() != null).count();
                 long hierarchy = result.document().clauses().stream().filter(c -> c.hierarchyPath() != null
                         && !c.hierarchyPath().isBlank()).count();
@@ -133,13 +135,13 @@ class LegalPdfCorpusDryRunTest {
         Path output = Path.of("..", "PHASE5_3_NON_BODY_FILTER_REPORT.md").normalize();
         Files.createDirectories(output.getParent());
         Files.writeString(output, report, StandardCharsets.UTF_8);
-        assertTrue(succeeded > 0, "30 份 PDF 均未完成 MinerU Dry Run；报告已写入 " + output.toAbsolutePath());
+        assertEquals(pdfs.size(), succeeded, "部分 PDF 未完成 MinerU Dry Run；报告已写入 " + output.toAbsolutePath());
     }
 
-    private boolean containsNoise(String text) {
-        String upper = text == null ? "" : text.toUpperCase(java.util.Locale.ROOT);
-        return text.contains("前言") || text.contains("引用标准名录") || text.contains("本标准用词说明")
-                || text.contains("本规范用词说明") || text.contains("附录") || upper.contains("CONTENTS");
+    private boolean containsNoise(com.nageoffer.ai.ragent.legal.model.LegalChunk chunk) {
+        LegalContentRole role = chunk.metadata().contentRole();
+        return role == LegalContentRole.FRONT_MATTER || role == LegalContentRole.APPENDIX
+                || role == LegalContentRole.SUPPLEMENTARY;
     }
 
     private String rate(long numerator, long denominator) {

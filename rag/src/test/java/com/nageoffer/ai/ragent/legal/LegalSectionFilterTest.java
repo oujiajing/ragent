@@ -84,6 +84,20 @@ class LegalSectionFilterTest {
                 .toList());
     }
 
+    @Test
+    void resumesBodyAtCompactNumberedHeadingAfterPreface() {
+        List<Block> blocks = List.of(
+                heading("前 言"), paragraph("前言内容"),
+                heading("1范围"), paragraph("1.1 正文条款"));
+
+        LegalSectionFilter.FilterResult result = new LegalSectionFilter()
+                .filter("doc-4", ParsedDocument.of(blocks));
+
+        assertEquals(List.of("1范围", "1.1 正文条款"), result.document().blocks().stream()
+                .map(block -> block instanceof HeadingBlock h ? h.text() : ((ParagraphBlock) block).text())
+                .toList());
+    }
+
     private Block heading(String text) {
         return new HeadingBlock(PROVENANCE, 1, text);
     }

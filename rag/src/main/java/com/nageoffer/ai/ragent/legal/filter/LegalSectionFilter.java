@@ -39,6 +39,8 @@ public class LegalSectionFilter {
             "^(?:第[一二三四五六七八九十百零〇两]+章|附录\\s*[A-Za-z一二三四五六七八九十百零〇两]*)\\s*.*$");
     private static final Pattern NUMBERED_BODY_CHAPTER = Pattern.compile(
             "^\\d{1,2}\\s+[^.。！？；;:]{1,20}$");
+    private static final Pattern COMPACT_BODY_CHAPTER = Pattern.compile(
+            "^\\d{1,2}[\\p{IsHan}]{1,20}$");
 
     public FilterResult filter(String documentId, ParsedDocument parsed) {
         if (parsed == null || parsed.blocks() == null || parsed.blocks().isEmpty()) {
@@ -58,7 +60,7 @@ public class LegalSectionFilter {
             }
             if (state != SectionState.BODY) {
                 // A real chapter starts the body again; ordinary numbered clauses do not.
-                if (isBodyChapter(normalized) && state != SectionState.APPENDIX) {
+                if (isBodyChapter(block, normalized) && state != SectionState.APPENDIX) {
                     state = SectionState.BODY;
                     retained.add(block);
                 } else {
@@ -80,9 +82,9 @@ public class LegalSectionFilter {
     }
 
     private String headingSection(String text) {
-        String compact = text.replaceAll("\\s+", " ").strip();
+        String compact = text.replaceAll("\\s+", "").strip();
         if (compact.equals("前言")) return "PREFACE";
-        if (compact.equals("目录") || compact.equals("目 录")) return "CHINESE_TOC";
+        if (compact.equals("目录")) return "CHINESE_TOC";
         if (compact.equalsIgnoreCase("CONTENTS") || compact.equalsIgnoreCase("TABLE OF CONTENTS")) return "ENGLISH_TOC";
         if (compact.equals("引用标准名录")) return "REFERENCED_STANDARDS";
         if (compact.equals("本标准用词说明") || compact.equals("本规范用词说明")) return "TERMINOLOGY_NOTE";
@@ -91,8 +93,10 @@ public class LegalSectionFilter {
         return null;
     }
 
-    private boolean isBodyChapter(String text) {
-        return (BODY_CHAPTER.matcher(text).matches() || NUMBERED_BODY_CHAPTER.matcher(text).matches())
+    private boolean isBodyChapter(Block block, String text) {
+        boolean numberedHeading = block instanceof HeadingBlock
+                && (NUMBERED_BODY_CHAPTER.matcher(text).matches() || COMPACT_BODY_CHAPTER.matcher(text).matches());
+        return (BODY_CHAPTER.matcher(text).matches() || numberedHeading)
                 && headingSection(text) == null;
     }
 
