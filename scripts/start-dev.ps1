@@ -1,12 +1,90 @@
-param([switch]$SkipFrontend,[switch]$SkipBackend,[switch]$StartRocketMq)
-$ErrorActionPreference='Stop';$repoRoot=(Resolve-Path (Join-Path $PSScriptRoot '..')).Path;$runDir=Join-Path $repoRoot '.codex-run';New-Item -ItemType Directory -Force $runDir|Out-Null
-function S([string]$l,[string]$m){Write-Host "[$l] $m"};function PortUp([int]$p){$c=[System.Net.Sockets.TcpClient]::new();try{$a=$c.ConnectAsync('127.0.0.1',$p);return $a.Wait(1000) -and $c.Connected}catch{return $false}finally{$c.Dispose()}};function ContainerUp([string]$n){return ((docker inspect -f '{{.State.Running}}' $n 2>$null) -eq 'true')};function W([int]$p,[string]$n){for($i=0;$i-lt 60;$i++){if(PortUp $p){S OK "$n reachable on $p";return};Start-Sleep 1};throw "$n did not start on port $p. Check .codex-run logs."}
-if(-not(Get-Command docker -ErrorAction SilentlyContinue)){throw 'Docker CLI not found.'};docker info *> $null;if($LASTEXITCODE-ne 0){throw 'Docker Desktop is not running.'};S OK 'Docker Desktop is ready';S OK 'ragent startup sequence entered'
-if((ContainerUp 'ragent-postgres') -and (ContainerUp 'ragent-rustfs')) { S OK 'PostgreSQL and RustFS containers already running; skipped duplicate container start' } else { & (Join-Path $repoRoot 'scripts\windows\start-ragent-required-middleware.ps1') };W 15432 PostgreSQL;W 9000 'RustFS API'
-if(PortUp 6379){$old=docker ps --filter 'name=^/ragent-redis-phase1$' --format '{{.Names}}';if($old-eq 'ragent-redis-phase1'){docker stop ragent-redis-phase1|Out-Null;S OK 'Stopped legacy no-password ragent-redis-phase1 (volume preserved)'}}
-$redisCompose=Join-Path $repoRoot 'resources\docker\redis-local.compose.yaml';docker compose -f $redisCompose up -d;if($LASTEXITCODE-ne 0){throw 'Redis startup failed. Port 6379 may be used by another service.'};W 6379 Redis
-if($StartRocketMq){S OK 'RocketMQ requested';$f=Join-Path $repoRoot 'resources\docker\rocketmq-stack-5.2.0.compose.yaml';docker compose -f $f up -d;if($LASTEXITCODE-ne 0){throw 'RocketMQ startup failed.'};W 9876 'RocketMQ NameServer'}else{S WARN 'RocketMQ not started; use -StartRocketMq if required'}
-if(PortUp 11434){S OK 'Ollama available on 11434'}else{S WARN 'Ollama unavailable (optional dependency)'}
-if(-not $SkipBackend){if(-not(Get-NetTCPConnection -LocalPort 9090 -State Listen -ErrorAction SilentlyContinue)){Start-Process cmd.exe -ArgumentList @('/c','.\mvnw.cmd -pl bootstrap -am package "-DskipTests" "-Dspotless.check.skip=true" && java -jar bootstrap\target\bootstrap-0.0.1-SNAPSHOT.jar') -WorkingDirectory $repoRoot -RedirectStandardOutput (Join-Path $runDir 'ragent-backend.out.log') -RedirectStandardError (Join-Path $runDir 'ragent-backend.err.log') -WindowStyle Hidden|Out-Null;W 9090 'ragent backend'}else{S OK 'ragent backend already listens on 9090'}}
-if(-not $SkipFrontend){if(-not(Get-NetTCPConnection -LocalPort 5173 -State Listen -ErrorAction SilentlyContinue)){Start-Process npm.cmd -ArgumentList @('--prefix','frontend','run','dev') -WorkingDirectory $repoRoot -RedirectStandardOutput (Join-Path $runDir 'ragent-frontend.out.log') -RedirectStandardError (Join-Path $runDir 'ragent-frontend.err.log') -WindowStyle Hidden|Out-Null;W 5173 'ragent frontend'}else{S OK 'ragent frontend already listens on 5173'}}
-Write-Host '';Write-Host 'Frontend URL: http://127.0.0.1:5173';Write-Host 'Backend URL: http://127.0.0.1:9090/api/ragent'
+param([switch]$SkipFrontend, [switch]$SkipBackend, [switch]$StartRocketMq)
+
+$ErrorActionPreference = 'Stop'
+$repoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
+$runDir = Join-Path $repoRoot '.codex-run'
+New-Item -ItemType Directory -Force -Path $runDir | Out-Null
+$stdinPath = Join-Path $runDir 'dev-start.stdin'
+if (-not (Test-Path -LiteralPath $stdinPath)) { New-Item -ItemType File -Path $stdinPath | Out-Null }
+. (Join-Path $PSScriptRoot 'dev-runtime.ps1')
+
+function Invoke-LocalDocker {
+    param([string[]]$DockerArguments, [string]$Label, [int]$TimeoutSeconds = 30, [switch]$Quiet)
+    Write-Host "[STEP] $Label (timeout $($TimeoutSeconds)s)"
+    $result = Invoke-DevCommand -FilePath $dockerPath -ArgumentList $DockerArguments -WorkingDirectory $repoRoot -TimeoutSeconds $TimeoutSeconds -Label $Label -LogPath (Join-Path $runDir 'docker-last.log') -Quiet:$Quiet
+    if ($result.ExitCode -ne 0) {
+        throw "$Label failed (exit $($result.ExitCode)). $($result.Error.Trim()) Log: $runDir\docker-last.log"
+    }
+    return $result.Output
+}
+
+try {
+    Write-Host '[STEP] ragent startup entered; checking Docker Desktop'
+    $dockerPath = (Get-Command docker.exe -ErrorAction Stop).Source
+    $null = Invoke-LocalDocker @('info','--format','{{.ServerVersion}}') 'Docker Desktop check' -Quiet
+    Write-Host '[OK] Docker Desktop is ready'
+    $running = Invoke-LocalDocker @('ps','--format','{{.Names}}') 'Inspect running containers' -Quiet
+    $containerNames = $running -split '\r?\n'
+    if ('ragent-postgres' -notin $containerNames -or 'ragent-rustfs' -notin $containerNames) {
+        & (Join-Path $PSScriptRoot 'windows\start-ragent-required-middleware.ps1')
+    }
+    foreach ($dependency in @(@(15432,'PostgreSQL'), @(9000,'RustFS API'))) {
+        $deadline = [DateTime]::UtcNow.AddSeconds(60)
+        while (-not (Test-DevPort $dependency[0])) {
+            if ([DateTime]::UtcNow -ge $deadline) { throw "$($dependency[1]) unavailable on $($dependency[0])." }
+            Write-Host "[WAIT] $($dependency[1]) port $($dependency[0])"
+            Start-Sleep -Seconds 1
+        }
+        Write-Host "[OK] $($dependency[1]) reachable on $($dependency[0])"
+    }
+    if ('ragent-redis-phase1' -in $containerNames) {
+        $null = Invoke-LocalDocker @('stop','ragent-redis-phase1') 'Stop legacy Redis container; preserve its volume'
+    }
+    $null = Invoke-LocalDocker @('compose','--ansi','never','-f','resources/docker/redis-local.compose.yaml','up','-d') 'Start Redis' 180
+    if (-not (Test-DevPort 6379)) { throw 'Redis unavailable on 6379.' }
+    Write-Host '[OK] Redis reachable on 6379'
+    if ($StartRocketMq) {
+        $null = Invoke-LocalDocker @('compose','--ansi','never','-f','resources/docker/rocketmq-stack-5.2.0.compose.yaml','up','-d') 'Start RocketMQ' 180
+    }
+    if (-not (Test-DevPort 9876)) { throw 'RocketMQ unavailable on 9876. Use -StartRocketMq.' }
+    Write-Host '[OK] RocketMQ NameServer reachable on 9876'
+    if (Test-DevPort 11434) { Write-Host '[OK] Ollama available on 11434' }
+    else { Write-Host '[WARN] Ollama unavailable (optional)' }
+
+    if (-not $SkipBackend) {
+        $backendProcess = $null
+        $backendLog = Join-Path $runDir 'ragent-backend.out.log'
+        if (-not (Test-DevPort 9090)) {
+            $javaPath = (Get-Command java.exe -ErrorAction Stop).Source
+            Write-Host "[STEP] Build ragent backend; log: $runDir\ragent-build.log"
+            $buildCode = '& ''.\mvnw.cmd'' -pl bootstrap -am package ''-DskipTests'' ''-Dspotless.apply.skip=true'' ''-Dspotless.check.skip=true''; exit $LASTEXITCODE'
+            $encoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($buildCode))
+            $build = Invoke-DevCommand -FilePath "$env:SystemRoot\System32\WindowsPowerShell\v1.0\powershell.exe" -ArgumentList @('-NoProfile','-NonInteractive','-EncodedCommand',$encoded) -WorkingDirectory $repoRoot -TimeoutSeconds 600 -Label 'Maven package' -LogPath (Join-Path $runDir 'ragent-build.log') -Quiet
+            if ($build.ExitCode -ne 0) { throw "Maven failed (exit $($build.ExitCode)). Log: $runDir\ragent-build.log" }
+            $jarPath = Join-Path $repoRoot 'bootstrap\target\bootstrap-0.0.1-SNAPSHOT.jar'
+            if (-not (Test-Path -LiteralPath $jarPath)) { throw "Missing backend JAR: $jarPath" }
+            Write-Host '[STEP] Start ragent backend (local profile, 9090)'
+            $backendProcess = Start-Process -FilePath $javaPath -ArgumentList @('-jar',(ConvertTo-DevArgument $jarPath),'--spring.profiles.active=local','--server.port=9090') -WorkingDirectory $repoRoot -RedirectStandardInput $stdinPath -RedirectStandardOutput $backendLog -RedirectStandardError (Join-Path $runDir 'ragent-backend.err.log') -WindowStyle Hidden -PassThru
+        }
+        Wait-DevHttp -Uri 'http://127.0.0.1:9090/api/ragent/' -Kind Backend -Label 'ragent backend' -Process $backendProcess -LogPath $backendLog
+    }
+    if (-not $SkipFrontend) {
+        $frontendProcess = $null
+        $frontendLog = Join-Path $runDir 'ragent-frontend.out.log'
+        if (-not (Test-DevPort 5173)) {
+            $nodePath = (Get-Command node.exe -ErrorAction Stop).Source
+            $vitePath = Join-Path $repoRoot 'frontend\node_modules\vite\bin\vite.js'
+            if (-not (Test-Path -LiteralPath $vitePath)) { throw 'Frontend dependencies missing. Run npm ci in frontend/.' }
+            Write-Host '[STEP] Start ragent frontend (5173, strict port)'
+            $frontendProcess = Start-Process -FilePath $nodePath -ArgumentList @((ConvertTo-DevArgument $vitePath),'--host','127.0.0.1','--port','5173','--strictPort') -WorkingDirectory (Join-Path $repoRoot 'frontend') -RedirectStandardInput $stdinPath -RedirectStandardOutput $frontendLog -RedirectStandardError (Join-Path $runDir 'ragent-frontend.err.log') -WindowStyle Hidden -PassThru
+        }
+        Wait-DevHttp -Uri 'http://127.0.0.1:5173/' -Kind Frontend -Label 'ragent frontend' -Process $frontendProcess -LogPath $frontendLog
+    }
+    Write-Host ''
+    if (-not $SkipFrontend) { Write-Host 'Frontend URL: http://127.0.0.1:5173' }
+    if (-not $SkipBackend) { Write-Host 'Backend URL:  http://127.0.0.1:9090/api/ragent' }
+}
+catch {
+    Write-Host "[FAILED] ragent startup: $($_.Exception.Message)"
+    throw
+}

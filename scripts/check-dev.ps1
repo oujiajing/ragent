@@ -1,1 +1,21 @@
-$ErrorActionPreference='Continue';function S([string]$l,[string]$m){Write-Host "[$l] $m"};function PortUp([int]$p){$c=[System.Net.Sockets.TcpClient]::new();try{$a=$c.ConnectAsync('127.0.0.1',$p);return $a.Wait(1000) -and $c.Connected}catch{return $false}finally{$c.Dispose()}};function P([int]$p,[string]$n){if(PortUp $p){S OK "$n reachable on $p"}else{S FAILED "$n unavailable on $p"}};function U([string]$u,[string]$n){try{$r=Invoke-WebRequest $u -UseBasicParsing -Proxy $null -TimeoutSec 8;if($r.StatusCode-lt 500){S OK "$n reachable ($($r.StatusCode))"}else{S WARN "$n returned $($r.StatusCode)"}}catch{S FAILED "$n unavailable"}};if(Get-Command docker -ErrorAction SilentlyContinue){docker info *> $null;if($LASTEXITCODE-eq 0){S OK 'Docker Desktop ready'}else{S FAILED 'Docker Desktop unavailable'}}else{S FAILED 'Docker CLI not found'};P 15432 PostgreSQL;P 6379 Redis;P 9000 'RustFS API';P 9876 'RocketMQ NameServer';if(PortUp 11434){S OK 'Ollama listening on 11434'}else{S WARN 'Ollama unavailable (optional)'};U 'http://127.0.0.1:9090/api/ragent/' 'ragent backend';P 5173 'ragent frontend'
+$ErrorActionPreference = 'Stop'
+. (Join-Path $PSScriptRoot 'dev-runtime.ps1')
+$failed = $false
+try {
+    Write-Host '[STEP] Checking Docker Desktop (timeout 15s)'
+    $docker = Invoke-DevCommand -FilePath (Get-Command docker.exe -ErrorAction Stop).Source -ArgumentList @('info','--format','{{.ServerVersion}}') -TimeoutSeconds 15 -Label 'Docker Desktop check' -Quiet
+    if ($docker.ExitCode -ne 0) { throw 'Docker info returned an error.' }
+    Write-Host '[OK] Docker Desktop ready'
+}
+catch { Write-Host "[FAILED] $($_.Exception.Message)"; $failed = $true }
+foreach ($service in @(@(15432,'PostgreSQL'), @(6379,'Redis'), @(9000,'RustFS API'), @(9876,'RocketMQ NameServer'))) {
+    if (Test-DevPort $service[0]) { Write-Host "[OK] $($service[1]) reachable on $($service[0])" }
+    else { Write-Host "[FAILED] $($service[1]) unavailable on $($service[0])"; $failed = $true }
+}
+if (Test-DevPort 11434) { Write-Host '[OK] Ollama available on 11434' }
+else { Write-Host '[WARN] Ollama unavailable (optional)' }
+if (Test-DevHttp 'http://127.0.0.1:9090/api/ragent/' Backend) { Write-Host '[OK] ragent backend HTTP 200: http://127.0.0.1:9090/api/ragent' }
+else { Write-Host '[FAILED] ragent backend unavailable'; $failed = $true }
+if (Test-DevHttp 'http://127.0.0.1:5173/' Frontend) { Write-Host '[OK] ragent frontend HTTP 200: http://127.0.0.1:5173' }
+else { Write-Host '[FAILED] ragent frontend unavailable'; $failed = $true }
+if ($failed) { throw 'ragent checks failed; see [FAILED] lines above.' }

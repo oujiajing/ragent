@@ -8,6 +8,7 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
+. (Join-Path $PSScriptRoot '..\dev-runtime.ps1')
 
 function Assert-Command {
     param([string]$Name)
@@ -17,22 +18,22 @@ function Assert-Command {
 }
 
 function Assert-DockerReady {
-    docker info *> $null
-    if ($LASTEXITCODE -ne 0) {
+    Write-Host '[STEP] Docker Desktop check (timeout 30s)'
+    $result = Invoke-DevCommand -FilePath (Get-Command docker.exe).Source -ArgumentList @('info','--format','{{.ServerVersion}}') -TimeoutSeconds 30 -Label 'Docker Desktop check' -Quiet
+    if ($result.ExitCode -ne 0) {
         throw "Docker is installed but the daemon is not running. Start Docker Desktop, then rerun this script."
     }
 }
 
 function Invoke-Docker {
     param([string[]]$DockerArgs)
-    & docker @DockerArgs
-    if ($LASTEXITCODE -ne 0) {
-        throw "docker $($DockerArgs -join ' ') failed with exit code $LASTEXITCODE"
-    }
+    $result = Invoke-DevCommand -FilePath (Get-Command docker.exe).Source -ArgumentList $DockerArgs -TimeoutSeconds 180 -Label "Docker $($DockerArgs[0])" -Quiet
+    if ($result.ExitCode -ne 0) { throw "Docker $($DockerArgs[0]) failed: $($result.Error)" }
+    $result.Output.TrimEnd()
 }
 
 function Start-Or-CreatePostgres {
-    $existing = docker ps -a --filter "name=^/ragent-postgres$" --format "{{.Names}}"
+    $existing = Invoke-Docker -DockerArgs @('ps','-a','--filter','name=^/ragent-postgres$','--format','{{.Names}}')
     if ($existing -eq "ragent-postgres") {
         Invoke-Docker -DockerArgs @("start", "ragent-postgres") | Out-Null
         Write-Host "PostgreSQL container ragent-postgres is running."
@@ -54,7 +55,7 @@ function Start-Or-CreatePostgres {
 }
 
 function Start-Or-CreateRustFs {
-    $existing = docker ps -a --filter "name=^/ragent-rustfs$" --format "{{.Names}}"
+    $existing = Invoke-Docker -DockerArgs @('ps','-a','--filter','name=^/ragent-rustfs$','--format','{{.Names}}')
     if ($existing -eq "ragent-rustfs") {
         Invoke-Docker -DockerArgs @("start", "ragent-rustfs") | Out-Null
         Write-Host "RustFS container ragent-rustfs is running."
