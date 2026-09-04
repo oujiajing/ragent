@@ -1,0 +1,717 @@
+﻿{
+    "schemaVersion":  1,
+    "phase":  "5.6A",
+    "sourceManifest":  "PHASE5_6_REINDEX_MANIFEST.json",
+    "reviewDate":  "2026-09-04",
+    "basis":  "automated Phase 5.5 quality detection plus evidence/manual disposition review; no MinerU call or PDF reparse",
+    "originalPassCount":  22,
+    "originalReviewRequiredCount":  8,
+    "originalRejectedCount":  0,
+    "finalPassCount":  25,
+    "finalReviewRequiredCount":  5,
+    "finalRejectedCount":  0,
+    "realSafeReindexAllowed":  false,
+    "documents":  [
+                      {
+                          "document":  "《安全帽》GB 2811-2019.pdf",
+                          "fileHash":  "ee1668c18709dff5a9b4b4ae4a6f66060c13e7aa4994d07c29bb71c15c844226",
+                          "currentStatus":  "REVIEW_REQUIRED",
+                          "triggerReasons":  [
+                                                 "missingExpectedClauses: 3.1, 3.2, 5.2.1, 5.2.16, 5.2.17",
+                                                 "OCR Review: 20",
+                                                 "oversized chunks: 2"
+                                             ],
+                          "confirmedBodyLoss":  false,
+                          "confirmedTableLoss":  false,
+                          "confirmedHierarchyError":  false,
+                          "ocrReviewOnly":  false,
+                          "oversizedChunkOnly":  false,
+                          "coverageWarningOnly":  false,
+                          "manualEvidence":  "block-decisions.json: all expected BODY blocks retained and covered; tablesNotFullyCovered=0; hierarchyMismatchCandidates=[]; however the structured audit still reports five missing expected clauses and OCR/numbering uncertainty.",
+                          "finalDisposition":  "REVIEW_REQUIRED",
+                          "dispositionReason":  "No confirmed body/table/hierarchy loss, but missing expected clauses cannot be proven to be OCR-only from the existing evidence.",
+                          "evidenceSource":  [
+                                                 "PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md",
+                                                 "PHASE5_6_REINDEX_MANIFEST.json",
+                                                 ".output\\phase5-5-quality\\ee1668c18709dff5a9b4b4ae4a6f66060c13e7aa4994d07c29bb71c15c844226\\summary.json",
+                                                 ".output\\phase5-5-quality\\ee1668c18709dff5a9b4b4ae4a6f66060c13e7aa4994d07c29bb71c15c844226\\block-decisions.json"
+                                             ]
+                      },
+                      {
+                          "document":  "《爆破安全规程》GB 6722-2014.pdf",
+                          "fileHash":  "31382d432b8b26e000d9cb19ba8c202fcafea0c57e7ac9294b528e223910bd89",
+                          "currentStatus":  "REVIEW_REQUIRED",
+                          "triggerReasons":  [
+                                                 "OCR Review: 110",
+                                                 "oversized chunks: 3"
+                                             ],
+                          "confirmedBodyLoss":  false,
+                          "confirmedTableLoss":  false,
+                          "confirmedHierarchyError":  false,
+                          "ocrReviewOnly":  true,
+                          "oversizedChunkOnly":  true,
+                          "coverageWarningOnly":  false,
+                          "manualEvidence":  "summary.json: bodyBlocksNotFullyCovered=0, tablesNotFullyCovered=0, hierarchyMismatchCandidates=[]; block-decisions.json contains no uncovered BODY block.",
+                          "finalDisposition":  "PASS",
+                          "dispositionReason":  "Review triggers are OCR and oversized-chunk diagnostics only; no confirmed body, table, or hierarchy loss.",
+                          "evidenceSource":  [
+                                                 "PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md",
+                                                 "PHASE5_6_REINDEX_MANIFEST.json",
+                                                 ".output\\phase5-5-quality\\31382d432b8b26e000d9cb19ba8c202fcafea0c57e7ac9294b528e223910bd89\\summary.json",
+                                                 ".output\\phase5-5-quality\\31382d432b8b26e000d9cb19ba8c202fcafea0c57e7ac9294b528e223910bd89\\block-decisions.json"
+                                             ]
+                      },
+                      {
+                          "document":  "《建设工程监理规范》GB_T 50319-2013.pdf",
+                          "fileHash":  "131d16fadefa874b70d0d6f7430b80202af333caa1775ca5a4cfd88b79ab0fd3",
+                          "currentStatus":  "PASS",
+                          "triggerReasons":  [
+                                                 "original Phase 5.5 status PASS_SAMPLED_CHECKS"
+                                             ],
+                          "confirmedBodyLoss":  false,
+                          "confirmedTableLoss":  false,
+                          "confirmedHierarchyError":  false,
+                          "ocrReviewOnly":  false,
+                          "oversizedChunkOnly":  false,
+                          "coverageWarningOnly":  false,
+                          "manualEvidence":  "PHASE5_6_REINDEX_MANIFEST.json and PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md: original status PASS_SAMPLED_CHECKS; no review disposition trigger.",
+                          "finalDisposition":  "PASS",
+                          "dispositionReason":  "Original Phase 5.5 sampled checks passed; no contrary evidence in the reviewed artifacts.",
+                          "evidenceSource":  [
+                                                 "PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md",
+                                                 "PHASE5_6_REINDEX_MANIFEST.json",
+                                                 ".output\\phase5-5-quality\\131d16fadefa874b70d0d6f7430b80202af333caa1775ca5a4cfd88b79ab0fd3\\summary.json",
+                                                 ".output\\phase5-5-quality\\131d16fadefa874b70d0d6f7430b80202af333caa1775ca5a4cfd88b79ab0fd3\\block-decisions.json"
+                                             ]
+                      },
+                      {
+                          "document":  "《建设工程施工现场供用电安全规范》GB 50194-2014.pdf",
+                          "fileHash":  "467cf4ca7017a40e7884b08fed362bcdd2f092170a19852ace0ab4f365d3cf99",
+                          "currentStatus":  "PASS",
+                          "triggerReasons":  [
+                                                 "original Phase 5.5 status PASS_SAMPLED_CHECKS"
+                                             ],
+                          "confirmedBodyLoss":  false,
+                          "confirmedTableLoss":  false,
+                          "confirmedHierarchyError":  false,
+                          "ocrReviewOnly":  false,
+                          "oversizedChunkOnly":  false,
+                          "coverageWarningOnly":  false,
+                          "manualEvidence":  "PHASE5_6_REINDEX_MANIFEST.json and PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md: original status PASS_SAMPLED_CHECKS; no review disposition trigger.",
+                          "finalDisposition":  "PASS",
+                          "dispositionReason":  "Original Phase 5.5 sampled checks passed; no contrary evidence in the reviewed artifacts.",
+                          "evidenceSource":  [
+                                                 "PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md",
+                                                 "PHASE5_6_REINDEX_MANIFEST.json",
+                                                 ".output\\phase5-5-quality\\467cf4ca7017a40e7884b08fed362bcdd2f092170a19852ace0ab4f365d3cf99\\summary.json",
+                                                 ".output\\phase5-5-quality\\467cf4ca7017a40e7884b08fed362bcdd2f092170a19852ace0ab4f365d3cf99\\block-decisions.json"
+                                             ]
+                      },
+                      {
+                          "document":  "《建设工程施工现场消防安全技术规范》GB 50720-2011.pdf",
+                          "fileHash":  "f4a197ea3ff0df6e6e70185beccd870a19002055c661615a3077a93de0a01eda",
+                          "currentStatus":  "PASS",
+                          "triggerReasons":  [
+                                                 "original Phase 5.5 status PASS_SAMPLED_CHECKS"
+                                             ],
+                          "confirmedBodyLoss":  false,
+                          "confirmedTableLoss":  false,
+                          "confirmedHierarchyError":  false,
+                          "ocrReviewOnly":  false,
+                          "oversizedChunkOnly":  false,
+                          "coverageWarningOnly":  false,
+                          "manualEvidence":  "PHASE5_6_REINDEX_MANIFEST.json and PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md: original status PASS_SAMPLED_CHECKS; no review disposition trigger.",
+                          "finalDisposition":  "PASS",
+                          "dispositionReason":  "Original Phase 5.5 sampled checks passed; no contrary evidence in the reviewed artifacts.",
+                          "evidenceSource":  [
+                                                 "PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md",
+                                                 "PHASE5_6_REINDEX_MANIFEST.json",
+                                                 ".output\\phase5-5-quality\\f4a197ea3ff0df6e6e70185beccd870a19002055c661615a3077a93de0a01eda\\summary.json",
+                                                 ".output\\phase5-5-quality\\f4a197ea3ff0df6e6e70185beccd870a19002055c661615a3077a93de0a01eda\\block-decisions.json"
+                                             ]
+                      },
+                      {
+                          "document":  "《建筑地基基础工程施工质量验收规范》GB 50202-2018.pdf",
+                          "fileHash":  "6eff1b77b85882a1e8b04bab6e304adb617d4a7f533bbf027a4200a1db69045b",
+                          "currentStatus":  "REVIEW_REQUIRED",
+                          "triggerReasons":  [
+                                                 "oversized chunks: 35",
+                                                 "OCR Review: 8"
+                                             ],
+                          "confirmedBodyLoss":  false,
+                          "confirmedTableLoss":  false,
+                          "confirmedHierarchyError":  false,
+                          "ocrReviewOnly":  false,
+                          "oversizedChunkOnly":  true,
+                          "coverageWarningOnly":  false,
+                          "manualEvidence":  "summary.json: bodyBlocksNotFullyCovered=0, tablesNotFullyCovered=0, hierarchyMismatchCandidates=[]; oversized chunks are the only structural review trigger.",
+                          "finalDisposition":  "PASS",
+                          "dispositionReason":  "Oversized-table/chunk diagnostic only; no confirmed body, table, or hierarchy loss.",
+                          "evidenceSource":  [
+                                                 "PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md",
+                                                 "PHASE5_6_REINDEX_MANIFEST.json",
+                                                 ".output\\phase5-5-quality\\6eff1b77b85882a1e8b04bab6e304adb617d4a7f533bbf027a4200a1db69045b\\summary.json",
+                                                 ".output\\phase5-5-quality\\6eff1b77b85882a1e8b04bab6e304adb617d4a7f533bbf027a4200a1db69045b\\block-decisions.json"
+                                             ]
+                      },
+                      {
+                          "document":  "《建筑机械使用安全技术规程》JGJ 33-2018.pdf",
+                          "fileHash":  "ab19b68cfb9d2bcc00b49b6633636e7f7a1a7ae8612493f7b53055ca41322658",
+                          "currentStatus":  "PASS",
+                          "triggerReasons":  [
+                                                 "original Phase 5.5 status PASS_SAMPLED_CHECKS"
+                                             ],
+                          "confirmedBodyLoss":  false,
+                          "confirmedTableLoss":  false,
+                          "confirmedHierarchyError":  false,
+                          "ocrReviewOnly":  false,
+                          "oversizedChunkOnly":  false,
+                          "coverageWarningOnly":  false,
+                          "manualEvidence":  "PHASE5_6_REINDEX_MANIFEST.json and PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md: original status PASS_SAMPLED_CHECKS; no review disposition trigger.",
+                          "finalDisposition":  "PASS",
+                          "dispositionReason":  "Original Phase 5.5 sampled checks passed; no contrary evidence in the reviewed artifacts.",
+                          "evidenceSource":  [
+                                                 "PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md",
+                                                 "PHASE5_6_REINDEX_MANIFEST.json",
+                                                 ".output\\phase5-5-quality\\ab19b68cfb9d2bcc00b49b6633636e7f7a1a7ae8612493f7b53055ca41322658\\summary.json",
+                                                 ".output\\phase5-5-quality\\ab19b68cfb9d2bcc00b49b6633636e7f7a1a7ae8612493f7b53055ca41322658\\block-decisions.json"
+                                             ]
+                      },
+                      {
+                          "document":  "《建筑基坑支护技术规程》JGJ 120-2012.pdf",
+                          "fileHash":  "471e3dcf59499ea1f9c9214487ced449de7930835d7d72617681e8cacf8cebb8",
+                          "currentStatus":  "REVIEW_REQUIRED",
+                          "triggerReasons":  [
+                                                 "coverage warning: 99 BODY blocks",
+                                                 "OCR Review: 5",
+                                                 "oversized chunks: 1"
+                                             ],
+                          "confirmedBodyLoss":  false,
+                          "confirmedTableLoss":  false,
+                          "confirmedHierarchyError":  false,
+                          "ocrReviewOnly":  false,
+                          "oversizedChunkOnly":  false,
+                          "coverageWarningOnly":  false,
+                          "manualEvidence":  "block-decisions.json: affected BODY blocks are retained; sampled after.json matching is incomplete; tablesNotFullyCovered=0 and hierarchyMismatchCandidates=[].",
+                          "finalDisposition":  "REVIEW_REQUIRED",
+                          "dispositionReason":  "Coverage warning cannot be conclusively classified as a false positive using the existing artifacts.",
+                          "evidenceSource":  [
+                                                 "PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md",
+                                                 "PHASE5_6_REINDEX_MANIFEST.json",
+                                                 ".output\\phase5-5-quality\\471e3dcf59499ea1f9c9214487ced449de7930835d7d72617681e8cacf8cebb8\\summary.json",
+                                                 ".output\\phase5-5-quality\\471e3dcf59499ea1f9c9214487ced449de7930835d7d72617681e8cacf8cebb8\\block-decisions.json"
+                                             ]
+                      },
+                      {
+                          "document":  "《建筑灭火器配置设计规范》GB 50140-2005.pdf",
+                          "fileHash":  "524af63138bf3721f50cf5c4c038b179c2a1621899eb026cf55048fec551bda9",
+                          "currentStatus":  "PASS",
+                          "triggerReasons":  [
+                                                 "original Phase 5.5 status PASS_SAMPLED_CHECKS"
+                                             ],
+                          "confirmedBodyLoss":  false,
+                          "confirmedTableLoss":  false,
+                          "confirmedHierarchyError":  false,
+                          "ocrReviewOnly":  false,
+                          "oversizedChunkOnly":  false,
+                          "coverageWarningOnly":  false,
+                          "manualEvidence":  "PHASE5_6_REINDEX_MANIFEST.json and PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md: original status PASS_SAMPLED_CHECKS; no review disposition trigger.",
+                          "finalDisposition":  "PASS",
+                          "dispositionReason":  "Original Phase 5.5 sampled checks passed; no contrary evidence in the reviewed artifacts.",
+                          "evidenceSource":  [
+                                                 "PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md",
+                                                 "PHASE5_6_REINDEX_MANIFEST.json",
+                                                 ".output\\phase5-5-quality\\524af63138bf3721f50cf5c4c038b179c2a1621899eb026cf55048fec551bda9\\summary.json",
+                                                 ".output\\phase5-5-quality\\524af63138bf3721f50cf5c4c038b179c2a1621899eb026cf55048fec551bda9\\block-decisions.json"
+                                             ]
+                      },
+                      {
+                          "document":  "《建筑设计防火规范》GB 50016-2022.pdf",
+                          "fileHash":  "079d1a68a9dc29576ab5543d36133018078c7bef3e5e37de486212f887cca8f3",
+                          "currentStatus":  "PASS",
+                          "triggerReasons":  [
+                                                 "original Phase 5.5 status PASS_SAMPLED_CHECKS"
+                                             ],
+                          "confirmedBodyLoss":  false,
+                          "confirmedTableLoss":  false,
+                          "confirmedHierarchyError":  false,
+                          "ocrReviewOnly":  false,
+                          "oversizedChunkOnly":  false,
+                          "coverageWarningOnly":  false,
+                          "manualEvidence":  "PHASE5_6_REINDEX_MANIFEST.json and PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md: original status PASS_SAMPLED_CHECKS; no review disposition trigger.",
+                          "finalDisposition":  "PASS",
+                          "dispositionReason":  "Original Phase 5.5 sampled checks passed; no contrary evidence in the reviewed artifacts.",
+                          "evidenceSource":  [
+                                                 "PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md",
+                                                 "PHASE5_6_REINDEX_MANIFEST.json",
+                                                 ".output\\phase5-5-quality\\079d1a68a9dc29576ab5543d36133018078c7bef3e5e37de486212f887cca8f3\\summary.json",
+                                                 ".output\\phase5-5-quality\\079d1a68a9dc29576ab5543d36133018078c7bef3e5e37de486212f887cca8f3\\block-decisions.json"
+                                             ]
+                      },
+                      {
+                          "document":  "《建筑施工安全技术统一规范》GB 50870-2013.pdf",
+                          "fileHash":  "425ddded77a234f6a471956d1ab45f54a03f510009e6277e1ad80bf0b70bfd5e",
+                          "currentStatus":  "PASS",
+                          "triggerReasons":  [
+                                                 "original Phase 5.5 status PASS_SAMPLED_CHECKS"
+                                             ],
+                          "confirmedBodyLoss":  false,
+                          "confirmedTableLoss":  false,
+                          "confirmedHierarchyError":  false,
+                          "ocrReviewOnly":  false,
+                          "oversizedChunkOnly":  false,
+                          "coverageWarningOnly":  false,
+                          "manualEvidence":  "PHASE5_6_REINDEX_MANIFEST.json and PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md: original status PASS_SAMPLED_CHECKS; no review disposition trigger.",
+                          "finalDisposition":  "PASS",
+                          "dispositionReason":  "Original Phase 5.5 sampled checks passed; no contrary evidence in the reviewed artifacts.",
+                          "evidenceSource":  [
+                                                 "PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md",
+                                                 "PHASE5_6_REINDEX_MANIFEST.json",
+                                                 ".output\\phase5-5-quality\\425ddded77a234f6a471956d1ab45f54a03f510009e6277e1ad80bf0b70bfd5e\\summary.json",
+                                                 ".output\\phase5-5-quality\\425ddded77a234f6a471956d1ab45f54a03f510009e6277e1ad80bf0b70bfd5e\\block-decisions.json"
+                                             ]
+                      },
+                      {
+                          "document":  "《建筑施工高处作业安全技术规范》JGJ 80-2016.pdf",
+                          "fileHash":  "c4760f88112834b1c5293a94c9df30264b1ee13790fd30f7a98527054c5f838d",
+                          "currentStatus":  "PASS",
+                          "triggerReasons":  [
+                                                 "original Phase 5.5 status PASS_SAMPLED_CHECKS"
+                                             ],
+                          "confirmedBodyLoss":  false,
+                          "confirmedTableLoss":  false,
+                          "confirmedHierarchyError":  false,
+                          "ocrReviewOnly":  false,
+                          "oversizedChunkOnly":  false,
+                          "coverageWarningOnly":  false,
+                          "manualEvidence":  "PHASE5_6_REINDEX_MANIFEST.json and PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md: original status PASS_SAMPLED_CHECKS; no review disposition trigger.",
+                          "finalDisposition":  "PASS",
+                          "dispositionReason":  "Original Phase 5.5 sampled checks passed; no contrary evidence in the reviewed artifacts.",
+                          "evidenceSource":  [
+                                                 "PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md",
+                                                 "PHASE5_6_REINDEX_MANIFEST.json",
+                                                 ".output\\phase5-5-quality\\c4760f88112834b1c5293a94c9df30264b1ee13790fd30f7a98527054c5f838d\\summary.json",
+                                                 ".output\\phase5-5-quality\\c4760f88112834b1c5293a94c9df30264b1ee13790fd30f7a98527054c5f838d\\block-decisions.json"
+                                             ]
+                      },
+                      {
+                          "document":  "《建筑施工脚手架安全技术统一标准》GB 51210-2016.pdf",
+                          "fileHash":  "19454a4a7950887c741a0aa1f9db4ddec528ef30fe00e2fbcbdc61ed426178a6",
+                          "currentStatus":  "PASS",
+                          "triggerReasons":  [
+                                                 "original Phase 5.5 status PASS_SAMPLED_CHECKS"
+                                             ],
+                          "confirmedBodyLoss":  false,
+                          "confirmedTableLoss":  false,
+                          "confirmedHierarchyError":  false,
+                          "ocrReviewOnly":  false,
+                          "oversizedChunkOnly":  false,
+                          "coverageWarningOnly":  false,
+                          "manualEvidence":  "PHASE5_6_REINDEX_MANIFEST.json and PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md: original status PASS_SAMPLED_CHECKS; no review disposition trigger.",
+                          "finalDisposition":  "PASS",
+                          "dispositionReason":  "Original Phase 5.5 sampled checks passed; no contrary evidence in the reviewed artifacts.",
+                          "evidenceSource":  [
+                                                 "PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md",
+                                                 "PHASE5_6_REINDEX_MANIFEST.json",
+                                                 ".output\\phase5-5-quality\\19454a4a7950887c741a0aa1f9db4ddec528ef30fe00e2fbcbdc61ed426178a6\\summary.json",
+                                                 ".output\\phase5-5-quality\\19454a4a7950887c741a0aa1f9db4ddec528ef30fe00e2fbcbdc61ed426178a6\\block-decisions.json"
+                                             ]
+                      },
+                      {
+                          "document":  "《建筑施工门式钢管脚手架安全技术标准》JGJ_T 128-2019.pdf",
+                          "fileHash":  "59571b82ea5d12a41b298585e25b0d43d1912000ce290fac1eec86e308731d63",
+                          "currentStatus":  "REVIEW_REQUIRED",
+                          "triggerReasons":  [
+                                                 "oversized chunks: 2"
+                                             ],
+                          "confirmedBodyLoss":  false,
+                          "confirmedTableLoss":  false,
+                          "confirmedHierarchyError":  false,
+                          "ocrReviewOnly":  false,
+                          "oversizedChunkOnly":  true,
+                          "coverageWarningOnly":  false,
+                          "manualEvidence":  "summary.json: bodyBlocksNotFullyCovered=0, tablesNotFullyCovered=0, hierarchyMismatchCandidates=[] and ocrReviewCount=0.",
+                          "finalDisposition":  "PASS",
+                          "dispositionReason":  "Oversized-chunk diagnostic only; no confirmed body, table, or hierarchy loss.",
+                          "evidenceSource":  [
+                                                 "PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md",
+                                                 "PHASE5_6_REINDEX_MANIFEST.json",
+                                                 ".output\\phase5-5-quality\\59571b82ea5d12a41b298585e25b0d43d1912000ce290fac1eec86e308731d63\\summary.json",
+                                                 ".output\\phase5-5-quality\\59571b82ea5d12a41b298585e25b0d43d1912000ce290fac1eec86e308731d63\\block-decisions.json"
+                                             ]
+                      },
+                      {
+                          "document":  "《建筑施工起重吊装工程安全技术规范》JGJ 276-2012.pdf",
+                          "fileHash":  "bfb61101368882d21fb00001555ccac02e107cd964ee57c5659ec6a8bbdda535",
+                          "currentStatus":  "PASS",
+                          "triggerReasons":  [
+                                                 "original Phase 5.5 status PASS_SAMPLED_CHECKS"
+                                             ],
+                          "confirmedBodyLoss":  false,
+                          "confirmedTableLoss":  false,
+                          "confirmedHierarchyError":  false,
+                          "ocrReviewOnly":  false,
+                          "oversizedChunkOnly":  false,
+                          "coverageWarningOnly":  false,
+                          "manualEvidence":  "PHASE5_6_REINDEX_MANIFEST.json and PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md: original status PASS_SAMPLED_CHECKS; no review disposition trigger.",
+                          "finalDisposition":  "PASS",
+                          "dispositionReason":  "Original Phase 5.5 sampled checks passed; no contrary evidence in the reviewed artifacts.",
+                          "evidenceSource":  [
+                                                 "PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md",
+                                                 "PHASE5_6_REINDEX_MANIFEST.json",
+                                                 ".output\\phase5-5-quality\\bfb61101368882d21fb00001555ccac02e107cd964ee57c5659ec6a8bbdda535\\summary.json",
+                                                 ".output\\phase5-5-quality\\bfb61101368882d21fb00001555ccac02e107cd964ee57c5659ec6a8bbdda535\\block-decisions.json"
+                                             ]
+                      },
+                      {
+                          "document":  "《建筑施工碗扣式钢管脚手架安全技术规范》JGJ 166-2016.pdf",
+                          "fileHash":  "6d3d5044d0c4d4699f1dc4552aa1217abc903bb99ea137795961597f0e66092f",
+                          "currentStatus":  "REVIEW_REQUIRED",
+                          "triggerReasons":  [
+                                                 "coverage warning: 4 BODY blocks",
+                                                 "OCR Review: 7"
+                                             ],
+                          "confirmedBodyLoss":  false,
+                          "confirmedTableLoss":  false,
+                          "confirmedHierarchyError":  false,
+                          "ocrReviewOnly":  false,
+                          "oversizedChunkOnly":  false,
+                          "coverageWarningOnly":  false,
+                          "manualEvidence":  "block-decisions.json: four affected BODY blocks are retained but not covered by the audit matcher; tablesNotFullyCovered=0 and hierarchyMismatchCandidates=[]; formula content prevents conclusive false-positive classification.",
+                          "finalDisposition":  "REVIEW_REQUIRED",
+                          "dispositionReason":  "Small but unresolved coverage warning around formula/table-adjacent content; retain isolation.",
+                          "evidenceSource":  [
+                                                 "PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md",
+                                                 "PHASE5_6_REINDEX_MANIFEST.json",
+                                                 ".output\\phase5-5-quality\\6d3d5044d0c4d4699f1dc4552aa1217abc903bb99ea137795961597f0e66092f\\summary.json",
+                                                 ".output\\phase5-5-quality\\6d3d5044d0c4d4699f1dc4552aa1217abc903bb99ea137795961597f0e66092f\\block-decisions.json"
+                                             ]
+                      },
+                      {
+                          "document":  "《建筑施工易发事故防治安全标准》JGJ_T 429-2018.pdf",
+                          "fileHash":  "56230992584b689b0e09548c0c61dea00c7d72d24aa035be5499a0d281d98391",
+                          "currentStatus":  "PASS",
+                          "triggerReasons":  [
+                                                 "original Phase 5.5 status PASS_SAMPLED_CHECKS"
+                                             ],
+                          "confirmedBodyLoss":  false,
+                          "confirmedTableLoss":  false,
+                          "confirmedHierarchyError":  false,
+                          "ocrReviewOnly":  false,
+                          "oversizedChunkOnly":  false,
+                          "coverageWarningOnly":  false,
+                          "manualEvidence":  "PHASE5_6_REINDEX_MANIFEST.json and PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md: original status PASS_SAMPLED_CHECKS; no review disposition trigger.",
+                          "finalDisposition":  "PASS",
+                          "dispositionReason":  "Original Phase 5.5 sampled checks passed; no contrary evidence in the reviewed artifacts.",
+                          "evidenceSource":  [
+                                                 "PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md",
+                                                 "PHASE5_6_REINDEX_MANIFEST.json",
+                                                 ".output\\phase5-5-quality\\56230992584b689b0e09548c0c61dea00c7d72d24aa035be5499a0d281d98391\\summary.json",
+                                                 ".output\\phase5-5-quality\\56230992584b689b0e09548c0c61dea00c7d72d24aa035be5499a0d281d98391\\block-decisions.json"
+                                             ]
+                      },
+                      {
+                          "document":  "《建筑施工组织设计规范》GB_T 50502-2009.pdf",
+                          "fileHash":  "2a1154cb9687a58a1b0e0b51febd929427060060e2b3ef6ec4a57c05171aaaea",
+                          "currentStatus":  "PASS",
+                          "triggerReasons":  [
+                                                 "original Phase 5.5 status PASS_SAMPLED_CHECKS"
+                                             ],
+                          "confirmedBodyLoss":  false,
+                          "confirmedTableLoss":  false,
+                          "confirmedHierarchyError":  false,
+                          "ocrReviewOnly":  false,
+                          "oversizedChunkOnly":  false,
+                          "coverageWarningOnly":  false,
+                          "manualEvidence":  "PHASE5_6_REINDEX_MANIFEST.json and PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md: original status PASS_SAMPLED_CHECKS; no review disposition trigger.",
+                          "finalDisposition":  "PASS",
+                          "dispositionReason":  "Original Phase 5.5 sampled checks passed; no contrary evidence in the reviewed artifacts.",
+                          "evidenceSource":  [
+                                                 "PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md",
+                                                 "PHASE5_6_REINDEX_MANIFEST.json",
+                                                 ".output\\phase5-5-quality\\2a1154cb9687a58a1b0e0b51febd929427060060e2b3ef6ec4a57c05171aaaea\\summary.json",
+                                                 ".output\\phase5-5-quality\\2a1154cb9687a58a1b0e0b51febd929427060060e2b3ef6ec4a57c05171aaaea\\block-decisions.json"
+                                             ]
+                      },
+                      {
+                          "document":  "《建筑行业职业病危害预防控制规范》GBZ_T 211-2008.pdf",
+                          "fileHash":  "8d9cd9dd488763278bcc5ef492b814f44afaa15ca1e959c39b5b6eaa074ac433",
+                          "currentStatus":  "PASS",
+                          "triggerReasons":  [
+                                                 "original Phase 5.5 status PASS_SAMPLED_CHECKS"
+                                             ],
+                          "confirmedBodyLoss":  false,
+                          "confirmedTableLoss":  false,
+                          "confirmedHierarchyError":  false,
+                          "ocrReviewOnly":  false,
+                          "oversizedChunkOnly":  false,
+                          "coverageWarningOnly":  false,
+                          "manualEvidence":  "PHASE5_6_REINDEX_MANIFEST.json and PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md: original status PASS_SAMPLED_CHECKS; no review disposition trigger.",
+                          "finalDisposition":  "PASS",
+                          "dispositionReason":  "Original Phase 5.5 sampled checks passed; no contrary evidence in the reviewed artifacts.",
+                          "evidenceSource":  [
+                                                 "PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md",
+                                                 "PHASE5_6_REINDEX_MANIFEST.json",
+                                                 ".output\\phase5-5-quality\\8d9cd9dd488763278bcc5ef492b814f44afaa15ca1e959c39b5b6eaa074ac433\\summary.json",
+                                                 ".output\\phase5-5-quality\\8d9cd9dd488763278bcc5ef492b814f44afaa15ca1e959c39b5b6eaa074ac433\\block-decisions.json"
+                                             ]
+                      },
+                      {
+                          "document":  "《建筑与市政工程地下水控制技术规范》JGJ 111-2016.pdf",
+                          "fileHash":  "382efafcd87d769eb7ebacc9eedd79882f460c193f07e7c6f48700e2549ae099",
+                          "currentStatus":  "REVIEW_REQUIRED",
+                          "triggerReasons":  [
+                                                 "coverage warning: 59 BODY blocks",
+                                                 "OCR Review: 10",
+                                                 "oversized chunks: 2"
+                                             ],
+                          "confirmedBodyLoss":  false,
+                          "confirmedTableLoss":  false,
+                          "confirmedHierarchyError":  false,
+                          "ocrReviewOnly":  false,
+                          "oversizedChunkOnly":  false,
+                          "coverageWarningOnly":  false,
+                          "manualEvidence":  "block-decisions.json: affected BODY blocks are retained; 58/59 sampled warning prefixes are present in after.json; tablesNotFullyCovered=0 and hierarchyMismatchCandidates=[]. One coverage warning remains not conclusively explained.",
+                          "finalDisposition":  "REVIEW_REQUIRED",
+                          "dispositionReason":  "Coverage is likely a normalization/formula false positive, but one warning remains unresolved; retain isolation until confirmed.",
+                          "evidenceSource":  [
+                                                 "PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md",
+                                                 "PHASE5_6_REINDEX_MANIFEST.json",
+                                                 ".output\\phase5-5-quality\\382efafcd87d769eb7ebacc9eedd79882f460c193f07e7c6f48700e2549ae099\\summary.json",
+                                                 ".output\\phase5-5-quality\\382efafcd87d769eb7ebacc9eedd79882f460c193f07e7c6f48700e2549ae099\\block-decisions.json"
+                                             ]
+                      },
+                      {
+                          "document":  "《建筑与市政工程施工现场临时用电安全技术标准》JGJ_T 46-2024.pdf",
+                          "fileHash":  "47f8bd94e8aba4754ca7d6e4157004098ddf787d3e5a9be71715287c861ac29c",
+                          "currentStatus":  "PASS",
+                          "triggerReasons":  [
+                                                 "original Phase 5.5 status PASS_SAMPLED_CHECKS"
+                                             ],
+                          "confirmedBodyLoss":  false,
+                          "confirmedTableLoss":  false,
+                          "confirmedHierarchyError":  false,
+                          "ocrReviewOnly":  false,
+                          "oversizedChunkOnly":  false,
+                          "coverageWarningOnly":  false,
+                          "manualEvidence":  "PHASE5_6_REINDEX_MANIFEST.json and PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md: original status PASS_SAMPLED_CHECKS; no review disposition trigger.",
+                          "finalDisposition":  "PASS",
+                          "dispositionReason":  "Original Phase 5.5 sampled checks passed; no contrary evidence in the reviewed artifacts.",
+                          "evidenceSource":  [
+                                                 "PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md",
+                                                 "PHASE5_6_REINDEX_MANIFEST.json",
+                                                 ".output\\phase5-5-quality\\47f8bd94e8aba4754ca7d6e4157004098ddf787d3e5a9be71715287c861ac29c\\summary.json",
+                                                 ".output\\phase5-5-quality\\47f8bd94e8aba4754ca7d6e4157004098ddf787d3e5a9be71715287c861ac29c\\block-decisions.json"
+                                             ]
+                      },
+                      {
+                          "document":  "《施工企业安全生产评价标准》JGJ_T 77-2010.pdf",
+                          "fileHash":  "7bbee3590a1abbd38f04a3d74d9af2a7c1eb09c36e60f0f6b1337c1b71c0f150",
+                          "currentStatus":  "PASS",
+                          "triggerReasons":  [
+                                                 "original Phase 5.5 status PASS_SAMPLED_CHECKS"
+                                             ],
+                          "confirmedBodyLoss":  false,
+                          "confirmedTableLoss":  false,
+                          "confirmedHierarchyError":  false,
+                          "ocrReviewOnly":  false,
+                          "oversizedChunkOnly":  false,
+                          "coverageWarningOnly":  false,
+                          "manualEvidence":  "PHASE5_6_REINDEX_MANIFEST.json and PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md: original status PASS_SAMPLED_CHECKS; no review disposition trigger.",
+                          "finalDisposition":  "PASS",
+                          "dispositionReason":  "Original Phase 5.5 sampled checks passed; no contrary evidence in the reviewed artifacts.",
+                          "evidenceSource":  [
+                                                 "PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md",
+                                                 "PHASE5_6_REINDEX_MANIFEST.json",
+                                                 ".output\\phase5-5-quality\\7bbee3590a1abbd38f04a3d74d9af2a7c1eb09c36e60f0f6b1337c1b71c0f150\\summary.json",
+                                                 ".output\\phase5-5-quality\\7bbee3590a1abbd38f04a3d74d9af2a7c1eb09c36e60f0f6b1337c1b71c0f150\\block-decisions.json"
+                                             ]
+                      },
+                      {
+                          "document":  "《施工现场机械设备检查技术规范》JGJ 160-2016.pdf",
+                          "fileHash":  "fa598cdd9d7745a24dbde58fa2eff0c9a5f70868049c4a34028046a0c98dab7c",
+                          "currentStatus":  "PASS",
+                          "triggerReasons":  [
+                                                 "original Phase 5.5 status PASS_SAMPLED_CHECKS"
+                                             ],
+                          "confirmedBodyLoss":  false,
+                          "confirmedTableLoss":  false,
+                          "confirmedHierarchyError":  false,
+                          "ocrReviewOnly":  false,
+                          "oversizedChunkOnly":  false,
+                          "coverageWarningOnly":  false,
+                          "manualEvidence":  "PHASE5_6_REINDEX_MANIFEST.json and PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md: original status PASS_SAMPLED_CHECKS; no review disposition trigger.",
+                          "finalDisposition":  "PASS",
+                          "dispositionReason":  "Original Phase 5.5 sampled checks passed; no contrary evidence in the reviewed artifacts.",
+                          "evidenceSource":  [
+                                                 "PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md",
+                                                 "PHASE5_6_REINDEX_MANIFEST.json",
+                                                 ".output\\phase5-5-quality\\fa598cdd9d7745a24dbde58fa2eff0c9a5f70868049c4a34028046a0c98dab7c\\summary.json",
+                                                 ".output\\phase5-5-quality\\fa598cdd9d7745a24dbde58fa2eff0c9a5f70868049c4a34028046a0c98dab7c\\block-decisions.json"
+                                             ]
+                      },
+                      {
+                          "document":  "《石棉作业职业卫生管理规范》GBZ_T 193-2007.pdf",
+                          "fileHash":  "d6a9ea33842199f74c4e85f1a201b1c0a164ad8ac2b6274c04f78dccc8f4e8c9",
+                          "currentStatus":  "PASS",
+                          "triggerReasons":  [
+                                                 "original Phase 5.5 status PASS_SAMPLED_CHECKS"
+                                             ],
+                          "confirmedBodyLoss":  false,
+                          "confirmedTableLoss":  false,
+                          "confirmedHierarchyError":  false,
+                          "ocrReviewOnly":  false,
+                          "oversizedChunkOnly":  false,
+                          "coverageWarningOnly":  false,
+                          "manualEvidence":  "PHASE5_6_REINDEX_MANIFEST.json and PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md: original status PASS_SAMPLED_CHECKS; no review disposition trigger.",
+                          "finalDisposition":  "PASS",
+                          "dispositionReason":  "Original Phase 5.5 sampled checks passed; no contrary evidence in the reviewed artifacts.",
+                          "evidenceSource":  [
+                                                 "PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md",
+                                                 "PHASE5_6_REINDEX_MANIFEST.json",
+                                                 ".output\\phase5-5-quality\\d6a9ea33842199f74c4e85f1a201b1c0a164ad8ac2b6274c04f78dccc8f4e8c9\\summary.json",
+                                                 ".output\\phase5-5-quality\\d6a9ea33842199f74c4e85f1a201b1c0a164ad8ac2b6274c04f78dccc8f4e8c9\\block-decisions.json"
+                                             ]
+                      },
+                      {
+                          "document":  "《土方与爆破工程施工及验收规范》GB 50201-2012.pdf",
+                          "fileHash":  "f6bc0888c8676e758c9bb7dd77ab849d838ce8e85267a3cdbeadef0f9622c2c9",
+                          "currentStatus":  "PASS",
+                          "triggerReasons":  [
+                                                 "original Phase 5.5 status PASS_SAMPLED_CHECKS"
+                                             ],
+                          "confirmedBodyLoss":  false,
+                          "confirmedTableLoss":  false,
+                          "confirmedHierarchyError":  false,
+                          "ocrReviewOnly":  false,
+                          "oversizedChunkOnly":  false,
+                          "coverageWarningOnly":  false,
+                          "manualEvidence":  "PHASE5_6_REINDEX_MANIFEST.json and PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md: original status PASS_SAMPLED_CHECKS; no review disposition trigger.",
+                          "finalDisposition":  "PASS",
+                          "dispositionReason":  "Original Phase 5.5 sampled checks passed; no contrary evidence in the reviewed artifacts.",
+                          "evidenceSource":  [
+                                                 "PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md",
+                                                 "PHASE5_6_REINDEX_MANIFEST.json",
+                                                 ".output\\phase5-5-quality\\f6bc0888c8676e758c9bb7dd77ab849d838ce8e85267a3cdbeadef0f9622c2c9\\summary.json",
+                                                 ".output\\phase5-5-quality\\f6bc0888c8676e758c9bb7dd77ab849d838ce8e85267a3cdbeadef0f9622c2c9\\block-decisions.json"
+                                             ]
+                      },
+                      {
+                          "document":  "《职业健康监护技术规范》GBZ 188-2025.pdf",
+                          "fileHash":  "5823eea75cd5364c934f12170acec6ee9e2df2baaee736d7251cd3bc4353d0d7",
+                          "currentStatus":  "REVIEW_REQUIRED",
+                          "triggerReasons":  [
+                                                 "coverage warning: 1057 BODY blocks",
+                                                 "OCR Review: 49",
+                                                 "oversized chunks: 1"
+                                             ],
+                          "confirmedBodyLoss":  false,
+                          "confirmedTableLoss":  false,
+                          "confirmedHierarchyError":  false,
+                          "ocrReviewOnly":  false,
+                          "oversizedChunkOnly":  false,
+                          "coverageWarningOnly":  false,
+                          "manualEvidence":  "summary.json reports 1057 uncovered BODY blocks; tablesNotFullyCovered=0 and hierarchyMismatchCandidates=[]; current evidence does not establish complete coverage.",
+                          "finalDisposition":  "REVIEW_REQUIRED",
+                          "dispositionReason":  "Large unresolved coverage warning; cannot safely promote on the available evidence.",
+                          "evidenceSource":  [
+                                                 "PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md",
+                                                 "PHASE5_6_REINDEX_MANIFEST.json",
+                                                 ".output\\phase5-5-quality\\5823eea75cd5364c934f12170acec6ee9e2df2baaee736d7251cd3bc4353d0d7\\summary.json",
+                                                 ".output\\phase5-5-quality\\5823eea75cd5364c934f12170acec6ee9e2df2baaee736d7251cd3bc4353d0d7\\block-decisions.json"
+                                             ]
+                      },
+                      {
+                          "document":  "安全生产违法行为行政处罚办法.pdf",
+                          "fileHash":  "9b77c604d14f70f041cead44106e41d5c4bbfe803085bd323aec652db42734bc",
+                          "currentStatus":  "PASS",
+                          "triggerReasons":  [
+                                                 "original Phase 5.5 status PASS_SAMPLED_CHECKS"
+                                             ],
+                          "confirmedBodyLoss":  false,
+                          "confirmedTableLoss":  false,
+                          "confirmedHierarchyError":  false,
+                          "ocrReviewOnly":  false,
+                          "oversizedChunkOnly":  false,
+                          "coverageWarningOnly":  false,
+                          "manualEvidence":  "PHASE5_6_REINDEX_MANIFEST.json and PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md: original status PASS_SAMPLED_CHECKS; no review disposition trigger.",
+                          "finalDisposition":  "PASS",
+                          "dispositionReason":  "Original Phase 5.5 sampled checks passed; no contrary evidence in the reviewed artifacts.",
+                          "evidenceSource":  [
+                                                 "PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md",
+                                                 "PHASE5_6_REINDEX_MANIFEST.json",
+                                                 ".output\\phase5-5-quality\\9b77c604d14f70f041cead44106e41d5c4bbfe803085bd323aec652db42734bc\\summary.json",
+                                                 ".output\\phase5-5-quality\\9b77c604d14f70f041cead44106e41d5c4bbfe803085bd323aec652db42734bc\\block-decisions.json"
+                                             ]
+                      },
+                      {
+                          "document":  "安全生产许可证条例.pdf",
+                          "fileHash":  "451bcdcc04b80e10eda9f3a6ee6e03b916d360c0c10b89635e1d7f910d6fc9d0",
+                          "currentStatus":  "PASS",
+                          "triggerReasons":  [
+                                                 "original Phase 5.5 status PASS_SAMPLED_CHECKS"
+                                             ],
+                          "confirmedBodyLoss":  false,
+                          "confirmedTableLoss":  false,
+                          "confirmedHierarchyError":  false,
+                          "ocrReviewOnly":  false,
+                          "oversizedChunkOnly":  false,
+                          "coverageWarningOnly":  false,
+                          "manualEvidence":  "PHASE5_6_REINDEX_MANIFEST.json and PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md: original status PASS_SAMPLED_CHECKS; no review disposition trigger.",
+                          "finalDisposition":  "PASS",
+                          "dispositionReason":  "Original Phase 5.5 sampled checks passed; no contrary evidence in the reviewed artifacts.",
+                          "evidenceSource":  [
+                                                 "PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md",
+                                                 "PHASE5_6_REINDEX_MANIFEST.json",
+                                                 ".output\\phase5-5-quality\\451bcdcc04b80e10eda9f3a6ee6e03b916d360c0c10b89635e1d7f910d6fc9d0\\summary.json",
+                                                 ".output\\phase5-5-quality\\451bcdcc04b80e10eda9f3a6ee6e03b916d360c0c10b89635e1d7f910d6fc9d0\\block-decisions.json"
+                                             ]
+                      },
+                      {
+                          "document":  "中华人民共和国国务院令（第302号）　　国务院关于特大安全事故行政责任追究的规定__2001年第19号国务院公报_中国政府网.pdf",
+                          "fileHash":  "534314d59ef2b9ca229dac36b542337cca32dc7ce4babea2beddf89aedf9dc7e",
+                          "currentStatus":  "PASS",
+                          "triggerReasons":  [
+                                                 "original Phase 5.5 status PASS_SAMPLED_CHECKS"
+                                             ],
+                          "confirmedBodyLoss":  false,
+                          "confirmedTableLoss":  false,
+                          "confirmedHierarchyError":  false,
+                          "ocrReviewOnly":  false,
+                          "oversizedChunkOnly":  false,
+                          "coverageWarningOnly":  false,
+                          "manualEvidence":  "PHASE5_6_REINDEX_MANIFEST.json and PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md: original status PASS_SAMPLED_CHECKS; no review disposition trigger.",
+                          "finalDisposition":  "PASS",
+                          "dispositionReason":  "Original Phase 5.5 sampled checks passed; no contrary evidence in the reviewed artifacts.",
+                          "evidenceSource":  [
+                                                 "PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md",
+                                                 "PHASE5_6_REINDEX_MANIFEST.json",
+                                                 ".output\\phase5-5-quality\\534314d59ef2b9ca229dac36b542337cca32dc7ce4babea2beddf89aedf9dc7e\\summary.json",
+                                                 ".output\\phase5-5-quality\\534314d59ef2b9ca229dac36b542337cca32dc7ce4babea2beddf89aedf9dc7e\\block-decisions.json"
+                                             ]
+                      },
+                      {
+                          "document":  "中华人民共和国国务院令(第393号)　　建设工程安全生产管理条例__2004年第3号国务院公报_中国政府网.pdf",
+                          "fileHash":  "eea49cb9d5fd815e21339a3a99398674fc2c7026e312464bc0d4db55409c68f0",
+                          "currentStatus":  "PASS",
+                          "triggerReasons":  [
+                                                 "original Phase 5.5 status PASS_SAMPLED_CHECKS"
+                                             ],
+                          "confirmedBodyLoss":  false,
+                          "confirmedTableLoss":  false,
+                          "confirmedHierarchyError":  false,
+                          "ocrReviewOnly":  false,
+                          "oversizedChunkOnly":  false,
+                          "coverageWarningOnly":  false,
+                          "manualEvidence":  "PHASE5_6_REINDEX_MANIFEST.json and PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md: original status PASS_SAMPLED_CHECKS; no review disposition trigger.",
+                          "finalDisposition":  "PASS",
+                          "dispositionReason":  "Original Phase 5.5 sampled checks passed; no contrary evidence in the reviewed artifacts.",
+                          "evidenceSource":  [
+                                                 "PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md",
+                                                 "PHASE5_6_REINDEX_MANIFEST.json",
+                                                 ".output\\phase5-5-quality\\eea49cb9d5fd815e21339a3a99398674fc2c7026e312464bc0d4db55409c68f0\\summary.json",
+                                                 ".output\\phase5-5-quality\\eea49cb9d5fd815e21339a3a99398674fc2c7026e312464bc0d4db55409c68f0\\block-decisions.json"
+                                             ]
+                      }
+                  ]
+}
