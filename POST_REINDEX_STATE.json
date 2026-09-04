@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "phase": "5.6B",
+  "executionStatus": "BLOCKED",
+  "capturedAt": "2026-09-04T09:30:00+00:00",
+  "reindexExecuted": false,
+  "deleteExecuted": false,
+  "postCounts": null,
+  "qualityGate": null,
+  "blocker": "The frozen production PDF import path cannot consume the required cached MinerU result.zip files, and LegalDocumentImportAdapter still emits parserVersion legal-pdf-mineru-adapter/1.0.0 while Phase 5.6A cache manifests use mineru-result/v4. No safe way exists within the stated frozen-code constraints to perform the requested cached reindex.",
+  "preStateReference": "PRE_REINDEX_STATE.json",
+  "backupManifestReference": "PHASE5_6B_BACKUP_MANIFEST.json",
+  "deletePlanReference": "PHASE5_6B_DELETE_PLAN.json"
+}

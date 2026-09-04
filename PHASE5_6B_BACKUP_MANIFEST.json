@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "phase": "5.6B",
+  "backupTime": "2026-09-04T09:23:55.7996714Z",
+  "database": {
+    "host": "127.0.0.1",
+    "port": 15432,
+    "database": "ragent",
+    "container": "ragent-postgres"
+  },
+  "tables": [
+    "t_knowledge_base",
+    "t_knowledge_document",
+    "t_legal_document_element",
+    "t_legal_clause",
+    "t_legal_quality_report",
+    "t_legal_table",
+    "t_knowledge_chunk",
+    "t_knowledge_vector"
+  ],
+  "rowCounts": {
+    "legalKbDocuments": 123,
+    "legalClauses": 42461,
+    "legalKbChunks": 43440,
+    "legalCollectionVectors": 31086,
+    "targetPdfDocuments": 30
+  },
+  "backupPath": "D:\\1-project\\ragent\\backups\\phase5-6b-20260904T092336Z\\ragent-pre-reindex.dump",
+  "sizeBytes": 212372808,
+  "checksum": {
+    "algorithm": "SHA-256",
+    "value": "9a86fc287d01fd5de310c227ed00b04e09b5e4f2d584e8b369a2f4cfbdaf991c"
+  },
+  "verified": true
+}
