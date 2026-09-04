@@ -66,15 +66,29 @@ Historical documents without a strategy return LEGAL when their parser version i
 
 ## 7. Smoke status
 
-The required independent UI/API/MQ smoke test is BLOCKED in the current local runtime:
+The runtime was started with `D:\1-project\safeguard-agent\scripts\start-all-dev.ps1`.
+Safe-team, ragent backend (9090), ragent frontend (5173), TEI, PostgreSQL, Redis,
+RocketMQ NameServer and Broker were available. Because the existing TEI service owns
+host port 18080, the local smoke Compose copy mapped the Broker HTTP proxy to 18081;
+RocketMQ remoting port 10911 remained available to ragent.
 
-- no ragent backend is listening on port 8080;
-- RocketMQ NameServer is running, but no RocketMQ Broker is running;
-- TEI, PostgreSQL, Redis, and the NameServer are available.
+An isolated KB `phase510_smoke_20260904` was created successfully. A real API upload
+with `processingStrategy=LEGAL` created Document `2095897086401806336` with
+`LEGAL/PENDING`, and `startChunk` sent a transaction message successfully. The MQ
+consumer received the same document ID and entered `LegalDocumentProcessingService`.
 
-No production Legal PDF was uploaded or changed. A future smoke must create an isolated
-`bge-m3 / 1536` KB and prove upload -> startChunk -> Legal Pipeline -> PASS-only vector
-indexing, plus REVIEW vector isolation.
+The pipeline then stopped at the external MinerU boundary because the running backend
+had no `MINERU_API_KEY`:
+
+```text
+ServiceException: MinerU api-key 未配置,请设置环境变量 MINERU_API_KEY
+```
+
+The isolated Document ended as `LEGAL/failed`, with zero Legal Chunk rows and zero
+Vectors. No production Legal PDF was changed. Therefore the end-to-end smoke result is
+`BLOCKED_EXTERNAL_DEPENDENCY`, not PASS. A complete smoke still requires a configured
+MinerU credential (or a formally supported cache-replay test mode), followed by proof
+of PASS-only indexing and REVIEW vector isolation.
 
 ## 8. Remaining limitation
 
