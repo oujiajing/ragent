@@ -109,6 +109,11 @@ public class KnowledgeDocumentDO {
     private Long fileSize;
 
     /**
+     * 领域处理策略：GENERAL / LEGAL。
+     */
+    private String processingStrategy;
+
+    /**
      * 处理模式：chunk / pipeline
      * - chunk: 使用分块策略直接分块
      * - pipeline: 使用数据通道进行清洗处理

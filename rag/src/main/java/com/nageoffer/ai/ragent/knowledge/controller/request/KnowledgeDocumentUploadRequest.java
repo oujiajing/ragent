@@ -23,6 +23,11 @@ import lombok.Data;
 public class KnowledgeDocumentUploadRequest {
 
     /**
+     * 领域处理策略：GENERAL / LEGAL。缺省为 GENERAL。
+     */
+    private String processingStrategy;
+
+    /**
      * 来源类型：file / url
      */
     private String sourceType;

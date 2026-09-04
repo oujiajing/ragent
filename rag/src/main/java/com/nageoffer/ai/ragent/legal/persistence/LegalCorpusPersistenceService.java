@@ -25,6 +25,7 @@ import com.nageoffer.ai.ragent.legal.model.LegalChunk;
 import com.nageoffer.ai.ragent.legal.model.LegalClause;
 import com.nageoffer.ai.ragent.legal.model.LegalDocumentElement;
 import com.nageoffer.ai.ragent.legal.model.LegalDocumentMetadata;
+import com.nageoffer.ai.ragent.knowledge.dao.entity.KnowledgeDocumentDO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -81,6 +82,42 @@ public class LegalCorpusPersistenceService {
                 result.document().elements().size(), result.document().clauses().size(), result.chunks().size());
     }
 
+    /**
+     * Persists Legal pipeline output on an existing upload Document. The batch corpus entry points above
+     * intentionally keep their fixed Phase 2B identity; product uploads must provide their own KB and ID.
+     */
+    @Transactional
+    public void replaceUploadedDocument(KnowledgeDocumentDO document, CleanedTextImportResult result,
+                                        String actor) {
+        if (document == null || document.getId() == null || document.getKbId() == null) {
+            throw new IllegalArgumentException("上传法规文档身份不能为空");
+        }
+        if (result == null || result.document() == null) {
+            throw new IllegalArgumentException("PDF 法规解析结果不能为空");
+        }
+        LegalDocumentMetadata metadata = result.document().metadata();
+        if (!document.getId().equals(metadata.documentId())) {
+            throw new IllegalArgumentException("法规解析结果与上传文档不匹配");
+        }
+        clearDocumentArtifacts(document.getId());
+        boolean pass = result.qualityReport().qualityStatus()
+                == com.nageoffer.ai.ragent.legal.enums.LegalQualityStatus.PASS;
+        updateUploadedDocument(document, metadata, result, actor);
+        persistElements(document.getId(), result.document().elements());
+        List<LegalClause> clauses = markDuplicates(result.document().clauses());
+        persistClauses(clauses);
+        persistQuality(result);
+        persistChunks(document.getKbId(), document.getId(), clauses, result.chunks(), actor, pass);
+        if (!pass) {
+            jdbcTemplate.update("UPDATE t_legal_clause SET index_eligible = FALSE WHERE document_id = ?", document.getId());
+        }
+    }
+
+    @Transactional
+    public void clearUploadedDocumentArtifacts(String documentId) {
+        clearDocumentArtifacts(documentId);
+    }
+
     @Transactional
     public LegalPersistenceResult replaceText(String sourceFile, byte[] rawBytes) {
         String documentId = documentIdFor(rawBytes);
@@ -134,7 +171,7 @@ public class LegalCorpusPersistenceService {
         List<LegalClause> clauses = markDuplicates(result.document().clauses());
         persistClauses(clauses);
         persistQuality(result);
-        persistChunks(metadata.documentId(), result.chunks(), clauses);
+        persistChunks(KB_ID, metadata.documentId(), clauses, result.chunks(), ACTOR, indexEligible);
         if (!indexEligible) {
             jdbcTemplate.update("UPDATE t_legal_clause SET index_eligible = FALSE WHERE document_id = ?", metadata.documentId());
             jdbcTemplate.update("UPDATE t_knowledge_chunk SET index_eligible = FALSE WHERE doc_id = ?", metadata.documentId());
@@ -226,7 +263,8 @@ public class LegalCorpusPersistenceService {
                 q.qualityStatus().name(), objectMapper.valueToTree(q.warnings()).toString());
     }
 
-    private void persistChunks(String documentId, List<LegalChunk> chunks, List<LegalClause> clauses) {
+    private void persistChunks(String kbId, String documentId, List<LegalClause> clauses, List<LegalChunk> chunks,
+                               String actor, boolean qualityPass) {
         Map<String, LegalClause> byId = clauses.stream().collect(java.util.stream.Collectors.toMap(LegalClause::clauseId, c -> c));
         Map<String, String> duplicateByClauseId = new LinkedHashMap<>();
         Map<String, String> canonicalByKey = new LinkedHashMap<>();
@@ -244,17 +282,38 @@ public class LegalCorpusPersistenceService {
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?::jsonb, ?, ?, 1, ?, ?)
                 """, chunks, chunks.size(), (ps, c) -> {
             var m = c.metadata(); LegalClause clause = byId.get(m.parentClauseId());
-            boolean eligible = clause == null || !duplicateByClauseId.containsKey(clause.clauseId());
+            boolean eligible = qualityPass && (clause == null || !duplicateByClauseId.containsKey(clause.clauseId()));
             String duplicateOf = clause == null ? null : duplicateByClauseId.get(clause.clauseId());
-            ps.setString(1, c.chunkId()); ps.setString(2, KB_ID); ps.setString(3, documentId); ps.setInt(4, c.chunkIndex());
+            ps.setString(1, c.chunkId()); ps.setString(2, kbId); ps.setString(3, documentId); ps.setInt(4, c.chunkIndex());
             ps.setString(5, c.content()); ps.setString(6, com.nageoffer.ai.ragent.legal.util.LegalHashes.sha256(c.content().getBytes(java.nio.charset.StandardCharsets.UTF_8)));
             ps.setInt(7, c.content().length()); ps.setInt(8, c.tokenCount()); ps.setString(9, c.content()); ps.setString(10, m.parentClauseId());
             ps.setString(11, m.chunkType().name()); ps.setString(12, m.chapterNo()); ps.setString(13, m.chapterTitle()); ps.setString(14, m.sectionNo());
             ps.setString(15, m.sectionTitle()); ps.setString(16, m.clauseNo()); ps.setString(17, m.hierarchyPath()); ps.setString(18, m.childRange());
             ps.setString(19, m.contentRole().name()); ps.setObject(20, m.pageStart()); ps.setObject(21, m.pageEnd());
             ps.setString(22, json(m.toMap())); ps.setBoolean(23, eligible); ps.setString(24, duplicateOf);
-            ps.setString(25, ACTOR); ps.setString(26, ACTOR);
+            ps.setString(25, actor); ps.setString(26, actor);
         });
+    }
+
+    private void updateUploadedDocument(KnowledgeDocumentDO document, LegalDocumentMetadata metadata,
+                                        CleanedTextImportResult result, String actor) {
+        jdbcTemplate.update("""
+                UPDATE t_knowledge_document
+                SET chunk_count = ?, doc_title = ?, doc_type = ?, standard_no = ?, issuing_authority = ?,
+                    publish_date = ?, effective_date = ?, source_format = ?, file_hash = ?, parser_version = ?,
+                    ingestion_stage = 'PERSISTED', ingestion_run_id = ?, quality_status = ?, updated_by = ?
+                WHERE id = ? AND kb_id = ? AND deleted = 0
+                """, result.chunks().size(), metadata.docTitle(), metadata.docType(), metadata.standardNo(),
+                metadata.issuingAuthority(), metadata.publishDate(), metadata.effectiveDate(), metadata.sourceFormat().name(),
+                metadata.fileHash(), metadata.parserVersion(), metadata.fileHash().substring(0, 32),
+                result.qualityReport().qualityStatus().name(), actor, document.getId(), document.getKbId());
+    }
+
+    private void clearDocumentArtifacts(String documentId) {
+        jdbcTemplate.update("DELETE FROM t_knowledge_chunk WHERE doc_id = ?", documentId);
+        jdbcTemplate.update("DELETE FROM t_legal_quality_report WHERE document_id = ?", documentId);
+        jdbcTemplate.update("DELETE FROM t_legal_clause WHERE document_id = ?", documentId);
+        jdbcTemplate.update("DELETE FROM t_legal_document_element WHERE document_id = ?", documentId);
     }
 
     private String documentIdFor(byte[] bytes) { return "leg" + com.nageoffer.ai.ragent.legal.util.LegalHashes.sha256(bytes).substring(0, 17); }

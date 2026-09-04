@@ -50,6 +50,7 @@ import com.nageoffer.ai.ragent.ingestion.domain.context.IngestionContext;
 import com.nageoffer.ai.ragent.ingestion.domain.pipeline.PipelineDefinition;
 import com.nageoffer.ai.ragent.ingestion.engine.IngestionEngine;
 import com.nageoffer.ai.ragent.ingestion.service.IngestionPipelineService;
+import com.nageoffer.ai.ragent.legal.service.LegalDocumentProcessingService;
 import com.nageoffer.ai.ragent.knowledge.config.KnowledgeScheduleProperties;
 import com.nageoffer.ai.ragent.knowledge.controller.request.KnowledgeDocumentPageRequest;
 import com.nageoffer.ai.ragent.knowledge.controller.request.KnowledgeDocumentUpdateRequest;
@@ -67,6 +68,7 @@ import com.nageoffer.ai.ragent.knowledge.dao.mapper.KnowledgeDocumentChunkLogMap
 import com.nageoffer.ai.ragent.knowledge.dao.mapper.KnowledgeDocumentMapper;
 import com.nageoffer.ai.ragent.knowledge.enums.DocumentStatus;
 import com.nageoffer.ai.ragent.knowledge.enums.ProcessMode;
+import com.nageoffer.ai.ragent.knowledge.enums.ProcessingStrategy;
 import com.nageoffer.ai.ragent.knowledge.enums.SourceType;
 import com.nageoffer.ai.ragent.knowledge.handler.RemoteFileFetcher;
 import com.nageoffer.ai.ragent.knowledge.mq.event.KnowledgeDocumentChunkEvent;
@@ -109,6 +111,7 @@ public class KnowledgeDocumentServiceImpl implements KnowledgeDocumentService {
     private final KnowledgeDocumentMapper documentMapper;
     private final ParserRegistry parserRegistry;
     private final IngestionKernel ingestionKernel;
+    private final LegalDocumentProcessingService legalDocumentProcessingService;
     private final ChunkIndexWriter chunkIndexWriter;
     private final IngestionSpecCodec ingestionSpecCodec;
     private final FileStorageService fileStorageService;
@@ -146,7 +149,9 @@ public class KnowledgeDocumentServiceImpl implements KnowledgeDocumentService {
         Assert.notNull(kbDO, () -> new ClientException("知识库不存在"));
 
         SourceType sourceType = SourceType.normalize(requestParam.getSourceType());
+        ProcessingStrategy processingStrategy = ProcessingStrategy.normalize(requestParam.getProcessingStrategy());
         validateSourceAndSchedule(sourceType, requestParam);
+        validateLegalUploadRequest(processingStrategy, sourceType, kbDO);
         // 摄取配置的校验排在存文件之前：它只看请求参数，而一旦落了对象再抛异常，
         // 存储里就留下一个没有文档指向它的孤儿。纯校验一律前置到第一个副作用之前
         ProcessModeConfig modeConfig = resolveProcessModeConfig(requestParam);
@@ -155,6 +160,10 @@ public class KnowledgeDocumentServiceImpl implements KnowledgeDocumentService {
         if (!parserRegistry.canParse(stored.getMimeType())) {
             fileStorageService.deleteByUrl(stored.getUrl());
             throw new ClientException("暂不支持的文件类型：" + stored.getDetectedType());
+        }
+        if (ProcessingStrategy.LEGAL == processingStrategy && !"application/pdf".equalsIgnoreCase(stored.getMimeType())) {
+            fileStorageService.deleteByUrl(stored.getUrl());
+            throw new ClientException("法律法规处理策略仅支持真实 PDF 文件");
         }
 
         KnowledgeDocumentDO documentDO = KnowledgeDocumentDO.builder()
@@ -166,6 +175,7 @@ public class KnowledgeDocumentServiceImpl implements KnowledgeDocumentService {
                 .fileType(stored.getDetectedType())
                 .mimeType(stored.getMimeType())
                 .fileSize(stored.getSize())
+                .processingStrategy(processingStrategy.name())
                 .status(DocumentStatus.PENDING.getCode())
                 .sourceType(sourceType.getValue())
                 .sourceLocation(SourceType.URL == sourceType ? StrUtil.trimToNull(requestParam.getSourceLocation()) : null)
@@ -246,6 +256,7 @@ public class KnowledgeDocumentServiceImpl implements KnowledgeDocumentService {
     private void runChunkTask(KnowledgeDocumentDO documentDO) {
         String docId = documentDO.getId();
         ProcessMode processMode = ProcessMode.normalize(documentDO.getProcessMode());
+        ProcessingStrategy processingStrategy = ProcessingStrategy.normalize(documentDO.getProcessingStrategy());
         KnowledgeBaseDO kbDO = knowledgeBaseMapper.selectById(documentDO.getKbId());
         VectorTarget target = vectorTargetResolver.resolve(kbDO);
         IngestionSpec spec = ingestionSpecCodec.read(documentDO.getIngestionSpec());
@@ -268,6 +279,21 @@ public class KnowledgeDocumentServiceImpl implements KnowledgeDocumentService {
         long persistDuration = 0;
 
         try {
+            if (ProcessingStrategy.LEGAL == processingStrategy) {
+                long legalStart = System.currentTimeMillis();
+                // A rerun must never leave the previous PASS vectors searchable when parsing or QC later fails.
+                vectorStoreService.deleteDocumentVectors(target.partition(), docId);
+                int savedCount = legalDocumentProcessingService.process(documentDO, readFileBytes(documentDO), target,
+                        UserContext.getUsername());
+                persistDuration = System.currentTimeMillis() - legalStart;
+                KnowledgeDocumentDO persisted = documentMapper.selectById(docId);
+                int chunkCount = persisted == null ? savedCount : persisted.getChunkCount();
+                markChunkSucceeded(docId, chunkCount);
+                long totalDuration = System.currentTimeMillis() - totalStartTime;
+                updateChunkLog(chunkLog.getId(), DocumentStatus.SUCCESS.getCode(), chunkCount,
+                        extractDuration, chunkDuration, embedDuration, persistDuration, totalDuration, null);
+                return;
+            }
             // 管道模式暂停服务：管道将按自定义代码 / 动态脚本重新设计，届时分块沿用同一内核，
             // 下面这段连同 runPipelineProcess 一并重写。此处显式失败，不静默改用默认分块配置
             if (ProcessMode.PIPELINE == processMode) {
@@ -444,6 +470,9 @@ public class KnowledgeDocumentServiceImpl implements KnowledgeDocumentService {
 
         // 一次调用覆盖全部落点：关系库块与向量都在扇出里，未来加索引后端也自动跟随
         KnowledgeBaseDO kbDO = knowledgeBaseMapper.selectById(documentDO.getKbId());
+        if (ProcessingStrategy.LEGAL == ProcessingStrategy.normalize(documentDO.getProcessingStrategy())) {
+            legalDocumentProcessingService.deleteArtifacts(docId);
+        }
         chunkIndexWriter.deleteDocument(vectorTargetResolver.resolve(kbDO), documentRef(documentDO));
         deleteStoredFileQuietly(documentDO);
         bizChangeLogContext.put(docId, before, null);
@@ -598,10 +627,32 @@ public class KnowledgeDocumentServiceImpl implements KnowledgeDocumentService {
      */
     private KnowledgeDocumentVO toVO(KnowledgeDocumentDO documentDO) {
         KnowledgeDocumentVO vo = BeanUtil.toBean(documentDO, KnowledgeDocumentVO.class);
+        vo.setProcessingStrategy(resolveProcessingStrategyForView(documentDO).name());
         if (StringUtils.hasText(documentDO.getIngestionSpec())) {
             vo.setIngestionSpec(ingestionSpecCodec.write(ingestionSpecCodec.read(documentDO.getIngestionSpec())));
         }
         return vo;
+    }
+
+    private void validateLegalUploadRequest(ProcessingStrategy strategy, SourceType sourceType, KnowledgeBaseDO kbDO) {
+        if (strategy != ProcessingStrategy.LEGAL) {
+            return;
+        }
+        if (sourceType != SourceType.FILE) {
+            throw new ClientException("法律法规处理策略暂只支持本地 PDF 上传");
+        }
+        VectorTarget target = vectorTargetResolver.resolve(kbDO);
+        if (!"bge-m3".equals(target.embeddingModel()) || target.dimension() != 1536) {
+            throw new ClientException("法律法规处理策略仅支持 bge-m3 / 1536 维知识库");
+        }
+    }
+
+    private ProcessingStrategy resolveProcessingStrategyForView(KnowledgeDocumentDO documentDO) {
+        if (StringUtils.hasText(documentDO.getProcessingStrategy())) {
+            return ProcessingStrategy.normalize(documentDO.getProcessingStrategy());
+        }
+        return "legal-pdf-mineru-adapter/2.0.0".equals(documentDO.getParserVersion())
+                ? ProcessingStrategy.LEGAL : ProcessingStrategy.GENERAL;
     }
 
     private Set<String> findEditedDocIds(List<String> docIds) {
@@ -692,10 +743,11 @@ public class KnowledgeDocumentServiceImpl implements KnowledgeDocumentService {
         // 提前查知识库，两个分支都需要，避免重复查询
         KnowledgeBaseDO kbDO = knowledgeBaseMapper.selectById(documentDO.getKbId());
         String collectionName = kbDO.getCollectionName();
+        ProcessingStrategy processingStrategy = ProcessingStrategy.normalize(documentDO.getProcessingStrategy());
 
         // 启用时：embed 耗时较长，在事务外提前执行，避免长事务占用连接
         List<EmbeddedChunk> vectorChunks = Collections.emptyList();
-        if (enabled) {
+        if (enabled && (ProcessingStrategy.LEGAL != processingStrategy || "PASS".equals(documentDO.getQualityStatus()))) {
             // 向量文本取库里那份，不用展示文本重新组装——否则章节路径与表格 KV 渲染会静默丢失
             vectorChunks = knowledgeChunkService.embedPersistedChunks(docId, vectorTargetResolver.resolve(kbDO));
             if (CollUtil.isEmpty(vectorChunks)) {
@@ -713,10 +765,13 @@ public class KnowledgeDocumentServiceImpl implements KnowledgeDocumentService {
 
             if (!enabled) {
                 vectorStoreService.deleteDocumentVectors(collectionName, docId);
-            } else if (CollUtil.isNotEmpty(finalEmbeddedChunks)) {
+            } else if (ProcessingStrategy.LEGAL != processingStrategy && CollUtil.isNotEmpty(finalEmbeddedChunks)) {
                 vectorStoreService.indexDocumentChunks(collectionName, docId, finalEmbeddedChunks);
             }
         });
+        if (enabled && ProcessingStrategy.LEGAL == processingStrategy && "PASS".equals(documentDO.getQualityStatus())) {
+            legalDocumentProcessingService.reindex(documentDO, vectorTargetResolver.resolve(kbDO));
+        }
         bizChangeLogContext.put(docId, before, documentMapper.selectById(docId));
     }
 

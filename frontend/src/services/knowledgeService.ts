@@ -24,6 +24,8 @@ export interface KnowledgeDocument {
   fileUrl?: string | null;
   fileType?: string | null;
   fileSize?: number | null;
+  processingStrategy?: "GENERAL" | "LEGAL" | null;
+  qualityStatus?: "PASS" | "REVIEW" | "FAILED" | null;
   processMode?: string | null;
   ingestionSpec?: string | null;
   pipelineId?: string | number | null;
@@ -106,6 +108,7 @@ export interface KnowledgeDocumentUploadPayload {
   processMode?: "chunk" | "pipeline";
   ingestionSpec?: string | null;
   pipelineId?: string | null;
+  processingStrategy?: "GENERAL" | "LEGAL";
 }
 
 export interface KnowledgeChunkPageParams {
@@ -258,6 +261,9 @@ export const uploadDocument = async (
   }
   if (payload.pipelineId) {
     formData.append("pipelineId", payload.pipelineId);
+  }
+  if (payload.processingStrategy) {
+    formData.append("processingStrategy", payload.processingStrategy);
   }
   return api.post<KnowledgeDocument, KnowledgeDocument>(`/knowledge-base/${kbId}/docs/upload`, formData, {
     headers: {

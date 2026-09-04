@@ -189,6 +189,7 @@ CREATE TABLE t_knowledge_document (
     file_type        VARCHAR(16)   NOT NULL,
     mime_type        VARCHAR(128),
     file_size        BIGINT,
+    processing_strategy VARCHAR(16) NOT NULL DEFAULT 'GENERAL',
     process_mode     VARCHAR(16)   DEFAULT 'chunk',
     status           VARCHAR(16)   NOT NULL DEFAULT 'pending',
     source_type      VARCHAR(16),

@@ -92,6 +92,29 @@ public class LegalCorpusIndexingService {
         return rows.size();
     }
 
+    /** Indexes one uploaded Legal document into its owning knowledge base's vector target. */
+    public int indexUploadedDocument(String kbId, String documentId, VectorTarget target) {
+        vectorStoreService.deleteDocumentVectors(target.partition(), documentId);
+        List<Row> rows = jdbcTemplate.query("""
+                SELECT id, doc_id, chunk_index, content, embedding_text, metadata
+                FROM t_knowledge_chunk
+                WHERE kb_id = ? AND doc_id = ? AND index_eligible = TRUE AND enabled = 1 AND deleted = 0
+                ORDER BY chunk_index
+                """, (rs, n) -> new Row(rs.getString("id"), rs.getString("doc_id"), rs.getInt("chunk_index"),
+                rs.getString("content"), rs.getString("embedding_text"), rs.getString("metadata")), kbId, documentId);
+        if (rows.isEmpty()) {
+            return 0;
+        }
+        List<EmbeddedChunk> embedded = embeddingService.embed(rows.stream().map(this::toChunk).toList(), target);
+        vectorStoreService.indexDocumentChunks(target.partition(), documentId, embedded);
+        KeywordIndexService keyword = keywordIndexProvider.getIfAvailable();
+        if (keyword != null) {
+            keyword.deleteDocumentIndex(target.partition(), documentId);
+            keyword.indexDocumentChunks(target.partition(), documentId, embedded);
+        }
+        return rows.size();
+    }
+
     private Chunk toChunk(Row row) {
         Map<String, Object> extras = Map.of();
         try {

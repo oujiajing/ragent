@@ -88,6 +88,16 @@ public class KnowledgeDocumentVO {
     private Long fileSize;
 
     /**
+     * 领域处理策略：GENERAL / LEGAL。
+     */
+    private String processingStrategy;
+
+    /**
+     * 法规文档质量状态：PASS / REVIEW / FAILED。
+     */
+    private String qualityStatus;
+
+    /**
      * 处理模式：chunk / pipeline
      * - chunk: 使用分块策略直接分块
      * - pipeline: 使用数据通道进行清洗处理

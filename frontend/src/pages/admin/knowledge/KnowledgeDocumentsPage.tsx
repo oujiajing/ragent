@@ -206,48 +206,6 @@ const formatSourceLabel = (sourceType?: string | null) => {
   return "-";
 };
 
-const ProcessModeCell = ({ doc, pipelineMap, specSchema }: {
-  doc: KnowledgeDocument;
-  pipelineMap: Map<string, string>;
-  specSchema: IngestionSpecSchema | null;
-}) => {
-  const mode = doc.processMode?.toLowerCase();
-  if (mode === "chunk") {
-    // 档位对该格式没区别时不提这一句：控件都藏了，这里再显示"复杂表格"只是同一个谎言换个出口
-    // 历史数据里可能还留着当年选下的假值，按同一份门控挡掉
-    const detail = hasParseProfileChoice(specSchema, docExtOf(doc))
-      ? parseProfileLabelOf(specSchema, readSpecValue(doc.ingestionSpec, "parseProfile"))
-      : null;
-    const trigger = <span className="cursor-default text-sm">Chunk</span>;
-    if (!detail) return trigger;
-    return (
-      <TooltipProvider delayDuration={300}>
-        <Tooltip>
-          <TooltipTrigger asChild>{trigger}</TooltipTrigger>
-          <TooltipContent><p>{specSchema?.parseProfileLabel}：{detail}</p></TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
-    );
-  }
-  if (mode === "pipeline") {
-    const pid = doc.pipelineId ? String(doc.pipelineId) : null;
-    const name = pid ? pipelineMap.get(pid) : null;
-    return (
-      <TooltipProvider delayDuration={300}>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <span className="cursor-default text-sm">Data Pipeline</span>
-          </TooltipTrigger>
-          {name ? (
-            <TooltipContent><p>{name}</p></TooltipContent>
-          ) : null}
-        </Tooltip>
-      </TooltipProvider>
-    );
-  }
-  return <span className="text-muted-foreground/35 text-sm">-</span>;
-};
-
 /**
  * 档位展示名：label 由后端随 schema 下发，前端不留第二份
  * <p>
@@ -384,17 +342,11 @@ export function KnowledgeDocumentsPage() {
   const [previewTarget, setPreviewTarget] = useState<KnowledgeDocument | null>(null);
 
   const documents = pageData?.records || [];
-  const [pipelineMap, setPipelineMap] = useState<Map<string, string>>(new Map());
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [batchOperating, setBatchOperating] = useState(false);
   const [batchDeleteOpen, setBatchDeleteOpen] = useState(false);
 
   useEffect(() => {
-    getIngestionPipelines(1, 200).then(r => {
-      const map = new Map<string, string>();
-      (r.records || []).forEach(p => map.set(String(p.id), p.name));
-      setPipelineMap(map);
-    }).catch(() => {});
     // schema 是静态的，且列表与编辑弹窗都要用它判定档位是否适用，挂载拉一次即可
     getIngestionSpecSchema().then(setSpecSchema).catch(() => {});
   }, []);
@@ -811,7 +763,7 @@ export function KnowledgeDocumentsPage() {
                     <TableHead className="w-[110px]">状态</TableHead>
                     <TableHead className="w-[70px]">启用</TableHead>
                     <TableHead className="w-[80px]">分块数</TableHead>
-                    <TableHead className="w-[120px]">处理模式</TableHead>
+                    <TableHead className="w-[120px]">处理策略</TableHead>
                     <TableHead className="w-[170px]">更新时间</TableHead>
                     <TableHead className="w-[170px] text-left">操作</TableHead>
                   </TableRow>
@@ -896,7 +848,14 @@ export function KnowledgeDocumentsPage() {
                       )}
                     </TableCell>
                     <TableCell>
-                      <ProcessModeCell doc={doc} pipelineMap={pipelineMap} specSchema={specSchema} />
+                      <div className="space-y-1 text-xs">
+                        <div>{doc.processingStrategy === "LEGAL" ? "法律法规" : "通用文档"}</div>
+                        {doc.processingStrategy === "LEGAL" && doc.qualityStatus ? (
+                          <div className={cn(doc.qualityStatus === "PASS" ? "text-emerald-600" : "text-amber-600")}>
+                            {doc.qualityStatus === "PASS" ? "通过" : doc.qualityStatus === "REVIEW" ? "需复核" : "未通过"}
+                          </div>
+                        ) : null}
+                      </div>
                     </TableCell>
                     <TableCell>
                       <RelativeTime value={doc.updateTime} updatedBy={doc.updatedBy} />
@@ -994,6 +953,7 @@ export function KnowledgeDocumentsPage() {
 
       <UploadDialog
         open={uploadOpen}
+        knowledgeBase={kb}
         onOpenChange={setUploadOpen}
         onSubmit={async (payload) => {
           if (!kbId) return;
@@ -1418,6 +1378,7 @@ export function KnowledgeDocumentsPage() {
 
 interface UploadDialogProps {
   open: boolean;
+  knowledgeBase: KnowledgeBase | null;
   onOpenChange: (open: boolean) => void;
   onSubmit: (payload: KnowledgeDocumentUploadPayload) => Promise<void>;
 }
@@ -1429,6 +1390,7 @@ const uploadSchema = z
     scheduleEnabled: z.boolean(),
     scheduleCron: z.string().optional(),
     processMode: z.enum(["chunk", "pipeline"]),
+    processingStrategy: z.enum(["GENERAL", "LEGAL"]),
     parseProfile: z.string().optional(),
     pipelineId: z.string().optional(),
     // 用户可控的全部自由度：块预算，字段与后端 schema 的 budgetFields 一一对应
@@ -1505,7 +1467,7 @@ type UploadFormValues = z.infer<typeof uploadSchema>;
  */
 type BudgetFieldName = "maxChars" | "overlapChars" | "rowsPerChunk" | "toleranceFactor";
 
-function UploadDialog({ open, onOpenChange, onSubmit }: UploadDialogProps) {
+function UploadDialog({ open, knowledgeBase, onOpenChange, onSubmit }: UploadDialogProps) {
   const [file, setFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -1525,6 +1487,7 @@ function UploadDialog({ open, onOpenChange, onSubmit }: UploadDialogProps) {
       scheduleEnabled: false,
       scheduleCron: "",
       processMode: "chunk",
+      processingStrategy: "GENERAL",
       parseProfile: "fast",
       pipelineId: "",
       ...FALLBACK_BUDGET
@@ -1533,9 +1496,11 @@ function UploadDialog({ open, onOpenChange, onSubmit }: UploadDialogProps) {
 
   const sourceType = form.watch("sourceType");
   const processMode = form.watch("processMode");
+  const processingStrategy = form.watch("processingStrategy");
   const parseProfile = form.watch("parseProfile");
   const scheduleEnabled = form.watch("scheduleEnabled");
   const sourceLocation = form.watch("sourceLocation");
+  const isLegal = processingStrategy === "LEGAL";
   const isUrlSource = sourceType === "url";
   const isChunkMode = processMode === "chunk";
   const isPipelineMode = processMode === "pipeline";
@@ -1573,6 +1538,7 @@ function UploadDialog({ open, onOpenChange, onSubmit }: UploadDialogProps) {
         scheduleEnabled: false,
         scheduleCron: "",
         processMode: "chunk",
+        processingStrategy: "GENERAL",
         parseProfile: "fast",
         pipelineId: "",
         ...FALLBACK_BUDGET
@@ -1592,6 +1558,12 @@ function UploadDialog({ open, onOpenChange, onSubmit }: UploadDialogProps) {
       setFile(null);
     }
   }, [isUrlSource]);
+
+  useEffect(() => {
+    if (isLegal && sourceType !== "file") {
+      form.setValue("sourceType", "file");
+    }
+  }, [form, isLegal, sourceType]);
 
   // schema 到达后用后端下发的默认值填充表单，默认值只有后端那一份
   useEffect(() => {
@@ -1613,6 +1585,10 @@ function UploadDialog({ open, onOpenChange, onSubmit }: UploadDialogProps) {
     if (values.sourceType === "file" && file && file.size > maxFileSize) {
       const sizeMB = Math.floor(maxFileSize / 1024 / 1024);
       toast.error(`上传文件大小超过限制，最大允许 ${sizeMB}MB`);
+      return;
+    }
+    if (values.processingStrategy === "LEGAL" && file && extOf(file.name) !== "pdf") {
+      toast.error("法律法规处理策略仅支持 PDF 文件");
       return;
     }
 
@@ -1640,6 +1616,7 @@ function UploadDialog({ open, onOpenChange, onSubmit }: UploadDialogProps) {
         processMode: values.processMode,
         ingestionSpec: ingestionSpec ?? null,
         pipelineId: values.processMode === "pipeline" ? values.pipelineId : null
+        ,processingStrategy: values.processingStrategy
       };
       await onSubmit(payload);
     } catch (error) {
@@ -1681,7 +1658,7 @@ function UploadDialog({ open, onOpenChange, onSubmit }: UploadDialogProps) {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {SOURCE_OPTIONS.map((option) => (
+                      {SOURCE_OPTIONS.filter((option) => !isLegal || option.value === "file").map((option) => (
                         <SelectItem key={option.value} value={option.value}>
                           {option.label}
                         </SelectItem>
@@ -1805,6 +1782,24 @@ function UploadDialog({ open, onOpenChange, onSubmit }: UploadDialogProps) {
             <div className="space-y-3 rounded-lg border p-3">
               <FormField
                 control={form.control}
+                name="processingStrategy"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>文档处理策略</FormLabel>
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                      <SelectContent>
+                        <SelectItem value="GENERAL">通用文档</SelectItem>
+                        <SelectItem value="LEGAL" disabled={knowledgeBase?.embeddingModel !== "bge-m3"}>法律法规</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormDescription>{isLegal ? "仅支持本地 PDF，使用法规正文过滤、条款分块和质量检查。" : "适用于普通资料、报告和说明文档。"}</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
                 name="processMode"
                 render={({ field }) => (
                   <FormItem>
@@ -1828,7 +1823,7 @@ function UploadDialog({ open, onOpenChange, onSubmit }: UploadDialogProps) {
                 )}
               />
 
-              {isPipelineMode ? (
+              {!isLegal && isPipelineMode ? (
                 <FormField
                   control={form.control}
                   name="pipelineId"
@@ -1862,7 +1857,7 @@ function UploadDialog({ open, onOpenChange, onSubmit }: UploadDialogProps) {
                 />
               ) : null}
 
-              {isChunkMode ? (
+              {!isLegal && isChunkMode ? (
                 <div className="space-y-3">
                   <p className="text-xs text-muted-foreground leading-relaxed">
                     切法由文档结构决定：标题、表格、代码、列表各按自身边界切分，每块自动带上所属章节
