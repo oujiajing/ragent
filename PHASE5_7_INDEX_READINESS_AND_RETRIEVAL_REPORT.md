@@ -1,6 +1,6 @@
 # Phase 5.7 — Legal PDF Index Readiness & Retrieval Report
 
-日期：2026-09-04  
+日期：2026-09-04
 结论：**PARTIAL PASS / BLOCKED for Phase 6**
 
 ## 1. Quality Gate
@@ -100,7 +100,7 @@ An authenticated application debug endpoint was not used in this run because it 
 
 Phase 5.7 achieved the quality-gate unification, final manifest, TEI bge-m3 restoration, PASS-only PgVector indexing, and zero-leakage/integrity checks. However, the fixed Vector-only regression has an unexplained severe decline and the full application-level authenticated regression suite was not completed.
 
-**Phase 5.7: PARTIAL PASS / BLOCKED**  
+**Phase 5.7: PARTIAL PASS / BLOCKED**
 **Ready for Phase 6: NO**
 
 Do not modify the frozen PDF parser, chunk rules, Gold set, query, retriever parameters, prompt, Agent, Citation, or Safe-team to improve this result.
