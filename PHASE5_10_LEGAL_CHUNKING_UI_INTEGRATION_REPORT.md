@@ -95,3 +95,65 @@ of PASS-only indexing and REVIEW vector isolation.
 The previously measured PDF-only document Recall@20 remains 0.82, while exact chunk
 Recall@20 remains 0.20. This implementation does not alter retrieval, Gold data,
 reranking, or Phase 6 readiness. Phase 6 remains not approved.
+
+## 9. Final E2E Smoke
+
+Date: 2026-09-05
+
+- Historical conclusion: `PARTIAL PASS / SMOKE BLOCKED`
+- Final E2E Smoke conclusion: `REVIEW_ISOLATION_PASS`
+- Phase 5.10 final status: `PARTIAL PASS`
+- MinerU configured: YES (`configured=true`; no credential was recorded)
+- Upload: PASS
+- LEGAL route: PASS
+- RocketMQ send/consume: PASS
+- MinerU: PASS
+- Legal Pipeline: PASS
+- Quality Gate: PASS (`REVIEW` was the unmodified real result)
+- Embedding/isolation: PASS for REVIEW (`eligibleChunk=0`, `vectorCount=0`)
+- Frontend display: PASS
+
+The fixed fixture was `《安全帽》GB 2811-2019.pdf` in the isolated KB
+`phase510-smoke-20260904`. The existing upload-created Document was reprocessed rather
+than replaced by a second Document.
+
+| Field | Result |
+|---|---|
+| documentId | `2095897086401806336` |
+| kbId | `2095896845464207360` |
+| processingStrategy | `LEGAL` |
+| parserVersion | `legal-pdf-mineru-adapter/2.0.0` |
+| qualityStatus | `REVIEW` |
+| processingStatus | `success` |
+| elementCount | 172 |
+| clauseCount | 23 |
+| tableCount | 0 |
+| chunkCount | 30 |
+| indexEligibleChunkCount | 0 |
+| vectorCount | 0 |
+| processing duration | 10,476 ms |
+
+The default retrieval collection cannot return this Document because it has no vector
+rows in `phase510_smoke_20260904`. This is a deterministic isolation check rather than
+a UI-only assertion.
+
+Frontend verification used
+`http://127.0.0.1:5173/admin/knowledge/2095896845464207360`:
+
+- the upload dialog displayed both General and Legal document choices;
+- the Legal option was available for the bge-m3 KB;
+- the document list displayed `法律法规`, `需复核`, `success`, and 30 chunks.
+
+The focused backend regression was rerun after the smoke: 7 tests passed, 0 failures,
+0 errors, 0 skipped. No API-key-shaped value was found in the current backend log.
+
+The isolated KB and Document were retained so the counts and REVIEW isolation evidence
+remain reproducible. No production Legal KB document was changed.
+
+Because the fixed fixture produced REVIEW, this run proves the complete production
+Legal pipeline and REVIEW isolation, but it does not prove PASS indexing. Under the
+approved acceptance rule, `Users can upload a legal PDF from the ragent frontend and
+use the production Legal Pipeline: YES`, while Phase 5.10 remains PARTIAL PASS until a
+pre-registered PASS fixture proves `vectorCount = indexEligibleChunkCount > 0` and a
+fixed retrieval query returns the target document. Phase 6 code development remains
+not approved.
