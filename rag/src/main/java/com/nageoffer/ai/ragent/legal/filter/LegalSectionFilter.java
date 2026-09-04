@@ -52,10 +52,14 @@ public class LegalSectionFilter {
         int bodyStart = findBodyStart(parsed.blocks());
         int frontLimit = Math.min(80, Math.max(3, parsed.blocks().size() / 3));
         SectionState state = SectionState.BODY;
+        boolean bodyStarted = bodyStart < 0;
         for (int i = 0; i < parsed.blocks().size(); i++) {
             Block block = parsed.blocks().get(i);
             String normalized = blockText(block).strip();
-            if (i == bodyStart) state = SectionState.BODY;
+            if (i == bodyStart) {
+                state = SectionState.BODY;
+                bodyStarted = true;
+            }
             String section = headingSection(block);
             if ("PREFACE".equals(section) && !(block instanceof HeadingBlock && i <= frontLimit && bodyStart > i)) {
                 // Fail open: an uncertain boundary may retain noise, but must not delete the body.
@@ -68,6 +72,7 @@ public class LegalSectionFilter {
                 retained.add(block);
                 continue;
             }
+            if (state == SectionState.BODY && isBodyChapter(block, normalized)) bodyStarted = true;
             if (i < bodyStart && isTocState(state) && "APPENDIX".equals(section)) section = state.sectionType;
             if (section != null) {
                 state = SectionState.from(section);
@@ -77,8 +82,7 @@ public class LegalSectionFilter {
             if (state != SectionState.BODY) {
                 // A real chapter starts the body again; ordinary numbered clauses do not.
                 boolean tocBoundary = isTocState(state) && block instanceof HeadingBlock && !isTocEntry(normalized);
-                if (state != SectionState.PREFACE && state != SectionState.APPENDIX
-                        && (isBodyChapter(block, normalized) || tocBoundary)) {
+                if (isTocState(state) && !bodyStarted && (isBodyChapter(block, normalized) || tocBoundary)) {
                     state = SectionState.BODY;
                     retained.add(block);
                 } else {

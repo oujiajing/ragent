@@ -98,6 +98,21 @@ class LegalSectionFilterTest {
                 .toList());
     }
 
+    @Test
+    void doesNotResumeBodyAtSecondTocAfterBodyHasStarted() {
+        List<Block> blocks = List.of(
+                heading("1 总则"), paragraph("1.0.1 正文条款"),
+                heading("目次"), paragraph("1 总则 ........ 1"), heading("1 总则"),
+                paragraph("1.0.1 目录后的内容不应恢复为正文"));
+
+        LegalSectionFilter.FilterResult result = new LegalSectionFilter()
+                .filter("doc-5", ParsedDocument.of(blocks));
+
+        assertEquals(List.of("1 总则", "1.0.1 正文条款"), result.document().blocks().stream()
+                .map(block -> block instanceof HeadingBlock h ? h.text() : ((ParagraphBlock) block).text())
+                .toList());
+    }
+
     private Block heading(String text) {
         return new HeadingBlock(PROVENANCE, 1, text);
     }
