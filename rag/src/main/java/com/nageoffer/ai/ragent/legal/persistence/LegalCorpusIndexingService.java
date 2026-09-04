@@ -33,6 +33,7 @@ import org.springframework.stereotype.Service;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /** Indexes only eligible persisted legal chunks through the existing embedding/vector/keyword SPIs. */
@@ -52,13 +53,29 @@ public class LegalCorpusIndexingService {
     }
 
     public int indexAll() {
+        return indexDocuments(Set.of());
+    }
+
+    public int indexEligiblePassPdfDocuments() {
+        Set<String> ids = new java.util.HashSet<>(jdbcTemplate.queryForList("""
+                SELECT id FROM t_knowledge_document
+                WHERE kb_id = ? AND file_type = 'pdf' AND quality_status = 'PASS' AND deleted = 0
+                """, String.class, LegalCorpusPersistenceService.KB_ID));
+        return indexDocuments(ids);
+    }
+
+    /** Indexes only eligible chunks belonging to the supplied documents; empty means the whole legal KB. */
+    public int indexDocuments(Set<String> documentIds) {
+        String scope = documentIds == null || documentIds.isEmpty() ? "" : " AND doc_id IN (" +
+                String.join(",", java.util.Collections.nCopies(documentIds.size(), "?")) + ")";
+        List<Object> args = new java.util.ArrayList<>(); args.add(LegalCorpusPersistenceService.KB_ID);
+        if (documentIds != null) args.addAll(documentIds);
         List<Row> rows = jdbcTemplate.query("""
                 SELECT id, doc_id, chunk_index, content, embedding_text, metadata
                 FROM t_knowledge_chunk
                 WHERE kb_id = ? AND index_eligible = TRUE AND deleted = 0
-                ORDER BY doc_id, chunk_index
-                """, (rs, n) -> new Row(rs.getString("id"), rs.getString("doc_id"), rs.getInt("chunk_index"),
-                rs.getString("content"), rs.getString("embedding_text"), rs.getString("metadata")), LegalCorpusPersistenceService.KB_ID);
+                """ + scope + " ORDER BY doc_id, chunk_index", (rs, n) -> new Row(rs.getString("id"), rs.getString("doc_id"), rs.getInt("chunk_index"),
+                rs.getString("content"), rs.getString("embedding_text"), rs.getString("metadata")), args.toArray());
         Map<String, List<Row>> byDoc = rows.stream().collect(Collectors.groupingBy(Row::docId, LinkedHashMap::new, Collectors.toList()));
         VectorTarget target = new VectorTarget(LegalCorpusPersistenceService.COLLECTION, "bge-m3", 1536);
         for (var entry : byDoc.entrySet()) {

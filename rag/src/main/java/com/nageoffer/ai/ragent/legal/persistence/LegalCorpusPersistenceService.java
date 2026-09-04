@@ -65,12 +65,18 @@ public class LegalCorpusPersistenceService {
 
     @Transactional
     public LegalPersistenceResult importPdf(String sourceFile, byte[] rawBytes, CleanedTextImportResult result) {
+        return importPdf(sourceFile, rawBytes, result, true);
+    }
+
+    @Transactional
+    public LegalPersistenceResult importPdf(String sourceFile, byte[] rawBytes, CleanedTextImportResult result,
+                                            boolean indexEligible) {
         if (result == null || result.document() == null) throw new IllegalArgumentException("PDF 法规解析结果不能为空");
         LegalDocumentMetadata metadata = result.document().metadata();
         String existing = findImported(metadata.fileHash(), metadata.parserVersion());
         if (existing != null) return new LegalPersistenceResult(existing, "ALREADY_IMPORTED", 0, 0, 0);
         ensureKnowledgeBase();
-        persistDocument(metadata, result, "pdf", "application/pdf");
+        persistDocument(metadata, result, "pdf", "application/pdf", indexEligible);
         return new LegalPersistenceResult(metadata.documentId(), "IMPORTED",
                 result.document().elements().size(), result.document().clauses().size(), result.chunks().size());
     }
@@ -104,6 +110,11 @@ public class LegalCorpusPersistenceService {
 
     private void persistDocument(LegalDocumentMetadata metadata, CleanedTextImportResult result,
                                  String fileType, String mimeType) {
+        persistDocument(metadata, result, fileType, mimeType, true);
+    }
+
+    private void persistDocument(LegalDocumentMetadata metadata, CleanedTextImportResult result,
+                                 String fileType, String mimeType, boolean indexEligible) {
         jdbcTemplate.update("""
                 INSERT INTO t_knowledge_document
                 (id, kb_id, doc_name, enabled, chunk_count, file_url, file_type, mime_type, file_size,
@@ -124,6 +135,32 @@ public class LegalCorpusPersistenceService {
         persistClauses(clauses);
         persistQuality(result);
         persistChunks(metadata.documentId(), result.chunks(), clauses);
+        if (!indexEligible) {
+            jdbcTemplate.update("UPDATE t_legal_clause SET index_eligible = FALSE WHERE document_id = ?", metadata.documentId());
+            jdbcTemplate.update("UPDATE t_knowledge_chunk SET index_eligible = FALSE WHERE doc_id = ?", metadata.documentId());
+        }
+    }
+
+    @Transactional
+    public void deletePdfDocumentsByHashes(List<String> fileHashes) {
+        if (fileHashes == null || fileHashes.isEmpty()) return;
+        String placeholders = String.join(",", java.util.Collections.nCopies(fileHashes.size(), "?"));
+        List<String> ids = jdbcTemplate.query("SELECT id FROM t_knowledge_document WHERE kb_id = ? AND file_hash IN (" + placeholders + ") AND file_type = 'pdf' AND deleted = 0",
+                (rs, n) -> rs.getString(1), concat(KB_ID, fileHashes));
+        for (String id : ids) {
+            jdbcTemplate.update("DELETE FROM t_knowledge_vector WHERE collection_name = ? AND metadata->>'doc_id' = ?", COLLECTION, id);
+            jdbcTemplate.update("DELETE FROM t_knowledge_chunk WHERE doc_id = ?", id);
+            jdbcTemplate.update("DELETE FROM t_legal_quality_report WHERE document_id = ?", id);
+            jdbcTemplate.update("DELETE FROM t_legal_clause WHERE document_id = ?", id);
+            jdbcTemplate.update("DELETE FROM t_legal_document_element WHERE document_id = ?", id);
+            jdbcTemplate.update("DELETE FROM t_knowledge_document WHERE id = ?", id);
+        }
+    }
+
+    private Object[] concat(String first, List<String> rest) {
+        Object[] args = new Object[rest.size() + 1]; args[0] = first;
+        for (int i = 0; i < rest.size(); i++) args[i + 1] = rest.get(i);
+        return args;
     }
 
     private void persistElements(String documentId, List<LegalDocumentElement> elements) {

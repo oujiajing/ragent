@@ -1,4 +1,4 @@
-# Phase 5.6B Safe Reindex Execution
+# Phase 5.6C 30 PDF Production Reimport & Isolation
 
 ## Goal
 Execute and verify a safe replacement of the 30 approved Legal PDF records using the existing ragent pipeline, isolating 5 REVIEW_REQUIRED documents and preserving all out-of-scope data.
@@ -8,9 +8,9 @@ Execute and verify a safe replacement of the 30 approved Legal PDF records using
 - [complete] 1. Inspect repositories, artifacts, scripts, schema, and runtime configuration.
 - [complete] 2. Start/verify local dependencies and read the real pre-reindex database state.
 - [complete] 3. Create and verify a recoverable backup and exact delete plan.
-- [pending] 4. Execute safe deletion and approved reindex/isolation.
-- [pending] 5. Validate post-state, integrity, embedding/index facts, and retrieval regression.
-- [pending] 6. Produce final report, inspect diff, run required tests, and decide Phase 5.6B status.
+- [complete] 4. Execute safe deletion and cached production reimport/isolation.
+- [partial] 5. Validate post-state, integrity, and embedding/index facts; retrieval regression blocked by unavailable embedding provider.
+- [complete] 6. Produce final report, inspect scope, run relevant tests, and decide Phase 5.6C status.
 
 ## Constraints
 
@@ -27,6 +27,6 @@ Execute and verify a safe replacement of the 30 approved Legal PDF records using
 | PowerShell/SQL alias escaping caused a failed read-only query | 1 | Replaced with tab-separated query and verified all 30 manifest names and hashes match the 30 live PDF rows. |
 | Inline PowerShell delete-plan generation had a parser error | 1 | Replaced with the checked-in `scripts/phase5-6b-generate-delete-plan.ps1`; plan generated and validated. |
 
-## Blocking decision
+## Phase 5.6C outcome
 
-Phase 5.6B execution is blocked before deletion. The existing production batch job calls MinerU online and has no cache-result execution path. The frozen `LegalDocumentImportAdapter` still emits parserVersion `legal-pdf-mineru-adapter/1.0.0`, while the Phase 5.6A cache manifests identify `mineru-result/v4`. Deleting now would prevent the requested cached新版 pipeline reimport and would violate the frozen-code constraint. No delete, reimport, embedding, vector write, or retrieval regression was executed.
+Cached result.zip replay completed for 30/30 PDFs after deleting the old PDF scope. New parserVersion is legal-pdf-mineru-adapter/2.0.0; 11 documents are PASS/eligible and 19 are REVIEW_REQUIRED/ineligible. Old parserVersion, duplicate hashes, orphan Clause/Chunk/Vector, and empty chunks are zero. Embedding was attempted for PASS documents but blocked because the configured TEI bge-m3 client was unavailable; target PDF vector count remains zero. Keyword is configured as none. Final status is PARTIAL PASS and Phase 6 is not allowed.

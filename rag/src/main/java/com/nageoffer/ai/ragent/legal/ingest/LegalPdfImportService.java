@@ -18,6 +18,7 @@
 package com.nageoffer.ai.ragent.legal.ingest;
 
 import com.nageoffer.ai.ragent.core.parser.mineru.MinerUDocumentParser;
+import com.nageoffer.ai.ragent.core.parser.mineru.MinerUResultUnpacker;
 import com.nageoffer.ai.ragent.core.parser.model.ParsedDocument;
 import com.nageoffer.ai.ragent.legal.model.CleanedTextImportResult;
 import com.nageoffer.ai.ragent.legal.filter.LegalSectionFilter;
@@ -33,13 +34,14 @@ public class LegalPdfImportService {
     private final MinerUDocumentParser minerUParser;
     private final LegalDocumentImportAdapter adapter;
     private final LegalSectionFilter sectionFilter;
+    private final MinerUResultUnpacker resultUnpacker;
 
-    @Autowired
     public LegalPdfImportService(MinerUDocumentParser minerUParser, LegalDocumentImportAdapter adapter,
                                  LegalSectionFilter sectionFilter) {
         this.minerUParser = minerUParser;
         this.adapter = adapter;
         this.sectionFilter = sectionFilter;
+        this.resultUnpacker = null;
     }
 
     /** Backward-compatible constructor for focused unit tests and non-Spring callers. */
@@ -47,10 +49,28 @@ public class LegalPdfImportService {
         this(minerUParser, adapter, new LegalSectionFilter());
     }
 
+    @Autowired
+    public LegalPdfImportService(MinerUDocumentParser minerUParser, LegalDocumentImportAdapter adapter,
+                                 LegalSectionFilter sectionFilter, MinerUResultUnpacker resultUnpacker) {
+        this.minerUParser = minerUParser;
+        this.adapter = adapter;
+        this.sectionFilter = sectionFilter;
+        this.resultUnpacker = resultUnpacker;
+    }
+
     public CleanedTextImportResult dryRun(String documentId, String sourceFile, byte[] pdfBytes) {
         ParsedDocument parsed = minerUParser.parseStructured(pdfBytes, "application/pdf", Map.of(
                 MinerUDocumentParser.OPT_SOURCE_FILE, sourceFile,
                 MinerUDocumentParser.OPT_DOCUMENT_ID, documentId));
+        ParsedDocument filtered = sectionFilter.filter(documentId, parsed).document();
+        return adapter.importPdf(documentId, sourceFile, pdfBytes, filtered, CleanedTextImportMode.DRY_RUN);
+    }
+
+    /** Replays a previously validated MinerU result through the production legal pipeline. */
+    public CleanedTextImportResult dryRunCached(String documentId, String sourceFile, byte[] pdfBytes,
+                                                byte[] resultZip) {
+        if (resultUnpacker == null) throw new IllegalStateException("缓存 MinerU 结果仅可在 Spring 生产入口使用");
+        ParsedDocument parsed = resultUnpacker.unpack(resultZip, sourceFile, documentId);
         ParsedDocument filtered = sectionFilter.filter(documentId, parsed).document();
         return adapter.importPdf(documentId, sourceFile, pdfBytes, filtered, CleanedTextImportMode.DRY_RUN);
     }

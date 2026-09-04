@@ -36,7 +36,7 @@ import java.util.List;
 @Service
 public class LegalDocumentImportAdapter {
 
-    public static final String PARSER_VERSION = "legal-pdf-mineru-adapter/1.0.0";
+    public static final String PARSER_VERSION = "legal-pdf-mineru-adapter/2.0.0";
 
     private final CleanedTextImporter importer;
 
