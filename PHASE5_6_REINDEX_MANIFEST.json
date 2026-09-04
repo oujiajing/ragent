@@ -1,0 +1,1183 @@
+﻿{
+    "schemaVersion":  1,
+    "phase":  "5.6",
+    "generatedAt":  "2026-09-04T06:42:01.9667692Z",
+    "sourceQualityReport":  "PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md",
+    "reindexAllowedBySourceEvidence":  false,
+    "documents":  [
+                      {
+                          "document":  "《安全帽》GB 2811-2019.pdf",
+                          "fileHash":  "ee1668c18709dff5a9b4b4ae4a6f66060c13e7aa4994d07c29bb71c15c844226",
+                          "parserVersion":  "mineru-result/v4",
+                          "qualityStatus":  "REVIEW_REQUIRED",
+                          "indexEligible":  false,
+                          "clauseCount":  23,
+                          "chunkCount":  30,
+                          "qualityReason":  "Phase 5.5 REVIEW_REQUIRED: uncoveredBodyBlocks=0; oversizedChunks=2; ocrReviewCount=20; missingExpectedClauses=3.1, 3.2, 5.2.1, 5.2.16, 5.2.17; hierarchyMismatchCandidates=none.",
+                          "sourceAuditResult":  {
+                                                    "report":  "PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md",
+                                                    "source":  {
+                                                                   "schemaVersion":  1,
+                                                                   "sourceFile":  "《安全帽》GB 2811-2019.pdf",
+                                                                   "pdfPath":  "C:\\Users\\ojj\\Desktop\\法律法规数据集\\《安全帽》GB 2811-2019.pdf",
+                                                                   "pdfSha256":  "ee1668c18709dff5a9b4b4ae4a6f66060c13e7aa4994d07c29bb71c15c844226",
+                                                                   "zipSha256":  "13bdc2ffbabd69e646f3520e39902e2df96d61566f393377cb06cd44e46b0654",
+                                                                   "originPdfSha256":  "046897b44b8e358951a061cccb48cffdfdcb208351b4bf199a33bf36ebb28e3e",
+                                                                   "batchId":  "76c5ad8f-b33b-4546-bd40-e4018bc462f6",
+                                                                   "provenance":  "recovered completed batch; filename matched; historical upload hash unavailable",
+                                                                   "cachedAtUtc":  "2026-09-03T13:00:38.1212048Z",
+                                                                   "parserVersion":  "mineru-result/v4"
+                                                               },
+                                                    "status":  "REVIEW_REQUIRED",
+                                                    "bodyBlocksRemoved":  0,
+                                                    "nonBodyBlocksRetained":  0,
+                                                    "bodyBlocksNotFullyCovered":  0,
+                                                    "tablesNotFullyCovered":  0,
+                                                    "oversizedChunks":  2,
+                                                    "emptyChunks":  0,
+                                                    "ocrReviewCount":  20,
+                                                    "missingExpectedClauses":  [
+                                                                                   "3.1",
+                                                                                   "3.2",
+                                                                                   "5.2.1",
+                                                                                   "5.2.16",
+                                                                                   "5.2.17"
+                                                                               ],
+                                                    "hierarchyMismatchCandidates":  [
+
+                                                                                    ]
+                                                }
+                      },
+                      {
+                          "document":  "《爆破安全规程》GB 6722-2014.pdf",
+                          "fileHash":  "31382d432b8b26e000d9cb19ba8c202fcafea0c57e7ac9294b528e223910bd89",
+                          "parserVersion":  "mineru-result/v4",
+                          "qualityStatus":  "REVIEW_REQUIRED",
+                          "indexEligible":  false,
+                          "clauseCount":  96,
+                          "chunkCount":  170,
+                          "qualityReason":  "Phase 5.5 REVIEW_REQUIRED: uncoveredBodyBlocks=0; oversizedChunks=3; ocrReviewCount=110; missingExpectedClauses=none; hierarchyMismatchCandidates=none.",
+                          "sourceAuditResult":  {
+                                                    "report":  "PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md",
+                                                    "source":  {
+                                                                   "schemaVersion":  1,
+                                                                   "sourceFile":  "《爆破安全规程》GB 6722-2014.pdf",
+                                                                   "pdfPath":  "C:\\Users\\ojj\\Desktop\\法律法规数据集\\《爆破安全规程》GB 6722-2014.pdf",
+                                                                   "pdfSha256":  "31382d432b8b26e000d9cb19ba8c202fcafea0c57e7ac9294b528e223910bd89",
+                                                                   "zipSha256":  "ce7417d206dc68c0d1252633a8f39fb58c8b878facfe08128a8f44ce78a069e8",
+                                                                   "originPdfSha256":  "353fb915830df403df9a9afce3891b5c4e9ae9393c53ab58b51ac7493a4848f9",
+                                                                   "batchId":  "744a5893-a8d1-499a-a3f9-c3876624f64c",
+                                                                   "provenance":  "recovered completed batch; filename matched; historical upload hash unavailable",
+                                                                   "cachedAtUtc":  "2026-09-04T03:32:12.7157828Z",
+                                                                   "parserVersion":  "mineru-result/v4"
+                                                               },
+                                                    "status":  "REVIEW_REQUIRED",
+                                                    "bodyBlocksRemoved":  0,
+                                                    "nonBodyBlocksRetained":  0,
+                                                    "bodyBlocksNotFullyCovered":  0,
+                                                    "tablesNotFullyCovered":  0,
+                                                    "oversizedChunks":  3,
+                                                    "emptyChunks":  0,
+                                                    "ocrReviewCount":  110,
+                                                    "missingExpectedClauses":  [
+
+                                                                               ],
+                                                    "hierarchyMismatchCandidates":  [
+
+                                                                                    ]
+                                                }
+                      },
+                      {
+                          "document":  "《建设工程监理规范》GB_T 50319-2013.pdf",
+                          "fileHash":  "131d16fadefa874b70d0d6f7430b80202af333caa1775ca5a4cfd88b79ab0fd3",
+                          "parserVersion":  "mineru-result/v4",
+                          "qualityStatus":  "PASS",
+                          "indexEligible":  true,
+                          "clauseCount":  189,
+                          "chunkCount":  189,
+                          "qualityReason":  "Phase 5.5 sampled checks passed; final reindex remains gated because the full-corpus report says Reindex allowed: NO.",
+                          "sourceAuditResult":  {
+                                                    "report":  "PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md",
+                                                    "source":  {
+                                                                   "schemaVersion":  1,
+                                                                   "sourceFile":  "《建设工程监理规范》GB_T 50319-2013.pdf",
+                                                                   "pdfPath":  "C:\\Users\\ojj\\Desktop\\法律法规数据集\\《建设工程监理规范》GB_T 50319-2013.pdf",
+                                                                   "pdfSha256":  "131d16fadefa874b70d0d6f7430b80202af333caa1775ca5a4cfd88b79ab0fd3",
+                                                                   "zipSha256":  "2e795569de77b176c8a1fdc7ec70135d8e6ea64eea9845a2d81bd68d45d32aa8",
+                                                                   "originPdfSha256":  "24a026cc849582bbdcac638e8bbb32c1e53abb5096fcd8de3311382085eed994",
+                                                                   "batchId":  "5a21855b-2659-42ce-be90-364625d131f0",
+                                                                   "provenance":  "recovered completed batch; filename matched; historical upload hash unavailable",
+                                                                   "cachedAtUtc":  "2026-09-04T03:32:41.9647692Z",
+                                                                   "parserVersion":  "mineru-result/v4"
+                                                               },
+                                                    "status":  "PASS_SAMPLED_CHECKS",
+                                                    "bodyBlocksRemoved":  0,
+                                                    "nonBodyBlocksRetained":  0,
+                                                    "bodyBlocksNotFullyCovered":  0,
+                                                    "tablesNotFullyCovered":  0,
+                                                    "oversizedChunks":  0,
+                                                    "emptyChunks":  0,
+                                                    "ocrReviewCount":  1,
+                                                    "missingExpectedClauses":  [
+
+                                                                               ],
+                                                    "hierarchyMismatchCandidates":  [
+
+                                                                                    ]
+                                                }
+                      },
+                      {
+                          "document":  "《建设工程施工现场供用电安全规范》GB 50194-2014.pdf",
+                          "fileHash":  "467cf4ca7017a40e7884b08fed362bcdd2f092170a19852ace0ab4f365d3cf99",
+                          "parserVersion":  "mineru-result/v4",
+                          "qualityStatus":  "PASS",
+                          "indexEligible":  true,
+                          "clauseCount":  203,
+                          "chunkCount":  205,
+                          "qualityReason":  "Phase 5.5 sampled checks passed; final reindex remains gated because the full-corpus report says Reindex allowed: NO.",
+                          "sourceAuditResult":  {
+                                                    "report":  "PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md",
+                                                    "source":  {
+                                                                   "schemaVersion":  1,
+                                                                   "sourceFile":  "《建设工程施工现场供用电安全规范》GB 50194-2014.pdf",
+                                                                   "pdfPath":  "C:\\Users\\ojj\\Desktop\\法律法规数据集\\《建设工程施工现场供用电安全规范》GB 50194-2014.pdf",
+                                                                   "pdfSha256":  "467cf4ca7017a40e7884b08fed362bcdd2f092170a19852ace0ab4f365d3cf99",
+                                                                   "zipSha256":  "dae73ddd6f27f9d8030244c3611f5e82b81a70524cb1e9f1ce1d4278a050ecff",
+                                                                   "originPdfSha256":  "0d87fa3977362ef33890835bb3f111c12261be4ff2fcdc517ed30b2eec019948",
+                                                                   "batchId":  "",
+                                                                   "provenance":  "local ZIP supplied by operator; verify source pairing against PDF",
+                                                                   "cachedAtUtc":  "2026-09-03T12:59:38.7537848Z",
+                                                                   "parserVersion":  "mineru-result/v4"
+                                                               },
+                                                    "status":  "PASS_SAMPLED_CHECKS",
+                                                    "bodyBlocksRemoved":  0,
+                                                    "nonBodyBlocksRetained":  0,
+                                                    "bodyBlocksNotFullyCovered":  0,
+                                                    "tablesNotFullyCovered":  0,
+                                                    "oversizedChunks":  0,
+                                                    "emptyChunks":  0,
+                                                    "ocrReviewCount":  0,
+                                                    "missingExpectedClauses":  [
+
+                                                                               ],
+                                                    "hierarchyMismatchCandidates":  [
+
+                                                                                    ]
+                                                }
+                      },
+                      {
+                          "document":  "《建设工程施工现场消防安全技术规范》GB 50720-2011.pdf",
+                          "fileHash":  "f4a197ea3ff0df6e6e70185beccd870a19002055c661615a3077a93de0a01eda",
+                          "parserVersion":  "mineru-result/v4",
+                          "qualityStatus":  "PASS",
+                          "indexEligible":  true,
+                          "clauseCount":  225,
+                          "chunkCount":  233,
+                          "qualityReason":  "Phase 5.5 sampled checks passed; final reindex remains gated because the full-corpus report says Reindex allowed: NO.",
+                          "sourceAuditResult":  {
+                                                    "report":  "PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md",
+                                                    "source":  {
+                                                                   "schemaVersion":  1,
+                                                                   "sourceFile":  "《建设工程施工现场消防安全技术规范》GB 50720-2011.pdf",
+                                                                   "pdfPath":  "C:\\Users\\ojj\\Desktop\\法律法规数据集\\《建设工程施工现场消防安全技术规范》GB 50720-2011.pdf",
+                                                                   "pdfSha256":  "f4a197ea3ff0df6e6e70185beccd870a19002055c661615a3077a93de0a01eda",
+                                                                   "zipSha256":  "8123faf4826db504f852b8ef5d591706b9775c7895f22bbf59bb34fc7846c586",
+                                                                   "originPdfSha256":  "882e8d67ccbfb24536890d18f43717b9b563a949c7e703bcb07ac697a7f56f9d",
+                                                                   "batchId":  "95182013-b971-4052-8800-ba954d17ab79",
+                                                                   "provenance":  "recovered completed batch; filename matched; historical upload hash unavailable",
+                                                                   "cachedAtUtc":  "2026-09-04T03:41:38.4062992Z",
+                                                                   "parserVersion":  "mineru-result/v4"
+                                                               },
+                                                    "status":  "PASS_SAMPLED_CHECKS",
+                                                    "bodyBlocksRemoved":  0,
+                                                    "nonBodyBlocksRetained":  0,
+                                                    "bodyBlocksNotFullyCovered":  0,
+                                                    "tablesNotFullyCovered":  0,
+                                                    "oversizedChunks":  0,
+                                                    "emptyChunks":  0,
+                                                    "ocrReviewCount":  24,
+                                                    "missingExpectedClauses":  [
+
+                                                                               ],
+                                                    "hierarchyMismatchCandidates":  [
+
+                                                                                    ]
+                                                }
+                      },
+                      {
+                          "document":  "《建筑地基基础工程施工质量验收规范》GB 50202-2018.pdf",
+                          "fileHash":  "6eff1b77b85882a1e8b04bab6e304adb617d4a7f533bbf027a4200a1db69045b",
+                          "parserVersion":  "mineru-result/v4",
+                          "qualityStatus":  "REVIEW_REQUIRED",
+                          "indexEligible":  false,
+                          "clauseCount":  280,
+                          "chunkCount":  368,
+                          "qualityReason":  "Phase 5.5 REVIEW_REQUIRED: uncoveredBodyBlocks=0; oversizedChunks=35; ocrReviewCount=8; missingExpectedClauses=none; hierarchyMismatchCandidates=none.",
+                          "sourceAuditResult":  {
+                                                    "report":  "PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md",
+                                                    "source":  {
+                                                                   "schemaVersion":  1,
+                                                                   "sourceFile":  "《建筑地基基础工程施工质量验收规范》GB 50202-2018.pdf",
+                                                                   "pdfPath":  "C:\\Users\\ojj\\Desktop\\法律法规数据集\\《建筑地基基础工程施工质量验收规范》GB 50202-2018.pdf",
+                                                                   "pdfSha256":  "6eff1b77b85882a1e8b04bab6e304adb617d4a7f533bbf027a4200a1db69045b",
+                                                                   "zipSha256":  "19884a69b61051ecff399353474fa7bdc5765514cd2d4788c09a026222b4fb3d",
+                                                                   "originPdfSha256":  "f6fc5280e44efa1bc19b69d2b3142f893cecc0b0bbacb8c863481772aa1e85bf",
+                                                                   "batchId":  "560465f2-82b0-490e-94c2-2d4c6ead7b60",
+                                                                   "provenance":  "recovered completed batch; filename matched; historical upload hash unavailable",
+                                                                   "cachedAtUtc":  "2026-09-04T03:27:46.3443955Z",
+                                                                   "parserVersion":  "mineru-result/v4"
+                                                               },
+                                                    "status":  "REVIEW_REQUIRED",
+                                                    "bodyBlocksRemoved":  0,
+                                                    "nonBodyBlocksRetained":  0,
+                                                    "bodyBlocksNotFullyCovered":  0,
+                                                    "tablesNotFullyCovered":  0,
+                                                    "oversizedChunks":  35,
+                                                    "emptyChunks":  0,
+                                                    "ocrReviewCount":  8,
+                                                    "missingExpectedClauses":  [
+
+                                                                               ],
+                                                    "hierarchyMismatchCandidates":  [
+
+                                                                                    ]
+                                                }
+                      },
+                      {
+                          "document":  "《建筑机械使用安全技术规程》JGJ 33-2018.pdf",
+                          "fileHash":  "ab19b68cfb9d2bcc00b49b6633636e7f7a1a7ae8612493f7b53055ca41322658",
+                          "parserVersion":  "mineru-result/v4",
+                          "qualityStatus":  "PASS",
+                          "indexEligible":  true,
+                          "clauseCount":  1195,
+                          "chunkCount":  1195,
+                          "qualityReason":  "Phase 5.5 sampled checks passed; final reindex remains gated because the full-corpus report says Reindex allowed: NO.",
+                          "sourceAuditResult":  {
+                                                    "report":  "PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md",
+                                                    "source":  {
+                                                                   "schemaVersion":  1,
+                                                                   "sourceFile":  "《建筑机械使用安全技术规程》JGJ 33-2018.pdf",
+                                                                   "pdfPath":  "C:\\Users\\ojj\\Desktop\\法律法规数据集\\《建筑机械使用安全技术规程》JGJ 33-2018.pdf",
+                                                                   "pdfSha256":  "ab19b68cfb9d2bcc00b49b6633636e7f7a1a7ae8612493f7b53055ca41322658",
+                                                                   "zipSha256":  "8f005f1995b73befeb6b983e65bb7d1091f50d25c619e46dd739443e7ed2cb15",
+                                                                   "originPdfSha256":  "3368eed15c749e9dbbfc3083bd3bd39973d4ba52cff3cc8a920bd7a961e25d16",
+                                                                   "batchId":  "c3fc6005-32b3-465a-84dc-2086c7ce0f13",
+                                                                   "provenance":  "recovered completed batch; filename matched; historical upload hash unavailable",
+                                                                   "cachedAtUtc":  "2026-09-04T03:29:00.947646Z",
+                                                                   "parserVersion":  "mineru-result/v4"
+                                                               },
+                                                    "status":  "PASS_SAMPLED_CHECKS",
+                                                    "bodyBlocksRemoved":  0,
+                                                    "nonBodyBlocksRetained":  0,
+                                                    "bodyBlocksNotFullyCovered":  0,
+                                                    "tablesNotFullyCovered":  0,
+                                                    "oversizedChunks":  0,
+                                                    "emptyChunks":  0,
+                                                    "ocrReviewCount":  0,
+                                                    "missingExpectedClauses":  [
+
+                                                                               ],
+                                                    "hierarchyMismatchCandidates":  [
+
+                                                                                    ]
+                                                }
+                      },
+                      {
+                          "document":  "《建筑基坑支护技术规程》JGJ 120-2012.pdf",
+                          "fileHash":  "471e3dcf59499ea1f9c9214487ced449de7930835d7d72617681e8cacf8cebb8",
+                          "parserVersion":  "mineru-result/v4",
+                          "qualityStatus":  "REVIEW_REQUIRED",
+                          "indexEligible":  false,
+                          "clauseCount":  340,
+                          "chunkCount":  366,
+                          "qualityReason":  "Phase 5.5 REVIEW_REQUIRED: uncoveredBodyBlocks=99; oversizedChunks=1; ocrReviewCount=5; missingExpectedClauses=none; hierarchyMismatchCandidates=none.",
+                          "sourceAuditResult":  {
+                                                    "report":  "PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md",
+                                                    "source":  {
+                                                                   "schemaVersion":  1,
+                                                                   "sourceFile":  "《建筑基坑支护技术规程》JGJ 120-2012.pdf",
+                                                                   "pdfPath":  "C:\\Users\\ojj\\Desktop\\法律法规数据集\\《建筑基坑支护技术规程》JGJ 120-2012.pdf",
+                                                                   "pdfSha256":  "471e3dcf59499ea1f9c9214487ced449de7930835d7d72617681e8cacf8cebb8",
+                                                                   "zipSha256":  "3b45d46cc9b39747f06b78c07af7ad91b6d4b9357fa4cb7dfe06c75fac5d1ec9",
+                                                                   "originPdfSha256":  "1fa85dcd02ee4767c32910ad69ad3bfd3bc50ba8a4a14b530c5250ea22084c66",
+                                                                   "batchId":  "1f11d370-ad9a-44b5-8155-e7215cce0beb",
+                                                                   "provenance":  "recovered completed batch; filename matched; historical upload hash unavailable",
+                                                                   "cachedAtUtc":  "2026-09-04T03:27:57.3929061Z",
+                                                                   "parserVersion":  "mineru-result/v4"
+                                                               },
+                                                    "status":  "REVIEW_REQUIRED",
+                                                    "bodyBlocksRemoved":  0,
+                                                    "nonBodyBlocksRetained":  0,
+                                                    "bodyBlocksNotFullyCovered":  99,
+                                                    "tablesNotFullyCovered":  0,
+                                                    "oversizedChunks":  1,
+                                                    "emptyChunks":  0,
+                                                    "ocrReviewCount":  5,
+                                                    "missingExpectedClauses":  [
+
+                                                                               ],
+                                                    "hierarchyMismatchCandidates":  [
+
+                                                                                    ]
+                                                }
+                      },
+                      {
+                          "document":  "《建筑灭火器配置设计规范》GB 50140-2005.pdf",
+                          "fileHash":  "524af63138bf3721f50cf5c4c038b179c2a1621899eb026cf55048fec551bda9",
+                          "parserVersion":  "mineru-result/v4",
+                          "qualityStatus":  "PASS",
+                          "indexEligible":  true,
+                          "clauseCount":  122,
+                          "chunkCount":  122,
+                          "qualityReason":  "Phase 5.5 sampled checks passed; final reindex remains gated because the full-corpus report says Reindex allowed: NO.",
+                          "sourceAuditResult":  {
+                                                    "report":  "PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md",
+                                                    "source":  {
+                                                                   "schemaVersion":  1,
+                                                                   "sourceFile":  "《建筑灭火器配置设计规范》GB 50140-2005.pdf",
+                                                                   "pdfPath":  "C:\\Users\\ojj\\Desktop\\法律法规数据集\\《建筑灭火器配置设计规范》GB 50140-2005.pdf",
+                                                                   "pdfSha256":  "524af63138bf3721f50cf5c4c038b179c2a1621899eb026cf55048fec551bda9",
+                                                                   "zipSha256":  "3e4d8a9715c8ffa5d6bf8408547cc757abafc45a97583952d8d8cdb75da54b63",
+                                                                   "originPdfSha256":  "267b971a8e00d205aeac539efb625f1a8798aecb9865da979da07db6ea882c2a",
+                                                                   "batchId":  "8b3d1028-b8d5-41fd-9c64-eb3ace672e8c",
+                                                                   "provenance":  "recovered completed batch; filename matched; historical upload hash unavailable",
+                                                                   "cachedAtUtc":  "2026-09-04T03:31:29.2385403Z",
+                                                                   "parserVersion":  "mineru-result/v4"
+                                                               },
+                                                    "status":  "PASS_SAMPLED_CHECKS",
+                                                    "bodyBlocksRemoved":  0,
+                                                    "nonBodyBlocksRetained":  0,
+                                                    "bodyBlocksNotFullyCovered":  0,
+                                                    "tablesNotFullyCovered":  0,
+                                                    "oversizedChunks":  0,
+                                                    "emptyChunks":  0,
+                                                    "ocrReviewCount":  0,
+                                                    "missingExpectedClauses":  [
+
+                                                                               ],
+                                                    "hierarchyMismatchCandidates":  [
+
+                                                                                    ]
+                                                }
+                      },
+                      {
+                          "document":  "《建筑设计防火规范》GB 50016-2022.pdf",
+                          "fileHash":  "079d1a68a9dc29576ab5543d36133018078c7bef3e5e37de486212f887cca8f3",
+                          "parserVersion":  "mineru-result/v4",
+                          "qualityStatus":  "PASS",
+                          "indexEligible":  true,
+                          "clauseCount":  225,
+                          "chunkCount":  233,
+                          "qualityReason":  "Phase 5.5 sampled checks passed; final reindex remains gated because the full-corpus report says Reindex allowed: NO.",
+                          "sourceAuditResult":  {
+                                                    "report":  "PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md",
+                                                    "source":  {
+                                                                   "schemaVersion":  1,
+                                                                   "sourceFile":  "《建筑设计防火规范》GB 50016-2022.pdf",
+                                                                   "pdfPath":  "C:\\Users\\ojj\\Desktop\\法律法规数据集\\《建筑设计防火规范》GB 50016-2022.pdf",
+                                                                   "pdfSha256":  "079d1a68a9dc29576ab5543d36133018078c7bef3e5e37de486212f887cca8f3",
+                                                                   "zipSha256":  "be3760f1f99738761221440db3032e500db9685bc097fc41d4b5407b6f780652",
+                                                                   "originPdfSha256":  "ea10e4620f04b05202cee1251401dc8584ff3d3881c93d2a35a60b24f438d996",
+                                                                   "batchId":  "fea8f80a-0007-4e03-be71-49727a93e862",
+                                                                   "provenance":  "recovered completed batch; filename matched; historical upload hash unavailable",
+                                                                   "cachedAtUtc":  "2026-09-04T03:31:57.7342522Z",
+                                                                   "parserVersion":  "mineru-result/v4"
+                                                               },
+                                                    "status":  "PASS_SAMPLED_CHECKS",
+                                                    "bodyBlocksRemoved":  0,
+                                                    "nonBodyBlocksRetained":  0,
+                                                    "bodyBlocksNotFullyCovered":  0,
+                                                    "tablesNotFullyCovered":  0,
+                                                    "oversizedChunks":  0,
+                                                    "emptyChunks":  0,
+                                                    "ocrReviewCount":  24,
+                                                    "missingExpectedClauses":  [
+
+                                                                               ],
+                                                    "hierarchyMismatchCandidates":  [
+
+                                                                                    ]
+                                                }
+                      },
+                      {
+                          "document":  "《建筑施工安全技术统一规范》GB 50870-2013.pdf",
+                          "fileHash":  "425ddded77a234f6a471956d1ab45f54a03f510009e6277e1ad80bf0b70bfd5e",
+                          "parserVersion":  "mineru-result/v4",
+                          "qualityStatus":  "PASS",
+                          "indexEligible":  true,
+                          "clauseCount":  96,
+                          "chunkCount":  97,
+                          "qualityReason":  "Phase 5.5 sampled checks passed; final reindex remains gated because the full-corpus report says Reindex allowed: NO.",
+                          "sourceAuditResult":  {
+                                                    "report":  "PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md",
+                                                    "source":  {
+                                                                   "schemaVersion":  1,
+                                                                   "sourceFile":  "《建筑施工安全技术统一规范》GB 50870-2013.pdf",
+                                                                   "pdfPath":  "C:\\Users\\ojj\\Desktop\\法律法规数据集\\《建筑施工安全技术统一规范》GB 50870-2013.pdf",
+                                                                   "pdfSha256":  "425ddded77a234f6a471956d1ab45f54a03f510009e6277e1ad80bf0b70bfd5e",
+                                                                   "zipSha256":  "149bdca840190ab2c0d71edab24b0104e48b58581642fbb5d9e65bab622ca934",
+                                                                   "originPdfSha256":  "6ebc8ca1b728fd3890c822311002e82c568ff982fbf45a88578b601fdb21e8ce",
+                                                                   "batchId":  "8fa1452f-306a-4d4c-8a6d-87d41efb89a8",
+                                                                   "provenance":  "recovered completed batch; filename matched; historical upload hash unavailable",
+                                                                   "cachedAtUtc":  "2026-09-04T03:27:58.9636704Z",
+                                                                   "parserVersion":  "mineru-result/v4"
+                                                               },
+                                                    "status":  "PASS_SAMPLED_CHECKS",
+                                                    "bodyBlocksRemoved":  0,
+                                                    "nonBodyBlocksRetained":  0,
+                                                    "bodyBlocksNotFullyCovered":  0,
+                                                    "tablesNotFullyCovered":  0,
+                                                    "oversizedChunks":  0,
+                                                    "emptyChunks":  0,
+                                                    "ocrReviewCount":  0,
+                                                    "missingExpectedClauses":  [
+
+                                                                               ],
+                                                    "hierarchyMismatchCandidates":  [
+
+                                                                                    ]
+                                                }
+                      },
+                      {
+                          "document":  "《建筑施工高处作业安全技术规范》JGJ 80-2016.pdf",
+                          "fileHash":  "c4760f88112834b1c5293a94c9df30264b1ee13790fd30f7a98527054c5f838d",
+                          "parserVersion":  "mineru-result/v4",
+                          "qualityStatus":  "PASS",
+                          "indexEligible":  true,
+                          "clauseCount":  111,
+                          "chunkCount":  111,
+                          "qualityReason":  "Phase 5.5 sampled checks passed; final reindex remains gated because the full-corpus report says Reindex allowed: NO.",
+                          "sourceAuditResult":  {
+                                                    "report":  "PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md",
+                                                    "source":  {
+                                                                   "schemaVersion":  1,
+                                                                   "sourceFile":  "《建筑施工高处作业安全技术规范》JGJ 80-2016.pdf",
+                                                                   "pdfPath":  "C:\\Users\\ojj\\Desktop\\法律法规数据集\\《建筑施工高处作业安全技术规范》JGJ 80-2016.pdf",
+                                                                   "pdfSha256":  "c4760f88112834b1c5293a94c9df30264b1ee13790fd30f7a98527054c5f838d",
+                                                                   "zipSha256":  "218fe71e86583514c226e9d6f017dccdc3bb47d94f1458192055aab030bed6ac",
+                                                                   "originPdfSha256":  "066838573d47e5c4349e598c232ba41bfa3822e9db6daebe623f45af344493b5",
+                                                                   "batchId":  "134fc196-2260-4e99-9538-8675b00ae9f5",
+                                                                   "provenance":  "recovered completed batch; filename matched; historical upload hash unavailable",
+                                                                   "cachedAtUtc":  "2026-09-04T03:28:49.5190334Z",
+                                                                   "parserVersion":  "mineru-result/v4"
+                                                               },
+                                                    "status":  "PASS_SAMPLED_CHECKS",
+                                                    "bodyBlocksRemoved":  0,
+                                                    "nonBodyBlocksRetained":  0,
+                                                    "bodyBlocksNotFullyCovered":  0,
+                                                    "tablesNotFullyCovered":  0,
+                                                    "oversizedChunks":  0,
+                                                    "emptyChunks":  0,
+                                                    "ocrReviewCount":  0,
+                                                    "missingExpectedClauses":  [
+
+                                                                               ],
+                                                    "hierarchyMismatchCandidates":  [
+
+                                                                                    ]
+                                                }
+                      },
+                      {
+                          "document":  "《建筑施工脚手架安全技术统一标准》GB 51210-2016.pdf",
+                          "fileHash":  "19454a4a7950887c741a0aa1f9db4ddec528ef30fe00e2fbcbdc61ed426178a6",
+                          "parserVersion":  "mineru-result/v4",
+                          "qualityStatus":  "PASS",
+                          "indexEligible":  true,
+                          "clauseCount":  174,
+                          "chunkCount":  183,
+                          "qualityReason":  "Phase 5.5 sampled checks passed; final reindex remains gated because the full-corpus report says Reindex allowed: NO.",
+                          "sourceAuditResult":  {
+                                                    "report":  "PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md",
+                                                    "source":  {
+                                                                   "schemaVersion":  1,
+                                                                   "sourceFile":  "《建筑施工脚手架安全技术统一标准》GB 51210-2016.pdf",
+                                                                   "pdfPath":  "C:\\Users\\ojj\\Desktop\\法律法规数据集\\《建筑施工脚手架安全技术统一标准》GB 51210-2016.pdf",
+                                                                   "pdfSha256":  "19454a4a7950887c741a0aa1f9db4ddec528ef30fe00e2fbcbdc61ed426178a6",
+                                                                   "zipSha256":  "54356e9f3d8dca5e4c74fc98307b1fb703ea85bcc6ac828c58e4bc92900518f7",
+                                                                   "originPdfSha256":  "3da45879b1ba697ad7730f266d4509a19b22777d150c1e623c88136c7355fac5",
+                                                                   "batchId":  "898a41eb-13ea-4890-95fd-65693ba29178",
+                                                                   "provenance":  "recovered completed batch; filename matched; historical upload hash unavailable",
+                                                                   "cachedAtUtc":  "2026-09-04T03:28:29.3945438Z",
+                                                                   "parserVersion":  "mineru-result/v4"
+                                                               },
+                                                    "status":  "PASS_SAMPLED_CHECKS",
+                                                    "bodyBlocksRemoved":  0,
+                                                    "nonBodyBlocksRetained":  0,
+                                                    "bodyBlocksNotFullyCovered":  0,
+                                                    "tablesNotFullyCovered":  0,
+                                                    "oversizedChunks":  0,
+                                                    "emptyChunks":  0,
+                                                    "ocrReviewCount":  0,
+                                                    "missingExpectedClauses":  [
+
+                                                                               ],
+                                                    "hierarchyMismatchCandidates":  [
+
+                                                                                    ]
+                                                }
+                      },
+                      {
+                          "document":  "《建筑施工门式钢管脚手架安全技术标准》JGJ_T 128-2019.pdf",
+                          "fileHash":  "59571b82ea5d12a41b298585e25b0d43d1912000ce290fac1eec86e308731d63",
+                          "parserVersion":  "mineru-result/v4",
+                          "qualityStatus":  "REVIEW_REQUIRED",
+                          "indexEligible":  false,
+                          "clauseCount":  227,
+                          "chunkCount":  243,
+                          "qualityReason":  "Phase 5.5 REVIEW_REQUIRED: uncoveredBodyBlocks=0; oversizedChunks=2; ocrReviewCount=0; missingExpectedClauses=none; hierarchyMismatchCandidates=none.",
+                          "sourceAuditResult":  {
+                                                    "report":  "PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md",
+                                                    "source":  {
+                                                                   "schemaVersion":  1,
+                                                                   "sourceFile":  "《建筑施工门式钢管脚手架安全技术标准》JGJ_T 128-2019.pdf",
+                                                                   "pdfPath":  "C:\\Users\\ojj\\Desktop\\法律法规数据集\\《建筑施工门式钢管脚手架安全技术标准》JGJ_T 128-2019.pdf",
+                                                                   "pdfSha256":  "59571b82ea5d12a41b298585e25b0d43d1912000ce290fac1eec86e308731d63",
+                                                                   "zipSha256":  "3f095f2be1163519c4e40a738a3dea343b39adadd6da8e068a6e3440f5168e20",
+                                                                   "originPdfSha256":  "776945a45e722bd971114685178011da16fe29833d13c5459921b2a9f10ebf8b",
+                                                                   "batchId":  "3118568a-86f1-4dfa-9d4a-da6b4f103fb9",
+                                                                   "provenance":  "recovered completed batch; filename matched; historical upload hash unavailable",
+                                                                   "cachedAtUtc":  "2026-09-04T03:28:46.763625Z",
+                                                                   "parserVersion":  "mineru-result/v4"
+                                                               },
+                                                    "status":  "REVIEW_REQUIRED",
+                                                    "bodyBlocksRemoved":  0,
+                                                    "nonBodyBlocksRetained":  0,
+                                                    "bodyBlocksNotFullyCovered":  0,
+                                                    "tablesNotFullyCovered":  0,
+                                                    "oversizedChunks":  2,
+                                                    "emptyChunks":  0,
+                                                    "ocrReviewCount":  0,
+                                                    "missingExpectedClauses":  [
+
+                                                                               ],
+                                                    "hierarchyMismatchCandidates":  [
+
+                                                                                    ]
+                                                }
+                      },
+                      {
+                          "document":  "《建筑施工起重吊装工程安全技术规范》JGJ 276-2012.pdf",
+                          "fileHash":  "bfb61101368882d21fb00001555ccac02e107cd964ee57c5659ec6a8bbdda535",
+                          "parserVersion":  "mineru-result/v4",
+                          "qualityStatus":  "PASS",
+                          "indexEligible":  true,
+                          "clauseCount":  142,
+                          "chunkCount":  148,
+                          "qualityReason":  "Phase 5.5 sampled checks passed; final reindex remains gated because the full-corpus report says Reindex allowed: NO.",
+                          "sourceAuditResult":  {
+                                                    "report":  "PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md",
+                                                    "source":  {
+                                                                   "schemaVersion":  1,
+                                                                   "sourceFile":  "《建筑施工起重吊装工程安全技术规范》JGJ 276-2012.pdf",
+                                                                   "pdfPath":  "C:\\Users\\ojj\\Desktop\\法律法规数据集\\《建筑施工起重吊装工程安全技术规范》JGJ 276-2012.pdf",
+                                                                   "pdfSha256":  "bfb61101368882d21fb00001555ccac02e107cd964ee57c5659ec6a8bbdda535",
+                                                                   "zipSha256":  "67e07541b522635f7e116dc9a50772f34a2ab14bf23178326a02fc00f9a9d1c5",
+                                                                   "originPdfSha256":  "13328d4f636e24609c748b192dc80bba93cee5e603cfe0cd0eb2aaacdb4bef86",
+                                                                   "batchId":  "9b0168a2-0440-4037-93d1-0efc0def75aa",
+                                                                   "provenance":  "recovered completed batch; filename matched; historical upload hash unavailable",
+                                                                   "cachedAtUtc":  "2026-09-04T03:28:35.5507642Z",
+                                                                   "parserVersion":  "mineru-result/v4"
+                                                               },
+                                                    "status":  "PASS_SAMPLED_CHECKS",
+                                                    "bodyBlocksRemoved":  0,
+                                                    "nonBodyBlocksRetained":  0,
+                                                    "bodyBlocksNotFullyCovered":  0,
+                                                    "tablesNotFullyCovered":  0,
+                                                    "oversizedChunks":  0,
+                                                    "emptyChunks":  0,
+                                                    "ocrReviewCount":  1,
+                                                    "missingExpectedClauses":  [
+
+                                                                               ],
+                                                    "hierarchyMismatchCandidates":  [
+
+                                                                                    ]
+                                                }
+                      },
+                      {
+                          "document":  "《建筑施工碗扣式钢管脚手架安全技术规范》JGJ 166-2016.pdf",
+                          "fileHash":  "6d3d5044d0c4d4699f1dc4552aa1217abc903bb99ea137795961597f0e66092f",
+                          "parserVersion":  "mineru-result/v4",
+                          "qualityStatus":  "REVIEW_REQUIRED",
+                          "indexEligible":  false,
+                          "clauseCount":  187,
+                          "chunkCount":  195,
+                          "qualityReason":  "Phase 5.5 REVIEW_REQUIRED: uncoveredBodyBlocks=4; oversizedChunks=0; ocrReviewCount=7; missingExpectedClauses=none; hierarchyMismatchCandidates=none.",
+                          "sourceAuditResult":  {
+                                                    "report":  "PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md",
+                                                    "source":  {
+                                                                   "schemaVersion":  1,
+                                                                   "sourceFile":  "《建筑施工碗扣式钢管脚手架安全技术规范》JGJ 166-2016.pdf",
+                                                                   "pdfPath":  "C:\\Users\\ojj\\Desktop\\法律法规数据集\\《建筑施工碗扣式钢管脚手架安全技术规范》JGJ 166-2016.pdf",
+                                                                   "pdfSha256":  "6d3d5044d0c4d4699f1dc4552aa1217abc903bb99ea137795961597f0e66092f",
+                                                                   "zipSha256":  "2337fec71e16224a5a8259f79e5422efaf2fead8d43312e7ccbc051c8c483589",
+                                                                   "originPdfSha256":  "57ef4dde2efc3d5170fa6fa235e8fadc6df697a119f5ed54deffeaa013843ad0",
+                                                                   "batchId":  "406b942d-4a63-4020-80e2-105ac6b483f9",
+                                                                   "provenance":  "recovered completed batch; filename matched; historical upload hash unavailable",
+                                                                   "cachedAtUtc":  "2026-09-04T03:28:12.9397023Z",
+                                                                   "parserVersion":  "mineru-result/v4"
+                                                               },
+                                                    "status":  "REVIEW_REQUIRED",
+                                                    "bodyBlocksRemoved":  0,
+                                                    "nonBodyBlocksRetained":  0,
+                                                    "bodyBlocksNotFullyCovered":  4,
+                                                    "tablesNotFullyCovered":  0,
+                                                    "oversizedChunks":  0,
+                                                    "emptyChunks":  0,
+                                                    "ocrReviewCount":  7,
+                                                    "missingExpectedClauses":  [
+
+                                                                               ],
+                                                    "hierarchyMismatchCandidates":  [
+
+                                                                                    ]
+                                                }
+                      },
+                      {
+                          "document":  "《建筑施工易发事故防治安全标准》JGJ_T 429-2018.pdf",
+                          "fileHash":  "56230992584b689b0e09548c0c61dea00c7d72d24aa035be5499a0d281d98391",
+                          "parserVersion":  "mineru-result/v4",
+                          "qualityStatus":  "PASS",
+                          "indexEligible":  true,
+                          "clauseCount":  285,
+                          "chunkCount":  286,
+                          "qualityReason":  "Phase 5.5 sampled checks passed; final reindex remains gated because the full-corpus report says Reindex allowed: NO.",
+                          "sourceAuditResult":  {
+                                                    "report":  "PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md",
+                                                    "source":  {
+                                                                   "schemaVersion":  1,
+                                                                   "sourceFile":  "《建筑施工易发事故防治安全标准》JGJ_T 429-2018.pdf",
+                                                                   "pdfPath":  "C:\\Users\\ojj\\Desktop\\法律法规数据集\\《建筑施工易发事故防治安全标准》JGJ_T 429-2018.pdf",
+                                                                   "pdfSha256":  "56230992584b689b0e09548c0c61dea00c7d72d24aa035be5499a0d281d98391",
+                                                                   "zipSha256":  "f476be3c8f9511a957e1d59e51f710a9f7e5f29447c6da2cb6dc24454c6451bf",
+                                                                   "originPdfSha256":  "3ec19236a60747d72e6d3009ea95fb0bb458dcf08462a409f2a62dc9c5152ae6",
+                                                                   "batchId":  "93c89580-2183-4832-ab7a-a24613116752",
+                                                                   "provenance":  "recovered completed batch; filename matched; historical upload hash unavailable",
+                                                                   "cachedAtUtc":  "2026-09-04T03:28:05.0379582Z",
+                                                                   "parserVersion":  "mineru-result/v4"
+                                                               },
+                                                    "status":  "PASS_SAMPLED_CHECKS",
+                                                    "bodyBlocksRemoved":  0,
+                                                    "nonBodyBlocksRetained":  0,
+                                                    "bodyBlocksNotFullyCovered":  0,
+                                                    "tablesNotFullyCovered":  0,
+                                                    "oversizedChunks":  0,
+                                                    "emptyChunks":  0,
+                                                    "ocrReviewCount":  0,
+                                                    "missingExpectedClauses":  [
+
+                                                                               ],
+                                                    "hierarchyMismatchCandidates":  [
+
+                                                                                    ]
+                                                }
+                      },
+                      {
+                          "document":  "《建筑施工组织设计规范》GB_T 50502-2009.pdf",
+                          "fileHash":  "2a1154cb9687a58a1b0e0b51febd929427060060e2b3ef6ec4a57c05171aaaea",
+                          "parserVersion":  "mineru-result/v4",
+                          "qualityStatus":  "PASS",
+                          "indexEligible":  true,
+                          "clauseCount":  98,
+                          "chunkCount":  98,
+                          "qualityReason":  "Phase 5.5 sampled checks passed; final reindex remains gated because the full-corpus report says Reindex allowed: NO.",
+                          "sourceAuditResult":  {
+                                                    "report":  "PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md",
+                                                    "source":  {
+                                                                   "schemaVersion":  1,
+                                                                   "sourceFile":  "《建筑施工组织设计规范》GB_T 50502-2009.pdf",
+                                                                   "pdfPath":  "C:\\Users\\ojj\\Desktop\\法律法规数据集\\《建筑施工组织设计规范》GB_T 50502-2009.pdf",
+                                                                   "pdfSha256":  "2a1154cb9687a58a1b0e0b51febd929427060060e2b3ef6ec4a57c05171aaaea",
+                                                                   "zipSha256":  "806b2fa4a7b5770a121df63fea0926bff9b91a7452fd86765d887c35b4e4ffbc",
+                                                                   "originPdfSha256":  "ea94c80d3f3c206709ecba04eee3b86e0bc6c9c90f482e8f69840aa85bdbc1d3",
+                                                                   "batchId":  "03a29429-360b-4d7a-b2ae-4f3ef460e8fe",
+                                                                   "provenance":  "recovered completed batch; filename matched; historical upload hash unavailable",
+                                                                   "cachedAtUtc":  "2026-09-04T03:28:20.7388607Z",
+                                                                   "parserVersion":  "mineru-result/v4"
+                                                               },
+                                                    "status":  "PASS_SAMPLED_CHECKS",
+                                                    "bodyBlocksRemoved":  0,
+                                                    "nonBodyBlocksRetained":  0,
+                                                    "bodyBlocksNotFullyCovered":  0,
+                                                    "tablesNotFullyCovered":  0,
+                                                    "oversizedChunks":  0,
+                                                    "emptyChunks":  0,
+                                                    "ocrReviewCount":  0,
+                                                    "missingExpectedClauses":  [
+
+                                                                               ],
+                                                    "hierarchyMismatchCandidates":  [
+
+                                                                                    ]
+                                                }
+                      },
+                      {
+                          "document":  "《建筑行业职业病危害预防控制规范》GBZ_T 211-2008.pdf",
+                          "fileHash":  "8d9cd9dd488763278bcc5ef492b814f44afaa15ca1e959c39b5b6eaa074ac433",
+                          "parserVersion":  "mineru-result/v4",
+                          "qualityStatus":  "PASS",
+                          "indexEligible":  true,
+                          "clauseCount":  97,
+                          "chunkCount":  99,
+                          "qualityReason":  "Phase 5.5 sampled checks passed; final reindex remains gated because the full-corpus report says Reindex allowed: NO.",
+                          "sourceAuditResult":  {
+                                                    "report":  "PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md",
+                                                    "source":  {
+                                                                   "schemaVersion":  1,
+                                                                   "sourceFile":  "《建筑行业职业病危害预防控制规范》GBZ_T 211-2008.pdf",
+                                                                   "pdfPath":  "C:\\Users\\ojj\\Desktop\\法律法规数据集\\《建筑行业职业病危害预防控制规范》GBZ_T 211-2008.pdf",
+                                                                   "pdfSha256":  "8d9cd9dd488763278bcc5ef492b814f44afaa15ca1e959c39b5b6eaa074ac433",
+                                                                   "zipSha256":  "be6ae89f78b9bd23306d474cc36b2298769173e019d4be74fa78fc03a156e846",
+                                                                   "originPdfSha256":  "9d1e19691487f710f9fca374876d2177c1436d0bac00fbcbd55d8a04b9f03202",
+                                                                   "batchId":  "d03414af-a343-471d-8be7-cd1e9412b0cd",
+                                                                   "provenance":  "recovered completed batch; filename matched; historical upload hash unavailable",
+                                                                   "cachedAtUtc":  "2026-09-04T03:31:33.0182533Z",
+                                                                   "parserVersion":  "mineru-result/v4"
+                                                               },
+                                                    "status":  "PASS_SAMPLED_CHECKS",
+                                                    "bodyBlocksRemoved":  0,
+                                                    "nonBodyBlocksRetained":  0,
+                                                    "bodyBlocksNotFullyCovered":  0,
+                                                    "tablesNotFullyCovered":  0,
+                                                    "oversizedChunks":  0,
+                                                    "emptyChunks":  0,
+                                                    "ocrReviewCount":  32,
+                                                    "missingExpectedClauses":  [
+
+                                                                               ],
+                                                    "hierarchyMismatchCandidates":  [
+
+                                                                                    ]
+                                                }
+                      },
+                      {
+                          "document":  "《建筑与市政工程地下水控制技术规范》JGJ 111-2016.pdf",
+                          "fileHash":  "382efafcd87d769eb7ebacc9eedd79882f460c193f07e7c6f48700e2549ae099",
+                          "parserVersion":  "mineru-result/v4",
+                          "qualityStatus":  "REVIEW_REQUIRED",
+                          "indexEligible":  false,
+                          "clauseCount":  200,
+                          "chunkCount":  209,
+                          "qualityReason":  "Phase 5.5 REVIEW_REQUIRED: uncoveredBodyBlocks=59; oversizedChunks=2; ocrReviewCount=10; missingExpectedClauses=none; hierarchyMismatchCandidates=none.",
+                          "sourceAuditResult":  {
+                                                    "report":  "PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md",
+                                                    "source":  {
+                                                                   "schemaVersion":  1,
+                                                                   "sourceFile":  "《建筑与市政工程地下水控制技术规范》JGJ 111-2016.pdf",
+                                                                   "pdfPath":  "C:\\Users\\ojj\\Desktop\\法律法规数据集\\《建筑与市政工程地下水控制技术规范》JGJ 111-2016.pdf",
+                                                                   "pdfSha256":  "382efafcd87d769eb7ebacc9eedd79882f460c193f07e7c6f48700e2549ae099",
+                                                                   "zipSha256":  "fe40eb99e2034ffb1677d9a85963f5ffa241f3e3a39def67a208d5f382636e42",
+                                                                   "originPdfSha256":  "e5e8ad3dc0fc3a76d0b679493559a8296c68dc51ea4cae7694e86f5a88619789",
+                                                                   "batchId":  "6531567a-1a66-424a-ad6c-fd7d0561eb70",
+                                                                   "provenance":  "recovered completed batch; filename matched; historical upload hash unavailable",
+                                                                   "cachedAtUtc":  "2026-09-04T03:27:19.6093001Z",
+                                                                   "parserVersion":  "mineru-result/v4"
+                                                               },
+                                                    "status":  "REVIEW_REQUIRED",
+                                                    "bodyBlocksRemoved":  0,
+                                                    "nonBodyBlocksRetained":  0,
+                                                    "bodyBlocksNotFullyCovered":  59,
+                                                    "tablesNotFullyCovered":  0,
+                                                    "oversizedChunks":  2,
+                                                    "emptyChunks":  0,
+                                                    "ocrReviewCount":  10,
+                                                    "missingExpectedClauses":  [
+
+                                                                               ],
+                                                    "hierarchyMismatchCandidates":  [
+
+                                                                                    ]
+                                                }
+                      },
+                      {
+                          "document":  "《建筑与市政工程施工现场临时用电安全技术标准》JGJ_T 46-2024.pdf",
+                          "fileHash":  "47f8bd94e8aba4754ca7d6e4157004098ddf787d3e5a9be71715287c861ac29c",
+                          "parserVersion":  "mineru-result/v4",
+                          "qualityStatus":  "PASS",
+                          "indexEligible":  true,
+                          "clauseCount":  243,
+                          "chunkCount":  245,
+                          "qualityReason":  "Phase 5.5 sampled checks passed; final reindex remains gated because the full-corpus report says Reindex allowed: NO.",
+                          "sourceAuditResult":  {
+                                                    "report":  "PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md",
+                                                    "source":  {
+                                                                   "schemaVersion":  1,
+                                                                   "sourceFile":  "《建筑与市政工程施工现场临时用电安全技术标准》JGJ_T 46-2024.pdf",
+                                                                   "pdfPath":  "C:\\Users\\ojj\\Desktop\\法律法规数据集\\《建筑与市政工程施工现场临时用电安全技术标准》JGJ_T 46-2024.pdf",
+                                                                   "pdfSha256":  "47f8bd94e8aba4754ca7d6e4157004098ddf787d3e5a9be71715287c861ac29c",
+                                                                   "zipSha256":  "43bbf734f03dfde2123d82bffe5d28aac041626874265b54d2d4becf2d2b7b80",
+                                                                   "originPdfSha256":  "bc0e2978fbf0124dd79f7d27ab3e61c0c189aebb353f4f9d04043adb4de02073",
+                                                                   "batchId":  "a56f486b-ae75-4c4d-ae5d-477f32ef99e9",
+                                                                   "provenance":  "recovered completed batch; filename matched; historical upload hash unavailable",
+                                                                   "cachedAtUtc":  "2026-09-04T03:27:24.6071252Z",
+                                                                   "parserVersion":  "mineru-result/v4"
+                                                               },
+                                                    "status":  "PASS_SAMPLED_CHECKS",
+                                                    "bodyBlocksRemoved":  0,
+                                                    "nonBodyBlocksRetained":  0,
+                                                    "bodyBlocksNotFullyCovered":  0,
+                                                    "tablesNotFullyCovered":  0,
+                                                    "oversizedChunks":  0,
+                                                    "emptyChunks":  0,
+                                                    "ocrReviewCount":  2,
+                                                    "missingExpectedClauses":  [
+
+                                                                               ],
+                                                    "hierarchyMismatchCandidates":  [
+
+                                                                                    ]
+                                                }
+                      },
+                      {
+                          "document":  "《施工企业安全生产评价标准》JGJ_T 77-2010.pdf",
+                          "fileHash":  "7bbee3590a1abbd38f04a3d74d9af2a7c1eb09c36e60f0f6b1337c1b71c0f150",
+                          "parserVersion":  "mineru-result/v4",
+                          "qualityStatus":  "PASS",
+                          "indexEligible":  true,
+                          "clauseCount":  51,
+                          "chunkCount":  51,
+                          "qualityReason":  "Phase 5.5 sampled checks passed; final reindex remains gated because the full-corpus report says Reindex allowed: NO.",
+                          "sourceAuditResult":  {
+                                                    "report":  "PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md",
+                                                    "source":  {
+                                                                   "schemaVersion":  1,
+                                                                   "sourceFile":  "《施工企业安全生产评价标准》JGJ_T 77-2010.pdf",
+                                                                   "pdfPath":  "C:\\Users\\ojj\\Desktop\\法律法规数据集\\《施工企业安全生产评价标准》JGJ_T 77-2010.pdf",
+                                                                   "pdfSha256":  "7bbee3590a1abbd38f04a3d74d9af2a7c1eb09c36e60f0f6b1337c1b71c0f150",
+                                                                   "zipSha256":  "8fe282d9f7d639db729f3d8cd074bf309dca7f21f23345cd56e5e0b5576ad16c",
+                                                                   "originPdfSha256":  "b05ac8ed82c203500f03e1fa03af7e9d718b4d9df4a208db79daf163ec32d32f",
+                                                                   "batchId":  "c1738894-fd69-4160-b060-b845e0350ce0",
+                                                                   "provenance":  "recovered completed batch; filename matched; historical upload hash unavailable",
+                                                                   "cachedAtUtc":  "2026-09-04T03:37:40.1905935Z",
+                                                                   "parserVersion":  "mineru-result/v4"
+                                                               },
+                                                    "status":  "PASS_SAMPLED_CHECKS",
+                                                    "bodyBlocksRemoved":  0,
+                                                    "nonBodyBlocksRetained":  0,
+                                                    "bodyBlocksNotFullyCovered":  0,
+                                                    "tablesNotFullyCovered":  0,
+                                                    "oversizedChunks":  0,
+                                                    "emptyChunks":  0,
+                                                    "ocrReviewCount":  0,
+                                                    "missingExpectedClauses":  [
+
+                                                                               ],
+                                                    "hierarchyMismatchCandidates":  [
+
+                                                                                    ]
+                                                }
+                      },
+                      {
+                          "document":  "《施工现场机械设备检查技术规范》JGJ 160-2016.pdf",
+                          "fileHash":  "fa598cdd9d7745a24dbde58fa2eff0c9a5f70868049c4a34028046a0c98dab7c",
+                          "parserVersion":  "mineru-result/v4",
+                          "qualityStatus":  "PASS",
+                          "indexEligible":  true,
+                          "clauseCount":  516,
+                          "chunkCount":  517,
+                          "qualityReason":  "Phase 5.5 sampled checks passed; final reindex remains gated because the full-corpus report says Reindex allowed: NO.",
+                          "sourceAuditResult":  {
+                                                    "report":  "PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md",
+                                                    "source":  {
+                                                                   "schemaVersion":  1,
+                                                                   "sourceFile":  "《施工现场机械设备检查技术规范》JGJ 160-2016.pdf",
+                                                                   "pdfPath":  "C:\\Users\\ojj\\Desktop\\法律法规数据集\\《施工现场机械设备检查技术规范》JGJ 160-2016.pdf",
+                                                                   "pdfSha256":  "fa598cdd9d7745a24dbde58fa2eff0c9a5f70868049c4a34028046a0c98dab7c",
+                                                                   "zipSha256":  "9da0053c27beec1683fd1228590441161b00016c0f40b42beae09009740f1ba2",
+                                                                   "originPdfSha256":  "4a269b476cdde8a358325b4202178614ad629b0b6960fe2447ff03dde458bf6c",
+                                                                   "batchId":  "363aa0e7-df76-4d2c-9264-e97e1e5dcf3a",
+                                                                   "provenance":  "recovered completed batch; filename matched; historical upload hash unavailable",
+                                                                   "cachedAtUtc":  "2026-09-04T03:38:19.8264538Z",
+                                                                   "parserVersion":  "mineru-result/v4"
+                                                               },
+                                                    "status":  "PASS_SAMPLED_CHECKS",
+                                                    "bodyBlocksRemoved":  0,
+                                                    "nonBodyBlocksRetained":  0,
+                                                    "bodyBlocksNotFullyCovered":  0,
+                                                    "tablesNotFullyCovered":  0,
+                                                    "oversizedChunks":  0,
+                                                    "emptyChunks":  0,
+                                                    "ocrReviewCount":  0,
+                                                    "missingExpectedClauses":  [
+
+                                                                               ],
+                                                    "hierarchyMismatchCandidates":  [
+
+                                                                                    ]
+                                                }
+                      },
+                      {
+                          "document":  "《石棉作业职业卫生管理规范》GBZ_T 193-2007.pdf",
+                          "fileHash":  "d6a9ea33842199f74c4e85f1a201b1c0a164ad8ac2b6274c04f78dccc8f4e8c9",
+                          "parserVersion":  "mineru-result/v4",
+                          "qualityStatus":  "PASS",
+                          "indexEligible":  true,
+                          "clauseCount":  3,
+                          "chunkCount":  3,
+                          "qualityReason":  "Phase 5.5 sampled checks passed; final reindex remains gated because the full-corpus report says Reindex allowed: NO.",
+                          "sourceAuditResult":  {
+                                                    "report":  "PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md",
+                                                    "source":  {
+                                                                   "schemaVersion":  1,
+                                                                   "sourceFile":  "《石棉作业职业卫生管理规范》GBZ_T 193-2007.pdf",
+                                                                   "pdfPath":  "C:\\Users\\ojj\\Desktop\\法律法规数据集\\《石棉作业职业卫生管理规范》GBZ_T 193-2007.pdf",
+                                                                   "pdfSha256":  "d6a9ea33842199f74c4e85f1a201b1c0a164ad8ac2b6274c04f78dccc8f4e8c9",
+                                                                   "zipSha256":  "7277580ab1c62dad8d61b3a1eb7daff508dc08bebca6204faf7d5f5411170186",
+                                                                   "originPdfSha256":  "8ec7c307ecd3af5107f301fa73215f3dd7cea0284c38a5283d3f02fbed76e3ca",
+                                                                   "batchId":  "f7899c99-76d0-4490-ac1e-6feb0f476f84",
+                                                                   "provenance":  "recovered completed batch; filename matched; historical upload hash unavailable",
+                                                                   "cachedAtUtc":  "2026-09-04T03:40:47.3896289Z",
+                                                                   "parserVersion":  "mineru-result/v4"
+                                                               },
+                                                    "status":  "PASS_SAMPLED_CHECKS",
+                                                    "bodyBlocksRemoved":  0,
+                                                    "nonBodyBlocksRetained":  0,
+                                                    "bodyBlocksNotFullyCovered":  0,
+                                                    "tablesNotFullyCovered":  0,
+                                                    "oversizedChunks":  0,
+                                                    "emptyChunks":  0,
+                                                    "ocrReviewCount":  10,
+                                                    "missingExpectedClauses":  [
+
+                                                                               ],
+                                                    "hierarchyMismatchCandidates":  [
+
+                                                                                    ]
+                                                }
+                      },
+                      {
+                          "document":  "《土方与爆破工程施工及验收规范》GB 50201-2012.pdf",
+                          "fileHash":  "f6bc0888c8676e758c9bb7dd77ab849d838ce8e85267a3cdbeadef0f9622c2c9",
+                          "parserVersion":  "mineru-result/v4",
+                          "qualityStatus":  "PASS",
+                          "indexEligible":  true,
+                          "clauseCount":  271,
+                          "chunkCount":  271,
+                          "qualityReason":  "Phase 5.5 sampled checks passed; final reindex remains gated because the full-corpus report says Reindex allowed: NO.",
+                          "sourceAuditResult":  {
+                                                    "report":  "PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md",
+                                                    "source":  {
+                                                                   "schemaVersion":  1,
+                                                                   "sourceFile":  "《土方与爆破工程施工及验收规范》GB 50201-2012.pdf",
+                                                                   "pdfPath":  "C:\\Users\\ojj\\Desktop\\法律法规数据集\\《土方与爆破工程施工及验收规范》GB 50201-2012.pdf",
+                                                                   "pdfSha256":  "f6bc0888c8676e758c9bb7dd77ab849d838ce8e85267a3cdbeadef0f9622c2c9",
+                                                                   "zipSha256":  "6f72f04392246b097373df584686479ddef3844e019075c7ba2b2405e6e1a1fe",
+                                                                   "originPdfSha256":  "bfec70d5cbbb4be7e8df4d67524758ca790a32c1dfc5abccade05edf8bc8da38",
+                                                                   "batchId":  "645abbf5-2343-4797-9ac0-feb190728497",
+                                                                   "provenance":  "recovered completed batch; filename matched; historical upload hash unavailable",
+                                                                   "cachedAtUtc":  "2026-09-04T03:26:05.9930208Z",
+                                                                   "parserVersion":  "mineru-result/v4"
+                                                               },
+                                                    "status":  "PASS_SAMPLED_CHECKS",
+                                                    "bodyBlocksRemoved":  0,
+                                                    "nonBodyBlocksRetained":  0,
+                                                    "bodyBlocksNotFullyCovered":  0,
+                                                    "tablesNotFullyCovered":  0,
+                                                    "oversizedChunks":  0,
+                                                    "emptyChunks":  0,
+                                                    "ocrReviewCount":  30,
+                                                    "missingExpectedClauses":  [
+
+                                                                               ],
+                                                    "hierarchyMismatchCandidates":  [
+
+                                                                                    ]
+                                                }
+                      },
+                      {
+                          "document":  "《职业健康监护技术规范》GBZ 188-2025.pdf",
+                          "fileHash":  "5823eea75cd5364c934f12170acec6ee9e2df2baaee736d7251cd3bc4353d0d7",
+                          "parserVersion":  "mineru-result/v4",
+                          "qualityStatus":  "REVIEW_REQUIRED",
+                          "indexEligible":  false,
+                          "clauseCount":  1001,
+                          "chunkCount":  1008,
+                          "qualityReason":  "Phase 5.5 REVIEW_REQUIRED: uncoveredBodyBlocks=1057; oversizedChunks=1; ocrReviewCount=49; missingExpectedClauses=none; hierarchyMismatchCandidates=none.",
+                          "sourceAuditResult":  {
+                                                    "report":  "PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md",
+                                                    "source":  {
+                                                                   "schemaVersion":  1,
+                                                                   "sourceFile":  "《职业健康监护技术规范》GBZ 188-2025.pdf",
+                                                                   "pdfPath":  "C:\\Users\\ojj\\Desktop\\法律法规数据集\\《职业健康监护技术规范》GBZ 188-2025.pdf",
+                                                                   "pdfSha256":  "5823eea75cd5364c934f12170acec6ee9e2df2baaee736d7251cd3bc4353d0d7",
+                                                                   "zipSha256":  "00bf5d2702a775fa94b4a284556bdb6118557c3eaf83320027101757ce29e27e",
+                                                                   "originPdfSha256":  "056686ee2d4d781dd536497c21dab50476cb89aa7bed42d495f7f2ec115270f7",
+                                                                   "batchId":  "a7f92090-d504-4c80-9a59-735e94c27443",
+                                                                   "provenance":  "recovered completed batch; filename matched; historical upload hash unavailable",
+                                                                   "cachedAtUtc":  "2026-09-04T03:40:25.9483956Z",
+                                                                   "parserVersion":  "mineru-result/v4"
+                                                               },
+                                                    "status":  "REVIEW_REQUIRED",
+                                                    "bodyBlocksRemoved":  0,
+                                                    "nonBodyBlocksRetained":  0,
+                                                    "bodyBlocksNotFullyCovered":  1057,
+                                                    "tablesNotFullyCovered":  0,
+                                                    "oversizedChunks":  1,
+                                                    "emptyChunks":  0,
+                                                    "ocrReviewCount":  49,
+                                                    "missingExpectedClauses":  [
+
+                                                                               ],
+                                                    "hierarchyMismatchCandidates":  [
+
+                                                                                    ]
+                                                }
+                      },
+                      {
+                          "document":  "安全生产违法行为行政处罚办法.pdf",
+                          "fileHash":  "9b77c604d14f70f041cead44106e41d5c4bbfe803085bd323aec652db42734bc",
+                          "parserVersion":  "mineru-result/v4",
+                          "qualityStatus":  "PASS",
+                          "indexEligible":  true,
+                          "clauseCount":  69,
+                          "chunkCount":  70,
+                          "qualityReason":  "Phase 5.5 sampled checks passed; final reindex remains gated because the full-corpus report says Reindex allowed: NO.",
+                          "sourceAuditResult":  {
+                                                    "report":  "PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md",
+                                                    "source":  {
+                                                                   "schemaVersion":  1,
+                                                                   "sourceFile":  "安全生产违法行为行政处罚办法.pdf",
+                                                                   "pdfPath":  "C:\\Users\\ojj\\Desktop\\法律法规数据集\\安全生产违法行为行政处罚办法.pdf",
+                                                                   "pdfSha256":  "9b77c604d14f70f041cead44106e41d5c4bbfe803085bd323aec652db42734bc",
+                                                                   "zipSha256":  "2b4a38565d2d1f800b52779903cc52b47cc00954562cb3a628c50b69ce7b8c8d",
+                                                                   "originPdfSha256":  "248cfecb5f6bf827085ec63fe3923de02c20e0c26ae60ed2bf32ad79f5be223b",
+                                                                   "batchId":  "522dbd85-1b12-4ec3-9738-da03be85ed73",
+                                                                   "provenance":  "recovered completed batch; filename matched; historical upload hash unavailable",
+                                                                   "cachedAtUtc":  "2026-09-04T03:40:49.066548Z",
+                                                                   "parserVersion":  "mineru-result/v4"
+                                                               },
+                                                    "status":  "PASS_SAMPLED_CHECKS",
+                                                    "bodyBlocksRemoved":  0,
+                                                    "nonBodyBlocksRetained":  0,
+                                                    "bodyBlocksNotFullyCovered":  0,
+                                                    "tablesNotFullyCovered":  0,
+                                                    "oversizedChunks":  0,
+                                                    "emptyChunks":  0,
+                                                    "ocrReviewCount":  0,
+                                                    "missingExpectedClauses":  [
+
+                                                                               ],
+                                                    "hierarchyMismatchCandidates":  [
+
+                                                                                    ]
+                                                }
+                      },
+                      {
+                          "document":  "安全生产许可证条例.pdf",
+                          "fileHash":  "451bcdcc04b80e10eda9f3a6ee6e03b916d360c0c10b89635e1d7f910d6fc9d0",
+                          "parserVersion":  "mineru-result/v4",
+                          "qualityStatus":  "PASS",
+                          "indexEligible":  true,
+                          "clauseCount":  24,
+                          "chunkCount":  24,
+                          "qualityReason":  "Phase 5.5 sampled checks passed; final reindex remains gated because the full-corpus report says Reindex allowed: NO.",
+                          "sourceAuditResult":  {
+                                                    "report":  "PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md",
+                                                    "source":  {
+                                                                   "schemaVersion":  1,
+                                                                   "sourceFile":  "安全生产许可证条例.pdf",
+                                                                   "pdfPath":  "C:\\Users\\ojj\\Desktop\\法律法规数据集\\安全生产许可证条例.pdf",
+                                                                   "pdfSha256":  "451bcdcc04b80e10eda9f3a6ee6e03b916d360c0c10b89635e1d7f910d6fc9d0",
+                                                                   "zipSha256":  "168e83569415329f795cce380d0a9987b793937f253a1e2b5e8973610c572e47",
+                                                                   "originPdfSha256":  "da97541d33c045303c61dae22138756baf3b5f6668b21c4ec5832db25d93172f",
+                                                                   "batchId":  "e36a99c9-a38b-40d7-acea-2cb635a78302",
+                                                                   "provenance":  "recovered completed batch; filename matched; historical upload hash unavailable",
+                                                                   "cachedAtUtc":  "2026-09-04T03:40:48.2957073Z",
+                                                                   "parserVersion":  "mineru-result/v4"
+                                                               },
+                                                    "status":  "PASS_SAMPLED_CHECKS",
+                                                    "bodyBlocksRemoved":  0,
+                                                    "nonBodyBlocksRetained":  0,
+                                                    "bodyBlocksNotFullyCovered":  0,
+                                                    "tablesNotFullyCovered":  0,
+                                                    "oversizedChunks":  0,
+                                                    "emptyChunks":  0,
+                                                    "ocrReviewCount":  0,
+                                                    "missingExpectedClauses":  [
+
+                                                                               ],
+                                                    "hierarchyMismatchCandidates":  [
+
+                                                                                    ]
+                                                }
+                      },
+                      {
+                          "document":  "中华人民共和国国务院令（第302号）　　国务院关于特大安全事故行政责任追究的规定__2001年第19号国务院公报_中国政府网.pdf",
+                          "fileHash":  "534314d59ef2b9ca229dac36b542337cca32dc7ce4babea2beddf89aedf9dc7e",
+                          "parserVersion":  "mineru-result/v4",
+                          "qualityStatus":  "PASS",
+                          "indexEligible":  true,
+                          "clauseCount":  24,
+                          "chunkCount":  24,
+                          "qualityReason":  "Phase 5.5 sampled checks passed; final reindex remains gated because the full-corpus report says Reindex allowed: NO.",
+                          "sourceAuditResult":  {
+                                                    "report":  "PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md",
+                                                    "source":  {
+                                                                   "schemaVersion":  1,
+                                                                   "sourceFile":  "中华人民共和国国务院令（第302号）　　国务院关于特大安全事故行政责任追究的规定__2001年第19号国务院公报_中国政府网.pdf",
+                                                                   "pdfPath":  "C:\\Users\\ojj\\Desktop\\法律法规数据集\\中华人民共和国国务院令（第302号）　　国务院关于特大安全事故行政责任追究的规定__2001年第19号国务院公报_中国政府网.pdf",
+                                                                   "pdfSha256":  "534314d59ef2b9ca229dac36b542337cca32dc7ce4babea2beddf89aedf9dc7e",
+                                                                   "zipSha256":  "8e47f664c23001642b46a1ee0827060f03a28567f9931796d32bf73ae8517d63",
+                                                                   "originPdfSha256":  "33f6b6f0732dd1fd8f33f102852278c131371873e7db160917258dbd00945d52",
+                                                                   "batchId":  "c11ae08a-bb7d-4cf8-804f-ad90dcc71e4c",
+                                                                   "provenance":  "recovered completed batch; filename matched; historical upload hash unavailable",
+                                                                   "cachedAtUtc":  "2026-09-04T03:41:41.0418854Z",
+                                                                   "parserVersion":  "mineru-result/v4"
+                                                               },
+                                                    "status":  "PASS_SAMPLED_CHECKS",
+                                                    "bodyBlocksRemoved":  0,
+                                                    "nonBodyBlocksRetained":  0,
+                                                    "bodyBlocksNotFullyCovered":  0,
+                                                    "tablesNotFullyCovered":  0,
+                                                    "oversizedChunks":  0,
+                                                    "emptyChunks":  0,
+                                                    "ocrReviewCount":  0,
+                                                    "missingExpectedClauses":  [
+
+                                                                               ],
+                                                    "hierarchyMismatchCandidates":  [
+
+                                                                                    ]
+                                                }
+                      },
+                      {
+                          "document":  "中华人民共和国国务院令(第393号)　　建设工程安全生产管理条例__2004年第3号国务院公报_中国政府网.pdf",
+                          "fileHash":  "eea49cb9d5fd815e21339a3a99398674fc2c7026e312464bc0d4db55409c68f0",
+                          "parserVersion":  "mineru-result/v4",
+                          "qualityStatus":  "PASS",
+                          "indexEligible":  true,
+                          "clauseCount":  71,
+                          "chunkCount":  71,
+                          "qualityReason":  "Phase 5.5 sampled checks passed; final reindex remains gated because the full-corpus report says Reindex allowed: NO.",
+                          "sourceAuditResult":  {
+                                                    "report":  "PHASE5_5_FULL_CORPUS_QUALITY_REPORT.md",
+                                                    "source":  {
+                                                                   "schemaVersion":  1,
+                                                                   "sourceFile":  "中华人民共和国国务院令(第393号)　　建设工程安全生产管理条例__2004年第3号国务院公报_中国政府网.pdf",
+                                                                   "pdfPath":  "C:\\Users\\ojj\\Desktop\\法律法规数据集\\中华人民共和国国务院令(第393号)　　建设工程安全生产管理条例__2004年第3号国务院公报_中国政府网.pdf",
+                                                                   "pdfSha256":  "eea49cb9d5fd815e21339a3a99398674fc2c7026e312464bc0d4db55409c68f0",
+                                                                   "zipSha256":  "eaf243a6953c995653799f8517c20b99681c3795b1c299cc52ae6ab5a3f9f242",
+                                                                   "originPdfSha256":  "c810badf286c3d9714a96ed7ce285d62a9d6a3c1f16d2d3626eed361e20034f9",
+                                                                   "batchId":  "1582f590-746b-4b92-903a-c6fb84fb31fd",
+                                                                   "provenance":  "recovered completed batch; filename matched; historical upload hash unavailable",
+                                                                   "cachedAtUtc":  "2026-09-03T13:00:44.1138692Z",
+                                                                   "parserVersion":  "mineru-result/v4"
+                                                               },
+                                                    "status":  "PASS_SAMPLED_CHECKS",
+                                                    "bodyBlocksRemoved":  0,
+                                                    "nonBodyBlocksRetained":  0,
+                                                    "bodyBlocksNotFullyCovered":  0,
+                                                    "tablesNotFullyCovered":  0,
+                                                    "oversizedChunks":  0,
+                                                    "emptyChunks":  0,
+                                                    "ocrReviewCount":  0,
+                                                    "missingExpectedClauses":  [
+
+                                                                               ],
+                                                    "hierarchyMismatchCandidates":  [
+
+                                                                                    ]
+                                                }
+                      }
+                  ]
+}
