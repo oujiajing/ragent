@@ -1,0 +1,218 @@
+﻿{
+    "schemaVersion":  1,
+    "phase":  "5.8",
+    "generatedAt":  "2026-09-04T13:01:28.7794402Z",
+    "totalVectors":  36342,
+    "historicalSourceVectors":  31086,
+    "currentPdfSourceVectors":  5256,
+    "historicalVectors":  31086,
+    "currentBgeM3Vectors":  36342,
+    "unknownVectors":  31086,
+    "embeddingSpaces":  [
+                            {
+                                "nativeDimension":  1024,
+                                "transform":  "zero-pad native 1024 to application 1536",
+                                "model":  "bge-m3",
+                                "basis":  [
+                                              "post-Strategy-B full reindex log",
+                                              "all-eligible Legal Chunk scope"
+                                          ],
+                                "applicationDimension":  1536,
+                                "name":  "final-unified",
+                                "provider":  "tei",
+                                "vectorCount":  36342
+                            },
+                            {
+                                "nativeDimension":  1536,
+                                "model":  "text-embedding-v4",
+                                "basis":  [
+                                              "PHASE2B historical report",
+                                              "bootstrap embedding configuration",
+                                              "historical indexing logs"
+                                          ],
+                                "applicationDimension":  1536,
+                                "name":  "historical-source-before-migration",
+                                "status":  "replaced",
+                                "provider":  "bailian",
+                                "vectorCount":  31086
+                            }
+                        ],
+    "metadataFieldsPresent":  [
+                                  "doc_id",
+                                  "document_id",
+                                  "chunk_id via vector id",
+                                  "doc_title",
+                                  "standard_no",
+                                  "clause_no",
+                                  "chunk_index",
+                                  "collection_name"
+                              ],
+    "metadataFieldsMissing":  [
+                                  "embeddingProvider",
+                                  "embeddingModel",
+                                  "embeddingDimension",
+                                  "createdAt"
+                              ],
+    "historicalPdfVectors":  0,
+    "queryEmbeddingAudit":  {
+                                "nativeDimension":  1024,
+                                "provider":  "tei",
+                                "queryText":  "Phase 5.8 deterministic embedding probe",
+                                "zeroPaddedTail512":  true,
+                                "applicationDimension":  1536,
+                                "model":  "bge-m3",
+                                "deterministicSamePrefix":  true
+                            },
+    "currentDocuments":  [
+                             {
+                                 "id":  "leg33f6b6f0732dd1fd8",
+                                 "name":  "中华人民共和国国务院令（第302号）　　国务院关于特大安全事故行政责任追究的规定__2001年第19号国务院公报_中国政府网.pdf",
+                                 "status":  "PASS",
+                                 "vectors":  24
+                             },
+                             {
+                                 "id":  "legc810badf286c3d971",
+                                 "name":  "中华人民共和国国务院令(第393号)　　建设工程安全生产管理条例__2004年第3号国务院公报_中国政府网.pdf",
+                                 "status":  "PASS",
+                                 "vectors":  71
+                             },
+                             {
+                                 "id":  "legbfec70d5cbbb4be7e",
+                                 "name":  "《土方与爆破工程施工及验收规范》GB 50201-2012.pdf",
+                                 "status":  "PASS",
+                                 "vectors":  271
+                             },
+                             {
+                                 "id":  "legda97541d33c045303",
+                                 "name":  "安全生产许可证条例.pdf",
+                                 "status":  "PASS",
+                                 "vectors":  24
+                             },
+                             {
+                                 "id":  "leg248cfecb5f6bf8270",
+                                 "name":  "安全生产违法行为行政处罚办法.pdf",
+                                 "status":  "PASS",
+                                 "vectors":  70
+                             },
+                             {
+                                 "id":  "legbc0e2978fbf0124dd",
+                                 "name":  "《建筑与市政工程施工现场临时用电安全技术标准》JGJ_T 46-2024.pdf",
+                                 "status":  "PASS",
+                                 "vectors":  245
+                             },
+                             {
+                                 "id":  "legf6fc5280e44efa1bc",
+                                 "name":  "《建筑地基基础工程施工质量验收规范》GB 50202-2018.pdf",
+                                 "status":  "PASS",
+                                 "vectors":  368
+                             },
+                             {
+                                 "id":  "leg6ebc8ca1b728fd389",
+                                 "name":  "《建筑施工安全技术统一规范》GB 50870-2013.pdf",
+                                 "status":  "PASS",
+                                 "vectors":  97
+                             },
+                             {
+                                 "id":  "leg3ec19236a60747d72",
+                                 "name":  "《建筑施工易发事故防治安全标准》JGJ_T 429-2018.pdf",
+                                 "status":  "PASS",
+                                 "vectors":  286
+                             },
+                             {
+                                 "id":  "legea94c80d3f3c20670",
+                                 "name":  "《建筑施工组织设计规范》GB_T 50502-2009.pdf",
+                                 "status":  "PASS",
+                                 "vectors":  98
+                             },
+                             {
+                                 "id":  "leg3da45879b1ba697ad",
+                                 "name":  "《建筑施工脚手架安全技术统一标准》GB 51210-2016.pdf",
+                                 "status":  "PASS",
+                                 "vectors":  183
+                             },
+                             {
+                                 "id":  "leg13328d4f636e24609",
+                                 "name":  "《建筑施工起重吊装工程安全技术规范》JGJ 276-2012.pdf",
+                                 "status":  "PASS",
+                                 "vectors":  148
+                             },
+                             {
+                                 "id":  "leg776945a45e722bd97",
+                                 "name":  "《建筑施工门式钢管脚手架安全技术标准》JGJ_T 128-2019.pdf",
+                                 "status":  "PASS",
+                                 "vectors":  243
+                             },
+                             {
+                                 "id":  "leg066838573d47e5c43",
+                                 "name":  "《建筑施工高处作业安全技术规范》JGJ 80-2016.pdf",
+                                 "status":  "PASS",
+                                 "vectors":  111
+                             },
+                             {
+                                 "id":  "leg3368eed15c749e9db",
+                                 "name":  "《建筑机械使用安全技术规程》JGJ 33-2018.pdf",
+                                 "status":  "PASS",
+                                 "vectors":  1195
+                             },
+                             {
+                                 "id":  "leg267b971a8e00d205a",
+                                 "name":  "《建筑灭火器配置设计规范》GB 50140-2005.pdf",
+                                 "status":  "PASS",
+                                 "vectors":  122
+                             },
+                             {
+                                 "id":  "leg9d1e19691487f710f",
+                                 "name":  "《建筑行业职业病危害预防控制规范》GBZ_T 211-2008.pdf",
+                                 "status":  "PASS",
+                                 "vectors":  99
+                             },
+                             {
+                                 "id":  "legea10e4620f04b0520",
+                                 "name":  "《建筑设计防火规范》GB 50016-2022.pdf",
+                                 "status":  "PASS",
+                                 "vectors":  233
+                             },
+                             {
+                                 "id":  "leg0d87fa3977362ef33",
+                                 "name":  "《建设工程施工现场供用电安全规范》GB 50194-2014.pdf",
+                                 "status":  "PASS",
+                                 "vectors":  205
+                             },
+                             {
+                                 "id":  "leg882e8d67ccbfb2453",
+                                 "name":  "《建设工程施工现场消防安全技术规范》GB 50720-2011.pdf",
+                                 "status":  "PASS",
+                                 "vectors":  233
+                             },
+                             {
+                                 "id":  "leg24a026cc849582bbd",
+                                 "name":  "《建设工程监理规范》GB_T 50319-2013.pdf",
+                                 "status":  "PASS",
+                                 "vectors":  189
+                             },
+                             {
+                                 "id":  "legb05ac8ed82c203500",
+                                 "name":  "《施工企业安全生产评价标准》JGJ_T 77-2010.pdf",
+                                 "status":  "PASS",
+                                 "vectors":  51
+                             },
+                             {
+                                 "id":  "leg4a269b476cdde8a35",
+                                 "name":  "《施工现场机械设备检查技术规范》JGJ 160-2016.pdf",
+                                 "status":  "PASS",
+                                 "vectors":  517
+                             },
+                             {
+                                 "id":  "leg353fb915830df403d",
+                                 "name":  "《爆破安全规程》GB 6722-2014.pdf",
+                                 "status":  "PASS",
+                                 "vectors":  170
+                             },
+                             {
+                                 "id":  "leg8ec7c307ecd3af510",
+                                 "name":  "《石棉作业职业卫生管理规范》GBZ_T 193-2007.pdf",
+                                 "status":  "PASS",
+                                 "vectors":  3
+                             }
+                         ]
+}

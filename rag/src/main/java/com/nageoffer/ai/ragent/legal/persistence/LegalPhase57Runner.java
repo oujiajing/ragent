@@ -43,8 +43,9 @@ public class LegalPhase57Runner implements CommandLineRunner {
         });
         if (ids.isEmpty()) throw new IllegalStateException("Phase 5.7 manifest has no eligible documents");
         smokeTest(ids.iterator().next());
-        int indexed = indexingService.indexDocuments(ids);
-        log.info("Phase 5.7 PASS-only legal PDF indexing completed: documents={}, chunks={}", ids.size(), indexed);
+        boolean full = Boolean.parseBoolean(System.getProperty("rag.legal.phase5-8.full-reindex", "false"));
+        int indexed = full ? indexingService.indexAll() : indexingService.indexDocuments(ids);
+        log.info("Phase 5 indexing completed: scope={}, documents={}, chunks={}", full ? "all-eligible-legal" : "manifest-pass-pdf", full ? "all" : ids.size(), indexed);
     }
 
     private void smokeTest(String documentId) {
