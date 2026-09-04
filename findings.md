@@ -23,3 +23,18 @@ This file records repository, runtime, database, backup, deletion, indexing, and
 - PostgreSQL has two HNSW vector indexes (`idx_kv_embedding`, `idx_kv_embedding_hnsw`) and the chunk/clause eligibility indexes.
 - Elasticsearch is running and `rag_keyword_store` has 31,171 docs, but current application config is `rag.keyword.type=none`; it is not the active keyword backend for this run.
 
+## Phase 5.9 constraints
+
+- All existing Legal PDF rows may be removed, but historical TXT and non-Legal knowledge bases must remain untouched.
+- Latest source set is expected to be the 30 cache directories under `.output/legal-pdf-cache`, each with `origin.pdf`, `result.zip`, and `manifest.json`.
+- Parser, cleaner, chunker, Quality Gate logic, Retriever parameters, and Safe-team remain frozen.
+
+## Phase 5.9 results
+
+- `C:\Users\ojj\Desktop\法律法规数据集` contains exactly 30 PDFs and no TXT/other files.
+- Cache names match 30/30, but cache `origin.pdf` hashes differ 30/30 from the source folder. Cache manifests' `pdfSha256` match the source originals 30/30.
+- Batch orchestration now supports reading source PDF bytes from the separate folder while replaying the matching cached `result.zip`; parser/cleaner/chunker are unchanged.
+- Final DB hashes match source-folder PDF hashes 30/30. Persisted totals: 30 documents, 6,788 clauses, 7,064 chunks, 1,055,997 parsed chars, 250 tables.
+- Final gate/index: 25 PASS / 5 REVIEW, 5,256/5,256 PASS vectors, zero Review leakage.
+- PDF-only Gold contains 60 cases (2 per PDF), with 50 eligible cases and 10 isolated Review cases. Historical TXT is excluded from both source and SQL retrieval scope.
+- Exact Chunk Recall@20=0.20; document-level Recall@20=0.82. Pipeline is healthy at document retrieval but exact clause/chunk ranking remains weak.

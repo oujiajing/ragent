@@ -65,8 +65,10 @@ class LegalPdfCachedProductionReimportTest {
         Set<String> hashes = new HashSet<>();
         for (JsonNode document : root.path("documents")) hashes.add(document.path("fileHash").asText());
         persistenceService.deletePdfDocumentsByHashes(hashes.stream().toList());
+        String sourceDirectory = System.getProperty("legal.pdf.source-dir");
         LegalPdfBatchImportResult result = batchImportJob.runCached(
-                Path.of(System.getProperty("legal.pdf.cache-dir")), true,
+                Path.of(System.getProperty("legal.pdf.cache-dir")),
+                sourceDirectory == null || sourceDirectory.isBlank() ? null : Path.of(sourceDirectory), true,
                 Boolean.parseBoolean(System.getProperty("legal.pdf.cached.index", "true")), reviewHashes);
         result.tasks().forEach(task -> System.out.println("PDF_CACHED_IMPORT " + task.fileName()
                 + " status=" + task.status() + " clauses=" + task.clauseCount()

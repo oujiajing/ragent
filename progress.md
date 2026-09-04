@@ -19,3 +19,15 @@
 - Backup SHA-256 was revalidated before mutation. Old 30-PDF scope was deleted; 30/30 cached PDFs were processed and persisted. Final result: PASS=11, REVIEW_REQUIRED=19, FAILED=0; old parserVersion=0.
 - Target PDF integrity checks passed: duplicate/orphan/empty counts are zero; Review chunks are ineligible. Keyword configuration is none.
 - PASS-only embedding/index attempt failed safely because TEI bge-m3 provider was unavailable; target PDF vectors remain 0, so retrieval regression is blocked and final status is PARTIAL PASS.
+
+## Phase 5.9
+
+- User explicitly authorized deletion of all previous Legal PDF documents.
+- Evaluation must be based only on the latest 30 PDFs; historical TXT Gold is out of scope for this validation.
+- Verified the separate source folder has exactly 30 PDFs and no TXT.
+- Created and verified a 238,924,390-byte PostgreSQL custom backup before deletion.
+- Deleted exactly the 30 Legal PDF records and dependent rows twice: the first replay exposed cache-origin/source hash divergence; the second replay correctly used source-folder originals. Each delete preserved all 93 TXT documents.
+- Reimported source-folder originals with cached MinerU results: 30/30 structured, 0 failed; source hashes match DB 30/30.
+- Applied final gate (25 PASS/5 REVIEW), indexed 5,256 PASS chunks, and verified duplicate/orphan/empty/missing/leakage counts are zero.
+- Generated 60-case PDF-only Gold/evaluation artifacts. Exact Chunk Recall@20=0.20; document Recall@20=0.82.
+- Tests: cached live import 1/1 PASS, cached live index 1/1 PASS, related unit tests 8/8 PASS.

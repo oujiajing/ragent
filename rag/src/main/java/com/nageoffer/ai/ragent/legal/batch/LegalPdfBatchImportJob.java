@@ -92,8 +92,18 @@ public class LegalPdfBatchImportJob {
 
     public LegalPdfBatchImportResult runCached(Path cacheDirectory, boolean persist, boolean index,
                                                Set<String> reviewHashes) throws Exception {
+        return runCached(cacheDirectory, null, persist, index, reviewHashes);
+    }
+
+    /** Replays cached MinerU output while hashing and persisting the operator's source PDF directory. */
+    public LegalPdfBatchImportResult runCached(Path cacheDirectory, Path sourcePdfDirectory,
+                                               boolean persist, boolean index,
+                                               Set<String> reviewHashes) throws Exception {
         if (cacheDirectory == null || !Files.isDirectory(cacheDirectory)) {
             throw new IllegalArgumentException("MinerU 缓存目录不存在: " + cacheDirectory);
+        }
+        if (sourcePdfDirectory != null && !Files.isDirectory(sourcePdfDirectory)) {
+            throw new IllegalArgumentException("PDF 原件目录不存在: " + sourcePdfDirectory);
         }
         List<Path> files;
         try (var stream = Files.list(cacheDirectory)) {
@@ -102,7 +112,7 @@ public class LegalPdfBatchImportJob {
                     .sorted(Comparator.comparing(p -> p.getFileName().toString())).toList();
         }
         List<LegalPdfImportTask> tasks = new ArrayList<>();
-        for (Path cache : files) tasks.add(runCachedOne(cache, persist, reviewHashes));
+        for (Path cache : files) tasks.add(runCachedOne(cache, sourcePdfDirectory, persist, reviewHashes));
         if (persist && index) {
             indexingService.indexAll();
             tasks.stream().filter(t -> t.status() == LegalPdfImportTaskStatus.STRUCTURED).forEach(LegalPdfImportTask::indexed);
@@ -115,11 +125,13 @@ public class LegalPdfBatchImportJob {
                 tasks.stream().mapToInt(LegalPdfImportTask::chunkCount).sum());
     }
 
-    private LegalPdfImportTask runCachedOne(Path cache, boolean persist, Set<String> reviewHashes) throws Exception {
-        Path pdf = cache.resolve("origin.pdf");
+    private LegalPdfImportTask runCachedOne(Path cache, Path sourcePdfDirectory,
+                                            boolean persist, Set<String> reviewHashes) throws Exception {
+        String fileName = sourceFileName(cache);
+        Path pdf = sourcePdfDirectory == null ? cache.resolve("origin.pdf") : sourcePdfDirectory.resolve(fileName);
+        if (!Files.isRegularFile(pdf)) throw new IllegalArgumentException("PDF 原件不存在: " + pdf);
         byte[] bytes = Files.readAllBytes(pdf);
         String hash = LegalHashes.sha256(bytes);
-        String fileName = sourceFileName(cache);
         LegalPdfImportTask task = new LegalPdfImportTask("leg" + hash.substring(0, 17), fileName, hash);
         if (persist && persistenceService.findImported(hash, LegalDocumentImportAdapter.PARSER_VERSION) != null) {
             task.structured(0, 0); return task;

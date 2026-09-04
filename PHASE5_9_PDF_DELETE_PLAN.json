@@ -1,0 +1,259 @@
+﻿{
+    "schemaVersion":  1,
+    "phase":  "5.9",
+    "generatedAt":  "2026-09-04T13:16:18.4762962Z",
+    "executeDelete":  true,
+    "backup":  {
+                   "path":  "D:\\1-project\\ragent\\backups\\phase5-9-20260904T211049\\ragent-pre-pdf-rebuild.dump",
+                   "sha256":  "9b65bdabe8ef3ff49a60d24343f0d3a7a8e22a1dcb1297145b385d67667b2624",
+                   "bytes":  238924390
+               },
+    "cacheDocuments":  30,
+    "targetDocuments":  30,
+    "targetClauses":  6788,
+    "targetChunks":  7064,
+    "targetVectors":  5256,
+    "preservedTxtDocuments":  93,
+    "documents":  [
+                      {
+                          "documentId":  "leg33f6b6f0732dd1fd8",
+                          "filename":  "中华人民共和国国务院令（第302号）　　国务院关于特大安全事故行政责任追究的规定__2001年第19号国务院公报_中国政府网.pdf",
+                          "fileHash":  "33f6b6f0732dd1fd8f33f102852278c131371873e7db160917258dbd00945d52",
+                          "clauseCount":  24,
+                          "chunkCount":  24,
+                          "vectorCount":  24
+                      },
+                      {
+                          "documentId":  "legc810badf286c3d971",
+                          "filename":  "中华人民共和国国务院令(第393号)　　建设工程安全生产管理条例__2004年第3号国务院公报_中国政府网.pdf",
+                          "fileHash":  "c810badf286c3d9714a96ed7ce285d62a9d6a3c1f16d2d3626eed361e20034f9",
+                          "clauseCount":  71,
+                          "chunkCount":  71,
+                          "vectorCount":  71
+                      },
+                      {
+                          "documentId":  "legbfec70d5cbbb4be7e",
+                          "filename":  "《土方与爆破工程施工及验收规范》GB 50201-2012.pdf",
+                          "fileHash":  "bfec70d5cbbb4be7e8df4d67524758ca790a32c1dfc5abccade05edf8bc8da38",
+                          "clauseCount":  271,
+                          "chunkCount":  271,
+                          "vectorCount":  271
+                      },
+                      {
+                          "documentId":  "leg046897b44b8e35895",
+                          "filename":  "《安全帽》GB 2811-2019.pdf",
+                          "fileHash":  "046897b44b8e358951a061cccb48cffdfdcb208351b4bf199a33bf36ebb28e3e",
+                          "clauseCount":  23,
+                          "chunkCount":  30,
+                          "vectorCount":  0
+                      },
+                      {
+                          "documentId":  "legda97541d33c045303",
+                          "filename":  "安全生产许可证条例.pdf",
+                          "fileHash":  "da97541d33c045303c61dae22138756baf3b5f6668b21c4ec5832db25d93172f",
+                          "clauseCount":  24,
+                          "chunkCount":  24,
+                          "vectorCount":  24
+                      },
+                      {
+                          "documentId":  "leg248cfecb5f6bf8270",
+                          "filename":  "安全生产违法行为行政处罚办法.pdf",
+                          "fileHash":  "248cfecb5f6bf827085ec63fe3923de02c20e0c26ae60ed2bf32ad79f5be223b",
+                          "clauseCount":  69,
+                          "chunkCount":  70,
+                          "vectorCount":  70
+                      },
+                      {
+                          "documentId":  "lege5e8ad3dc0fc3a76d",
+                          "filename":  "《建筑与市政工程地下水控制技术规范》JGJ 111-2016.pdf",
+                          "fileHash":  "e5e8ad3dc0fc3a76d0b679493559a8296c68dc51ea4cae7694e86f5a88619789",
+                          "clauseCount":  200,
+                          "chunkCount":  209,
+                          "vectorCount":  0
+                      },
+                      {
+                          "documentId":  "legbc0e2978fbf0124dd",
+                          "filename":  "《建筑与市政工程施工现场临时用电安全技术标准》JGJ_T 46-2024.pdf",
+                          "fileHash":  "bc0e2978fbf0124dd79f7d27ab3e61c0c189aebb353f4f9d04043adb4de02073",
+                          "clauseCount":  243,
+                          "chunkCount":  245,
+                          "vectorCount":  245
+                      },
+                      {
+                          "documentId":  "legf6fc5280e44efa1bc",
+                          "filename":  "《建筑地基基础工程施工质量验收规范》GB 50202-2018.pdf",
+                          "fileHash":  "f6fc5280e44efa1bc19b69d2b3142f893cecc0b0bbacb8c863481772aa1e85bf",
+                          "clauseCount":  280,
+                          "chunkCount":  368,
+                          "vectorCount":  368
+                      },
+                      {
+                          "documentId":  "leg1fa85dcd02ee4767c",
+                          "filename":  "《建筑基坑支护技术规程》JGJ 120-2012.pdf",
+                          "fileHash":  "1fa85dcd02ee4767c32910ad69ad3bfd3bc50ba8a4a14b530c5250ea22084c66",
+                          "clauseCount":  340,
+                          "chunkCount":  366,
+                          "vectorCount":  0
+                      },
+                      {
+                          "documentId":  "leg6ebc8ca1b728fd389",
+                          "filename":  "《建筑施工安全技术统一规范》GB 50870-2013.pdf",
+                          "fileHash":  "6ebc8ca1b728fd3890c822311002e82c568ff982fbf45a88578b601fdb21e8ce",
+                          "clauseCount":  96,
+                          "chunkCount":  97,
+                          "vectorCount":  97
+                      },
+                      {
+                          "documentId":  "leg3ec19236a60747d72",
+                          "filename":  "《建筑施工易发事故防治安全标准》JGJ_T 429-2018.pdf",
+                          "fileHash":  "3ec19236a60747d72e6d3009ea95fb0bb458dcf08462a409f2a62dc9c5152ae6",
+                          "clauseCount":  285,
+                          "chunkCount":  286,
+                          "vectorCount":  286
+                      },
+                      {
+                          "documentId":  "leg57ef4dde2efc3d517",
+                          "filename":  "《建筑施工碗扣式钢管脚手架安全技术规范》JGJ 166-2016.pdf",
+                          "fileHash":  "57ef4dde2efc3d5170fa6fa235e8fadc6df697a119f5ed54deffeaa013843ad0",
+                          "clauseCount":  187,
+                          "chunkCount":  195,
+                          "vectorCount":  0
+                      },
+                      {
+                          "documentId":  "legea94c80d3f3c20670",
+                          "filename":  "《建筑施工组织设计规范》GB_T 50502-2009.pdf",
+                          "fileHash":  "ea94c80d3f3c206709ecba04eee3b86e0bc6c9c90f482e8f69840aa85bdbc1d3",
+                          "clauseCount":  98,
+                          "chunkCount":  98,
+                          "vectorCount":  98
+                      },
+                      {
+                          "documentId":  "leg3da45879b1ba697ad",
+                          "filename":  "《建筑施工脚手架安全技术统一标准》GB 51210-2016.pdf",
+                          "fileHash":  "3da45879b1ba697ad7730f266d4509a19b22777d150c1e623c88136c7355fac5",
+                          "clauseCount":  174,
+                          "chunkCount":  183,
+                          "vectorCount":  183
+                      },
+                      {
+                          "documentId":  "leg13328d4f636e24609",
+                          "filename":  "《建筑施工起重吊装工程安全技术规范》JGJ 276-2012.pdf",
+                          "fileHash":  "13328d4f636e24609c748b192dc80bba93cee5e603cfe0cd0eb2aaacdb4bef86",
+                          "clauseCount":  142,
+                          "chunkCount":  148,
+                          "vectorCount":  148
+                      },
+                      {
+                          "documentId":  "leg776945a45e722bd97",
+                          "filename":  "《建筑施工门式钢管脚手架安全技术标准》JGJ_T 128-2019.pdf",
+                          "fileHash":  "776945a45e722bd971114685178011da16fe29833d13c5459921b2a9f10ebf8b",
+                          "clauseCount":  227,
+                          "chunkCount":  243,
+                          "vectorCount":  243
+                      },
+                      {
+                          "documentId":  "leg066838573d47e5c43",
+                          "filename":  "《建筑施工高处作业安全技术规范》JGJ 80-2016.pdf",
+                          "fileHash":  "066838573d47e5c4349e598c232ba41bfa3822e9db6daebe623f45af344493b5",
+                          "clauseCount":  111,
+                          "chunkCount":  111,
+                          "vectorCount":  111
+                      },
+                      {
+                          "documentId":  "leg3368eed15c749e9db",
+                          "filename":  "《建筑机械使用安全技术规程》JGJ 33-2018.pdf",
+                          "fileHash":  "3368eed15c749e9dbbfc3083bd3bd39973d4ba52cff3cc8a920bd7a961e25d16",
+                          "clauseCount":  1195,
+                          "chunkCount":  1195,
+                          "vectorCount":  1195
+                      },
+                      {
+                          "documentId":  "leg267b971a8e00d205a",
+                          "filename":  "《建筑灭火器配置设计规范》GB 50140-2005.pdf",
+                          "fileHash":  "267b971a8e00d205aeac539efb625f1a8798aecb9865da979da07db6ea882c2a",
+                          "clauseCount":  122,
+                          "chunkCount":  122,
+                          "vectorCount":  122
+                      },
+                      {
+                          "documentId":  "leg9d1e19691487f710f",
+                          "filename":  "《建筑行业职业病危害预防控制规范》GBZ_T 211-2008.pdf",
+                          "fileHash":  "9d1e19691487f710f9fca374876d2177c1436d0bac00fbcbd55d8a04b9f03202",
+                          "clauseCount":  97,
+                          "chunkCount":  99,
+                          "vectorCount":  99
+                      },
+                      {
+                          "documentId":  "legea10e4620f04b0520",
+                          "filename":  "《建筑设计防火规范》GB 50016-2022.pdf",
+                          "fileHash":  "ea10e4620f04b05202cee1251401dc8584ff3d3881c93d2a35a60b24f438d996",
+                          "clauseCount":  225,
+                          "chunkCount":  233,
+                          "vectorCount":  233
+                      },
+                      {
+                          "documentId":  "leg0d87fa3977362ef33",
+                          "filename":  "《建设工程施工现场供用电安全规范》GB 50194-2014.pdf",
+                          "fileHash":  "0d87fa3977362ef33890835bb3f111c12261be4ff2fcdc517ed30b2eec019948",
+                          "clauseCount":  203,
+                          "chunkCount":  205,
+                          "vectorCount":  205
+                      },
+                      {
+                          "documentId":  "leg882e8d67ccbfb2453",
+                          "filename":  "《建设工程施工现场消防安全技术规范》GB 50720-2011.pdf",
+                          "fileHash":  "882e8d67ccbfb24536890d18f43717b9b563a949c7e703bcb07ac697a7f56f9d",
+                          "clauseCount":  225,
+                          "chunkCount":  233,
+                          "vectorCount":  233
+                      },
+                      {
+                          "documentId":  "leg24a026cc849582bbd",
+                          "filename":  "《建设工程监理规范》GB_T 50319-2013.pdf",
+                          "fileHash":  "24a026cc849582bbdcac638e8bbb32c1e53abb5096fcd8de3311382085eed994",
+                          "clauseCount":  189,
+                          "chunkCount":  189,
+                          "vectorCount":  189
+                      },
+                      {
+                          "documentId":  "legb05ac8ed82c203500",
+                          "filename":  "《施工企业安全生产评价标准》JGJ_T 77-2010.pdf",
+                          "fileHash":  "b05ac8ed82c203500f03e1fa03af7e9d718b4d9df4a208db79daf163ec32d32f",
+                          "clauseCount":  51,
+                          "chunkCount":  51,
+                          "vectorCount":  51
+                      },
+                      {
+                          "documentId":  "leg4a269b476cdde8a35",
+                          "filename":  "《施工现场机械设备检查技术规范》JGJ 160-2016.pdf",
+                          "fileHash":  "4a269b476cdde8a358325b4202178614ad629b0b6960fe2447ff03dde458bf6c",
+                          "clauseCount":  516,
+                          "chunkCount":  517,
+                          "vectorCount":  517
+                      },
+                      {
+                          "documentId":  "leg353fb915830df403d",
+                          "filename":  "《爆破安全规程》GB 6722-2014.pdf",
+                          "fileHash":  "353fb915830df403df9a9afce3891b5c4e9ae9393c53ab58b51ac7493a4848f9",
+                          "clauseCount":  96,
+                          "chunkCount":  170,
+                          "vectorCount":  170
+                      },
+                      {
+                          "documentId":  "leg8ec7c307ecd3af510",
+                          "filename":  "《石棉作业职业卫生管理规范》GBZ_T 193-2007.pdf",
+                          "fileHash":  "8ec7c307ecd3af5107f301fa73215f3dd7cea0284c38a5283d3f02fbed76e3ca",
+                          "clauseCount":  3,
+                          "chunkCount":  3,
+                          "vectorCount":  3
+                      },
+                      {
+                          "documentId":  "leg056686ee2d4d781dd",
+                          "filename":  "《职业健康监护技术规范》GBZ 188-2025.pdf",
+                          "fileHash":  "056686ee2d4d781dd536497c21dab50476cb89aa7bed42d495f7f2ec115270f7",
+                          "clauseCount":  1001,
+                          "chunkCount":  1008,
+                          "vectorCount":  0
+                      }
+                  ]
+}

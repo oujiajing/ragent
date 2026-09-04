@@ -1,0 +1,1263 @@
+﻿{
+    "schemaVersion":  1,
+    "phase":  "5.7",
+    "generatedAt":  "2026-09-04T13:17:03.6224475Z",
+    "source":  "Phase 5.6C persisted PDF rows plus Phase 5.6A reviewed dispositions",
+    "totalDocuments":  30,
+    "PASS":  25,
+    "REVIEW_REQUIRED":  5,
+    "REJECTED":  0,
+    "indexEligibleDocuments":  25,
+    "indexEligibleChunks":  5256,
+    "documents":  [
+                      {
+                          "documentId":  "leg534314d59ef2b9ca2",
+                          "filename":  "中华人民共和国国务院令（第302号）　　国务院关于特大安全事故行政责任追究的规定__2001年第19号国务院公报_中国政府网.pdf",
+                          "fileHash":  "534314d59ef2b9ca229dac36b542337cca32dc7ce4babea2beddf89aedf9dc7e",
+                          "parserVersion":  "legal-pdf-mineru-adapter/2.0.0",
+                          "persistedStatus":  "PASS",
+                          "finalQualityStatus":  "PASS",
+                          "indexEligible":  true,
+                          "clauseCount":  24,
+                          "chunkCount":  24,
+                          "actualChunkCount":  24,
+                          "eligibleChunkCount":  24,
+                          "warningTypes":  [
+                                               {
+                                                   "value":  [
+
+                                                             ],
+                                                   "Count":  0
+                                               }
+                                           ],
+                          "blockingReasons":  {
+
+                                              },
+                          "dispositionReason":  "Original Phase 5.5 sampled checks passed; no contrary evidence in the reviewed artifacts.",
+                          "evidenceSource":  [
+                                                 "PHASE5_6_APPROVED_REINDEX_MANIFEST.json",
+                                                 "PHASE5_6C_30PDF_PRODUCTION_REIMPORT_REPORT.md",
+                                                 "t_legal_quality_report",
+                                                 "t_knowledge_chunk"
+                                             ]
+                      },
+                      {
+                          "documentId":  "legeea49cb9d5fd815e2",
+                          "filename":  "中华人民共和国国务院令(第393号)　　建设工程安全生产管理条例__2004年第3号国务院公报_中国政府网.pdf",
+                          "fileHash":  "eea49cb9d5fd815e21339a3a99398674fc2c7026e312464bc0d4db55409c68f0",
+                          "parserVersion":  "legal-pdf-mineru-adapter/2.0.0",
+                          "persistedStatus":  "PASS",
+                          "finalQualityStatus":  "PASS",
+                          "indexEligible":  true,
+                          "clauseCount":  71,
+                          "chunkCount":  71,
+                          "actualChunkCount":  71,
+                          "eligibleChunkCount":  71,
+                          "warningTypes":  [
+                                               {
+                                                   "value":  [
+
+                                                             ],
+                                                   "Count":  0
+                                               }
+                                           ],
+                          "blockingReasons":  {
+
+                                              },
+                          "dispositionReason":  "Original Phase 5.5 sampled checks passed; no contrary evidence in the reviewed artifacts.",
+                          "evidenceSource":  [
+                                                 "PHASE5_6_APPROVED_REINDEX_MANIFEST.json",
+                                                 "PHASE5_6C_30PDF_PRODUCTION_REIMPORT_REPORT.md",
+                                                 "t_legal_quality_report",
+                                                 "t_knowledge_chunk"
+                                             ]
+                      },
+                      {
+                          "documentId":  "legf6bc0888c8676e758",
+                          "filename":  "《土方与爆破工程施工及验收规范》GB 50201-2012.pdf",
+                          "fileHash":  "f6bc0888c8676e758c9bb7dd77ab849d838ce8e85267a3cdbeadef0f9622c2c9",
+                          "parserVersion":  "legal-pdf-mineru-adapter/2.0.0",
+                          "persistedStatus":  "REVIEW",
+                          "finalQualityStatus":  "PASS",
+                          "indexEligible":  true,
+                          "clauseCount":  271,
+                          "chunkCount":  271,
+                          "actualChunkCount":  271,
+                          "eligibleChunkCount":  271,
+                          "warningTypes":  [
+                                               {
+                                                   "value":  [
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@72",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@80",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@151",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@161",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@168",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@182",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@187",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@205",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@217",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@255",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@270",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@284",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@293",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@307",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@332",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@346",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@355",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@382",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@440",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@449",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@454",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@466",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@472",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@482",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@493",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@499",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@507",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@529",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@541",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@558",
+                                                                 "存在 1 个同 (contentRole, clauseNo) 重复条款"
+                                                             ],
+                                                   "Count":  31
+                                               }
+                                           ],
+                          "blockingReasons":  {
+
+                                              },
+                          "dispositionReason":  "Original Phase 5.5 sampled checks passed; no contrary evidence in the reviewed artifacts.",
+                          "evidenceSource":  [
+                                                 "PHASE5_6_APPROVED_REINDEX_MANIFEST.json",
+                                                 "PHASE5_6C_30PDF_PRODUCTION_REIMPORT_REPORT.md",
+                                                 "t_legal_quality_report",
+                                                 "t_knowledge_chunk"
+                                             ]
+                      },
+                      {
+                          "documentId":  "legee1668c18709dff5a",
+                          "filename":  "《安全帽》GB 2811-2019.pdf",
+                          "fileHash":  "ee1668c18709dff5a9b4b4ae4a6f66060c13e7aa4994d07c29bb71c15c844226",
+                          "parserVersion":  "legal-pdf-mineru-adapter/2.0.0",
+                          "persistedStatus":  "REVIEW",
+                          "finalQualityStatus":  "REVIEW_REQUIRED",
+                          "indexEligible":  false,
+                          "clauseCount":  23,
+                          "chunkCount":  30,
+                          "actualChunkCount":  30,
+                          "eligibleChunkCount":  0,
+                          "warningTypes":  [
+                                               {
+                                                   "value":  [
+                                                                 "standardNo 冲突: filename=GB 2811-2019, body=GB 2811",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@7",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@13",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@55",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@58",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@65",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@70",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@78",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@83",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@85",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@92",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@96",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@100",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 53.1阻性能",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 3.31按照Gb/T2812规定的方法,经低强(一 $( - 3 0 \\ \\mathrm { ^ { \\circ } C \\pm 2 \\ ^ { \\circ } C ) \\ , 3 \\ \\mathrm { ~ \\cdot ~ } }$ 处理后微冲击满试·传通到头的力不应大于4900N,帽壳不得有碎片脱落",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 34.1按照Gb/T2812规定的方法,或依服附录A进行摸处理(种裁程额优无来用Cb/T262观淀的万法),经酸高强 $( 1 5 0 ~ \\mathrm { ^ circ C } \\pm 5 \\mathrm { ^ \\circ C } )$ )、1h损处理后做冲击满试,传递到头模的力个应大十4900N,丽不得有碎片脱落,",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 3.4.2按照GB/T2812或附录A规定的方法,或依照附录A进行预处理(种被检验优先采用B/T2812规定的方法),经极高温 $( 1 5 0 ~ \\mathrm { ^ circ C } \\pm 5 \\mathrm { ^ \\circ C } )$ 1h预处理后做穿朝测试,钢锥不得接触头模表面帽壳不得有碎片脱落。",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@125",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@131",
+                                                                 "PDF_HEADING_NUMBER_UNCERTAIN: 72来久标识",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 7.3制造商提供的信户",
+                                                                 "存在 2 个超过 hardLimitTokens 的 chunk",
+                                                                 "存在 1 个同 (contentRole, clauseNo) 重复条款"
+                                                             ],
+                                                   "Count":  23
+                                               }
+                                           ],
+                          "blockingReasons":  "No confirmed body/table/hierarchy loss, but missing expected clauses cannot be proven to be OCR-only from the existing evidence.",
+                          "dispositionReason":  "No confirmed body/table/hierarchy loss, but missing expected clauses cannot be proven to be OCR-only from the existing evidence.",
+                          "evidenceSource":  [
+                                                 "PHASE5_6_APPROVED_REINDEX_MANIFEST.json",
+                                                 "PHASE5_6C_30PDF_PRODUCTION_REIMPORT_REPORT.md",
+                                                 "t_legal_quality_report",
+                                                 "t_knowledge_chunk"
+                                             ]
+                      },
+                      {
+                          "documentId":  "leg451bcdcc04b80e10e",
+                          "filename":  "安全生产许可证条例.pdf",
+                          "fileHash":  "451bcdcc04b80e10eda9f3a6ee6e03b916d360c0c10b89635e1d7f910d6fc9d0",
+                          "parserVersion":  "legal-pdf-mineru-adapter/2.0.0",
+                          "persistedStatus":  "PASS",
+                          "finalQualityStatus":  "PASS",
+                          "indexEligible":  true,
+                          "clauseCount":  24,
+                          "chunkCount":  24,
+                          "actualChunkCount":  24,
+                          "eligibleChunkCount":  24,
+                          "warningTypes":  [
+                                               {
+                                                   "value":  [
+
+                                                             ],
+                                                   "Count":  0
+                                               }
+                                           ],
+                          "blockingReasons":  {
+
+                                              },
+                          "dispositionReason":  "Original Phase 5.5 sampled checks passed; no contrary evidence in the reviewed artifacts.",
+                          "evidenceSource":  [
+                                                 "PHASE5_6_APPROVED_REINDEX_MANIFEST.json",
+                                                 "PHASE5_6C_30PDF_PRODUCTION_REIMPORT_REPORT.md",
+                                                 "t_legal_quality_report",
+                                                 "t_knowledge_chunk"
+                                             ]
+                      },
+                      {
+                          "documentId":  "leg9b77c604d14f70f04",
+                          "filename":  "安全生产违法行为行政处罚办法.pdf",
+                          "fileHash":  "9b77c604d14f70f041cead44106e41d5c4bbfe803085bd323aec652db42734bc",
+                          "parserVersion":  "legal-pdf-mineru-adapter/2.0.0",
+                          "persistedStatus":  "PASS",
+                          "finalQualityStatus":  "PASS",
+                          "indexEligible":  true,
+                          "clauseCount":  69,
+                          "chunkCount":  70,
+                          "actualChunkCount":  70,
+                          "eligibleChunkCount":  70,
+                          "warningTypes":  [
+                                               {
+                                                   "value":  [
+
+                                                             ],
+                                                   "Count":  0
+                                               }
+                                           ],
+                          "blockingReasons":  {
+
+                                              },
+                          "dispositionReason":  "Original Phase 5.5 sampled checks passed; no contrary evidence in the reviewed artifacts.",
+                          "evidenceSource":  [
+                                                 "PHASE5_6_APPROVED_REINDEX_MANIFEST.json",
+                                                 "PHASE5_6C_30PDF_PRODUCTION_REIMPORT_REPORT.md",
+                                                 "t_legal_quality_report",
+                                                 "t_knowledge_chunk"
+                                             ]
+                      },
+                      {
+                          "documentId":  "leg382efafcd87d769eb",
+                          "filename":  "《建筑与市政工程地下水控制技术规范》JGJ 111-2016.pdf",
+                          "fileHash":  "382efafcd87d769eb7ebacc9eedd79882f460c193f07e7c6f48700e2549ae099",
+                          "parserVersion":  "legal-pdf-mineru-adapter/2.0.0",
+                          "persistedStatus":  "REVIEW",
+                          "finalQualityStatus":  "REVIEW_REQUIRED",
+                          "indexEligible":  false,
+                          "clauseCount":  200,
+                          "chunkCount":  209,
+                          "actualChunkCount":  209,
+                          "eligibleChunkCount":  0,
+                          "warningTypes":  [
+                                               {
+                                                   "value":  [
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@132",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@152",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@371",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@386",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@398",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@410",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@418",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@428",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@435",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@444",
+                                                                 "存在 2 个超过 hardLimitTokens 的 chunk"
+                                                             ],
+                                                   "Count":  11
+                                               }
+                                           ],
+                          "blockingReasons":  "Coverage is likely a normalization/formula false positive, but one warning remains unresolved; retain isolation until confirmed.",
+                          "dispositionReason":  "Coverage is likely a normalization/formula false positive, but one warning remains unresolved; retain isolation until confirmed.",
+                          "evidenceSource":  [
+                                                 "PHASE5_6_APPROVED_REINDEX_MANIFEST.json",
+                                                 "PHASE5_6C_30PDF_PRODUCTION_REIMPORT_REPORT.md",
+                                                 "t_legal_quality_report",
+                                                 "t_knowledge_chunk"
+                                             ]
+                      },
+                      {
+                          "documentId":  "leg47f8bd94e8aba4754",
+                          "filename":  "《建筑与市政工程施工现场临时用电安全技术标准》JGJ_T 46-2024.pdf",
+                          "fileHash":  "47f8bd94e8aba4754ca7d6e4157004098ddf787d3e5a9be71715287c861ac29c",
+                          "parserVersion":  "legal-pdf-mineru-adapter/2.0.0",
+                          "persistedStatus":  "REVIEW",
+                          "finalQualityStatus":  "PASS",
+                          "indexEligible":  true,
+                          "clauseCount":  243,
+                          "chunkCount":  245,
+                          "actualChunkCount":  245,
+                          "eligibleChunkCount":  245,
+                          "warningTypes":  [
+                                               {
+                                                   "value":  [
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@64",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 2.5mm2,铝导线截面不应小于10mm2。"
+                                                             ],
+                                                   "Count":  2
+                                               }
+                                           ],
+                          "blockingReasons":  {
+
+                                              },
+                          "dispositionReason":  "Original Phase 5.5 sampled checks passed; no contrary evidence in the reviewed artifacts.",
+                          "evidenceSource":  [
+                                                 "PHASE5_6_APPROVED_REINDEX_MANIFEST.json",
+                                                 "PHASE5_6C_30PDF_PRODUCTION_REIMPORT_REPORT.md",
+                                                 "t_legal_quality_report",
+                                                 "t_knowledge_chunk"
+                                             ]
+                      },
+                      {
+                          "documentId":  "leg6eff1b77b85882a1e",
+                          "filename":  "《建筑地基基础工程施工质量验收规范》GB 50202-2018.pdf",
+                          "fileHash":  "6eff1b77b85882a1e8b04bab6e304adb617d4a7f533bbf027a4200a1db69045b",
+                          "parserVersion":  "legal-pdf-mineru-adapter/2.0.0",
+                          "persistedStatus":  "REVIEW",
+                          "finalQualityStatus":  "PASS",
+                          "indexEligible":  true,
+                          "clauseCount":  280,
+                          "chunkCount":  368,
+                          "actualChunkCount":  368,
+                          "eligibleChunkCount":  368,
+                          "warningTypes":  [
+                                               {
+                                                   "value":  [
+                                                                 "standardNo 冲突: filename=GB 50202-2018, body=GB 50300",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 4.3.1施工前应检查砂、石等原材料质量和配合比及砂、石拌和 的均匀性。",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 4.3.2 施工中应检查分层厚度、分段施工时搭接部分的压实情况、加水量、压实遍数、压实系数。",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 4.3.3 施工结束后,应进行地基承载力检验。",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 4.3.4 砂和砂石地基的质量检验标准应符合表4.3.4的规定。",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 5.7.1施工前应对原材料、施工组织设计中制定的施工顺序、主要成孔设备性能指标、监测仪器、监测方法、保证人员安全的措施或安全专项施工方案等进行检查验收。",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 5.7.2施工中应检验钢筋笼质量、混凝土坍落度、桩位、孔深、桩顶标高等。",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 5.7.3 施工结束后应检验桩的承载力、桩身完整性及混凝土的强度。",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 5.7.4人工挖孔桩应复验孔底持力层土岩性,嵌岩桩应有桩端持力层的岩性报告。干作业成孔灌注桩的质量检验标准应符合表5.7.4的规定。",
+                                                                 "存在 35 个超过 hardLimitTokens 的 chunk"
+                                                             ],
+                                                   "Count":  10
+                                               }
+                                           ],
+                          "blockingReasons":  {
+
+                                              },
+                          "dispositionReason":  "Oversized-table/chunk diagnostic only; no confirmed body, table, or hierarchy loss.",
+                          "evidenceSource":  [
+                                                 "PHASE5_6_APPROVED_REINDEX_MANIFEST.json",
+                                                 "PHASE5_6C_30PDF_PRODUCTION_REIMPORT_REPORT.md",
+                                                 "t_legal_quality_report",
+                                                 "t_knowledge_chunk"
+                                             ]
+                      },
+                      {
+                          "documentId":  "leg471e3dcf59499ea1f",
+                          "filename":  "《建筑基坑支护技术规程》JGJ 120-2012.pdf",
+                          "fileHash":  "471e3dcf59499ea1f9c9214487ced449de7930835d7d72617681e8cacf8cebb8",
+                          "parserVersion":  "legal-pdf-mineru-adapter/2.0.0",
+                          "persistedStatus":  "REVIEW",
+                          "finalQualityStatus":  "REVIEW_REQUIRED",
+                          "indexEligible":  false,
+                          "clauseCount":  340,
+                          "chunkCount":  366,
+                          "actualChunkCount":  366,
+                          "eligibleChunkCount":  0,
+                          "warningTypes":  [
+                                               {
+                                                   "value":  [
+                                                                 "PDF_HEADING_NUMBER_UNCERTAIN: 2 正常使用极限状态",
+                                                                 "PDF_HEADING_NUMBER_UNCERTAIN: 1 承载能力极限状态",
+                                                                 "PDF_HEADING_NUMBER_UNCERTAIN: 2 正常使用极限状态",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 0.55的水泥浆;二次注浆管应固定在杆体上,注浆管的出浆口应有逆止构造;二次压力注浆应在水泥浆初凝后、终凝前进行,终止注浆的压力不应小于1.5MPa;",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@1285",
+                                                                 "存在 1 个超过 hardLimitTokens 的 chunk"
+                                                             ],
+                                                   "Count":  6
+                                               }
+                                           ],
+                          "blockingReasons":  "Coverage warning cannot be conclusively classified as a false positive using the existing artifacts.",
+                          "dispositionReason":  "Coverage warning cannot be conclusively classified as a false positive using the existing artifacts.",
+                          "evidenceSource":  [
+                                                 "PHASE5_6_APPROVED_REINDEX_MANIFEST.json",
+                                                 "PHASE5_6C_30PDF_PRODUCTION_REIMPORT_REPORT.md",
+                                                 "t_legal_quality_report",
+                                                 "t_knowledge_chunk"
+                                             ]
+                      },
+                      {
+                          "documentId":  "leg425ddded77a234f6a",
+                          "filename":  "《建筑施工安全技术统一规范》GB 50870-2013.pdf",
+                          "fileHash":  "425ddded77a234f6a471956d1ab45f54a03f510009e6277e1ad80bf0b70bfd5e",
+                          "parserVersion":  "legal-pdf-mineru-adapter/2.0.0",
+                          "persistedStatus":  "PASS",
+                          "finalQualityStatus":  "PASS",
+                          "indexEligible":  true,
+                          "clauseCount":  96,
+                          "chunkCount":  97,
+                          "actualChunkCount":  97,
+                          "eligibleChunkCount":  97,
+                          "warningTypes":  [
+                                               {
+                                                   "value":  [
+
+                                                             ],
+                                                   "Count":  0
+                                               }
+                                           ],
+                          "blockingReasons":  {
+
+                                              },
+                          "dispositionReason":  "Original Phase 5.5 sampled checks passed; no contrary evidence in the reviewed artifacts.",
+                          "evidenceSource":  [
+                                                 "PHASE5_6_APPROVED_REINDEX_MANIFEST.json",
+                                                 "PHASE5_6C_30PDF_PRODUCTION_REIMPORT_REPORT.md",
+                                                 "t_legal_quality_report",
+                                                 "t_knowledge_chunk"
+                                             ]
+                      },
+                      {
+                          "documentId":  "leg56230992584b689b0",
+                          "filename":  "《建筑施工易发事故防治安全标准》JGJ_T 429-2018.pdf",
+                          "fileHash":  "56230992584b689b0e09548c0c61dea00c7d72d24aa035be5499a0d281d98391",
+                          "parserVersion":  "legal-pdf-mineru-adapter/2.0.0",
+                          "persistedStatus":  "PASS",
+                          "finalQualityStatus":  "PASS",
+                          "indexEligible":  true,
+                          "clauseCount":  285,
+                          "chunkCount":  286,
+                          "actualChunkCount":  286,
+                          "eligibleChunkCount":  286,
+                          "warningTypes":  [
+                                               {
+                                                   "value":  [
+
+                                                             ],
+                                                   "Count":  0
+                                               }
+                                           ],
+                          "blockingReasons":  {
+
+                                              },
+                          "dispositionReason":  "Original Phase 5.5 sampled checks passed; no contrary evidence in the reviewed artifacts.",
+                          "evidenceSource":  [
+                                                 "PHASE5_6_APPROVED_REINDEX_MANIFEST.json",
+                                                 "PHASE5_6C_30PDF_PRODUCTION_REIMPORT_REPORT.md",
+                                                 "t_legal_quality_report",
+                                                 "t_knowledge_chunk"
+                                             ]
+                      },
+                      {
+                          "documentId":  "leg6d3d5044d0c4d4699",
+                          "filename":  "《建筑施工碗扣式钢管脚手架安全技术规范》JGJ 166-2016.pdf",
+                          "fileHash":  "6d3d5044d0c4d4699f1dc4552aa1217abc903bb99ea137795961597f0e66092f",
+                          "parserVersion":  "legal-pdf-mineru-adapter/2.0.0",
+                          "persistedStatus":  "REVIEW",
+                          "finalQualityStatus":  "REVIEW_REQUIRED",
+                          "indexEligible":  false,
+                          "clauseCount":  187,
+                          "chunkCount":  195,
+                          "actualChunkCount":  195,
+                          "eligibleChunkCount":  0,
+                          "warningTypes":  [
+                                               {
+                                                   "value":  [
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 4.4.1脚手架设计时,根据使用过程中在架体上可能同时出现的荷载,应按承载能力极限状态和正常使用极限状态分别进行荷载组合,并应取各自最不利的组合进行设计。",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 4.4.2 脚手架结构设计应根据脚手架种类、搭设高度和荷载采用不同的安全等级。脚手架安全等级的划分应符合表4.4.2的规定。",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 4.4.3 对承载能力极限状态,应按荷载的基本组合计算荷载组",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 1.1采用,对安全等级为II级的脚手架按1.0采用;",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 4.4.4脚手架结构及构配件承载能力极限状态设计时,应按下列规定采用荷载的基本组合:",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 4.4.5 对正常使用极限状态,应按荷载的标准组合计算荷载组合的效应设计值,并应采用下列设计表达式进行设计:",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 4.4.6 脚手架结构及构配件正常使用极限状态设计时,应按表 4.4.6的规定采用荷载的标准组合。"
+                                                             ],
+                                                   "Count":  7
+                                               }
+                                           ],
+                          "blockingReasons":  "Small but unresolved coverage warning around formula/table-adjacent content; retain isolation.",
+                          "dispositionReason":  "Small but unresolved coverage warning around formula/table-adjacent content; retain isolation.",
+                          "evidenceSource":  [
+                                                 "PHASE5_6_APPROVED_REINDEX_MANIFEST.json",
+                                                 "PHASE5_6C_30PDF_PRODUCTION_REIMPORT_REPORT.md",
+                                                 "t_legal_quality_report",
+                                                 "t_knowledge_chunk"
+                                             ]
+                      },
+                      {
+                          "documentId":  "leg2a1154cb9687a58a1",
+                          "filename":  "《建筑施工组织设计规范》GB_T 50502-2009.pdf",
+                          "fileHash":  "2a1154cb9687a58a1b0e0b51febd929427060060e2b3ef6ec4a57c05171aaaea",
+                          "parserVersion":  "legal-pdf-mineru-adapter/2.0.0",
+                          "persistedStatus":  "PASS",
+                          "finalQualityStatus":  "PASS",
+                          "indexEligible":  true,
+                          "clauseCount":  98,
+                          "chunkCount":  98,
+                          "actualChunkCount":  98,
+                          "eligibleChunkCount":  98,
+                          "warningTypes":  [
+                                               {
+                                                   "value":  [
+
+                                                             ],
+                                                   "Count":  0
+                                               }
+                                           ],
+                          "blockingReasons":  {
+
+                                              },
+                          "dispositionReason":  "Original Phase 5.5 sampled checks passed; no contrary evidence in the reviewed artifacts.",
+                          "evidenceSource":  [
+                                                 "PHASE5_6_APPROVED_REINDEX_MANIFEST.json",
+                                                 "PHASE5_6C_30PDF_PRODUCTION_REIMPORT_REPORT.md",
+                                                 "t_legal_quality_report",
+                                                 "t_knowledge_chunk"
+                                             ]
+                      },
+                      {
+                          "documentId":  "leg19454a4a7950887c7",
+                          "filename":  "《建筑施工脚手架安全技术统一标准》GB 51210-2016.pdf",
+                          "fileHash":  "19454a4a7950887c741a0aa1f9db4ddec528ef30fe00e2fbcbdc61ed426178a6",
+                          "parserVersion":  "legal-pdf-mineru-adapter/2.0.0",
+                          "persistedStatus":  "PASS",
+                          "finalQualityStatus":  "PASS",
+                          "indexEligible":  true,
+                          "clauseCount":  174,
+                          "chunkCount":  183,
+                          "actualChunkCount":  183,
+                          "eligibleChunkCount":  183,
+                          "warningTypes":  [
+                                               {
+                                                   "value":  [
+
+                                                             ],
+                                                   "Count":  0
+                                               }
+                                           ],
+                          "blockingReasons":  {
+
+                                              },
+                          "dispositionReason":  "Original Phase 5.5 sampled checks passed; no contrary evidence in the reviewed artifacts.",
+                          "evidenceSource":  [
+                                                 "PHASE5_6_APPROVED_REINDEX_MANIFEST.json",
+                                                 "PHASE5_6C_30PDF_PRODUCTION_REIMPORT_REPORT.md",
+                                                 "t_legal_quality_report",
+                                                 "t_knowledge_chunk"
+                                             ]
+                      },
+                      {
+                          "documentId":  "legbfb61101368882d21",
+                          "filename":  "《建筑施工起重吊装工程安全技术规范》JGJ 276-2012.pdf",
+                          "fileHash":  "bfb61101368882d21fb00001555ccac02e107cd964ee57c5659ec6a8bbdda535",
+                          "parserVersion":  "legal-pdf-mineru-adapter/2.0.0",
+                          "persistedStatus":  "REVIEW",
+                          "finalQualityStatus":  "PASS",
+                          "indexEligible":  true,
+                          "clauseCount":  142,
+                          "chunkCount":  148,
+                          "actualChunkCount":  148,
+                          "eligibleChunkCount":  148,
+                          "warningTypes":  [
+                                               {
+                                                   "value":  [
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@31"
+                                                             ],
+                                                   "Count":  1
+                                               }
+                                           ],
+                          "blockingReasons":  {
+
+                                              },
+                          "dispositionReason":  "Original Phase 5.5 sampled checks passed; no contrary evidence in the reviewed artifacts.",
+                          "evidenceSource":  [
+                                                 "PHASE5_6_APPROVED_REINDEX_MANIFEST.json",
+                                                 "PHASE5_6C_30PDF_PRODUCTION_REIMPORT_REPORT.md",
+                                                 "t_legal_quality_report",
+                                                 "t_knowledge_chunk"
+                                             ]
+                      },
+                      {
+                          "documentId":  "leg59571b82ea5d12a41",
+                          "filename":  "《建筑施工门式钢管脚手架安全技术标准》JGJ_T 128-2019.pdf",
+                          "fileHash":  "59571b82ea5d12a41b298585e25b0d43d1912000ce290fac1eec86e308731d63",
+                          "parserVersion":  "legal-pdf-mineru-adapter/2.0.0",
+                          "persistedStatus":  "REVIEW",
+                          "finalQualityStatus":  "PASS",
+                          "indexEligible":  true,
+                          "clauseCount":  227,
+                          "chunkCount":  243,
+                          "actualChunkCount":  243,
+                          "eligibleChunkCount":  243,
+                          "warningTypes":  [
+                                               {
+                                                   "value":  [
+                                                                 "存在 2 个超过 hardLimitTokens 的 chunk",
+                                                                 "存在 1 个同 (contentRole, clauseNo) 重复条款"
+                                                             ],
+                                                   "Count":  2
+                                               }
+                                           ],
+                          "blockingReasons":  {
+
+                                              },
+                          "dispositionReason":  "Oversized-chunk diagnostic only; no confirmed body, table, or hierarchy loss.",
+                          "evidenceSource":  [
+                                                 "PHASE5_6_APPROVED_REINDEX_MANIFEST.json",
+                                                 "PHASE5_6C_30PDF_PRODUCTION_REIMPORT_REPORT.md",
+                                                 "t_legal_quality_report",
+                                                 "t_knowledge_chunk"
+                                             ]
+                      },
+                      {
+                          "documentId":  "legc4760f88112834b1c",
+                          "filename":  "《建筑施工高处作业安全技术规范》JGJ 80-2016.pdf",
+                          "fileHash":  "c4760f88112834b1c5293a94c9df30264b1ee13790fd30f7a98527054c5f838d",
+                          "parserVersion":  "legal-pdf-mineru-adapter/2.0.0",
+                          "persistedStatus":  "PASS",
+                          "finalQualityStatus":  "PASS",
+                          "indexEligible":  true,
+                          "clauseCount":  111,
+                          "chunkCount":  111,
+                          "actualChunkCount":  111,
+                          "eligibleChunkCount":  111,
+                          "warningTypes":  [
+                                               {
+                                                   "value":  [
+
+                                                             ],
+                                                   "Count":  0
+                                               }
+                                           ],
+                          "blockingReasons":  {
+
+                                              },
+                          "dispositionReason":  "Original Phase 5.5 sampled checks passed; no contrary evidence in the reviewed artifacts.",
+                          "evidenceSource":  [
+                                                 "PHASE5_6_APPROVED_REINDEX_MANIFEST.json",
+                                                 "PHASE5_6C_30PDF_PRODUCTION_REIMPORT_REPORT.md",
+                                                 "t_legal_quality_report",
+                                                 "t_knowledge_chunk"
+                                             ]
+                      },
+                      {
+                          "documentId":  "legab19b68cfb9d2bcc0",
+                          "filename":  "《建筑机械使用安全技术规程》JGJ 33-2018.pdf",
+                          "fileHash":  "ab19b68cfb9d2bcc00b49b6633636e7f7a1a7ae8612493f7b53055ca41322658",
+                          "parserVersion":  "legal-pdf-mineru-adapter/2.0.0",
+                          "persistedStatus":  "REVIEW",
+                          "finalQualityStatus":  "PASS",
+                          "indexEligible":  true,
+                          "clauseCount":  1195,
+                          "chunkCount":  1195,
+                          "actualChunkCount":  1195,
+                          "eligibleChunkCount":  1195,
+                          "warningTypes":  [
+                                               {
+                                                   "value":  [
+                                                                 "standardNo 冲突: filename=JGJ 33-2018, body=JGJ 34"
+                                                             ],
+                                                   "Count":  1
+                                               }
+                                           ],
+                          "blockingReasons":  {
+
+                                              },
+                          "dispositionReason":  "Original Phase 5.5 sampled checks passed; no contrary evidence in the reviewed artifacts.",
+                          "evidenceSource":  [
+                                                 "PHASE5_6_APPROVED_REINDEX_MANIFEST.json",
+                                                 "PHASE5_6C_30PDF_PRODUCTION_REIMPORT_REPORT.md",
+                                                 "t_legal_quality_report",
+                                                 "t_knowledge_chunk"
+                                             ]
+                      },
+                      {
+                          "documentId":  "leg524af63138bf3721f",
+                          "filename":  "《建筑灭火器配置设计规范》GB 50140-2005.pdf",
+                          "fileHash":  "524af63138bf3721f50cf5c4c038b179c2a1621899eb026cf55048fec551bda9",
+                          "parserVersion":  "legal-pdf-mineru-adapter/2.0.0",
+                          "persistedStatus":  "PASS",
+                          "finalQualityStatus":  "PASS",
+                          "indexEligible":  true,
+                          "clauseCount":  122,
+                          "chunkCount":  122,
+                          "actualChunkCount":  122,
+                          "eligibleChunkCount":  122,
+                          "warningTypes":  [
+                                               {
+                                                   "value":  [
+
+                                                             ],
+                                                   "Count":  0
+                                               }
+                                           ],
+                          "blockingReasons":  {
+
+                                              },
+                          "dispositionReason":  "Original Phase 5.5 sampled checks passed; no contrary evidence in the reviewed artifacts.",
+                          "evidenceSource":  [
+                                                 "PHASE5_6_APPROVED_REINDEX_MANIFEST.json",
+                                                 "PHASE5_6C_30PDF_PRODUCTION_REIMPORT_REPORT.md",
+                                                 "t_legal_quality_report",
+                                                 "t_knowledge_chunk"
+                                             ]
+                      },
+                      {
+                          "documentId":  "leg8d9cd9dd488763278",
+                          "filename":  "《建筑行业职业病危害预防控制规范》GBZ_T 211-2008.pdf",
+                          "fileHash":  "8d9cd9dd488763278bcc5ef492b814f44afaa15ca1e959c39b5b6eaa074ac433",
+                          "parserVersion":  "legal-pdf-mineru-adapter/2.0.0",
+                          "persistedStatus":  "REVIEW",
+                          "finalQualityStatus":  "PASS",
+                          "indexEligible":  true,
+                          "clauseCount":  97,
+                          "chunkCount":  99,
+                          "actualChunkCount":  99,
+                          "eligibleChunkCount":  99,
+                          "warningTypes":  [
+                                               {
+                                                   "value":  [
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@7",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@10",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@22",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 3.1",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 3.2",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 3.3",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 3.4",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 3.5",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 3.6",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@101",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 6.2.1技术革新。采取不产生或少产生粉尘的施工工艺、施工设备和工具,淘汰粉尘危害严重的施工工艺、施工设备和工具。",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 6.2.2采用无危害或危害较小的建筑材料。如不使用石棉、含有石棉的建筑材料。",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 6.2.3采用机械化、自动化或密闭隔离操作。如挖土机、推土机、刮土机、铺路机、压路机等施工机械的驾驶室或操作室密闭隔离,并在进风口设置滤尘装置。",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 6.2.4采取湿式作业。如凿岩作业采用湿式凿岩机:爆破采用水封爆破;喷射混凝土采用湿喷;钻孔采用湿式钻孔;隧道爆破作业后立即喷雾洒水;场地平整时,配备洒水车,定时喷水作业;拆除作业时采用湿法作业拆除、装卸和运输含有石棉的建筑材料。",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 6.2.5 设置局部防尘设施和净化排放装置。如焊枪配置带有排风罩的小型烟尘净化器;凿岩机、钻孔机等设置捕尘器。",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 6.2.6劳动者作业时应在上风向操作。",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 6.2.7建筑物拆除和翻修作业时,在接触石棉的施工区域设置警示标识,禁止无关人员进入。",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 6.2.8根据粉尘的种类和浓度为劳动者配备合适的呼吸防护用品,并定期更换。呼吸防护用品的配备应符合GB/T18664的要求,如在建筑物拆除作业中,可能接触含有石棉的物质(如石棉水泥板或石棉绝缘材料),为接触石棉的劳动者配备正压呼吸器、防护板;在罐内焊接作业时,劳动者应佩戴送风头盔或送风口罩;安装玻璃棉、消音及保温材料时,劳动者必须佩戴防尘口罩。",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 6.2.9 粉尘接触人员特别是石棉粉尘接触人员应做好戒烟/控烟教育。",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 6.2.10石棉尘的防护按照GBZ/T193执行,石棉代用品的防护按照GBZ/T 198执行。",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@137",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 6.11.1 根据劳动者的身体状况确定劳动定额和劳动强度。初入高原的劳动者在适应期内应当降低劳",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 6.11.2 劳动者应注意保暖,预防呼吸道感染、冻伤、雪盲等。",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 6.11.3进行上岗前职业健康检查,凡有中枢神经系统器质性疾病、器质性心脏病、高血压、慢性阻塞性肺病、慢性间质性肺病、伴肺功能损害的疾病、贫血、红细胞增多症等高原作业禁忌证的人员均不宜进入高原作业。",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@191",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 7.1 项目经理部应建立应急救援机构或组织。",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 7.2项目经理部应根据不同施工阶段可能发生的各种职业病危害事故制定相应的应急救援预案,并定期组织演练,及时修订应急救援预案。",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 7.3按照应急救援预案要求,合理配备快速检测设备、医疗急救设备、急救药品、通讯工具、交通工具、照明装置、个人防护用品等应急救援装备。",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 7.4可能突然泄漏大量有毒化学品或者易造成急性中毒的施工现场(如接触酸、碱、有机溶剂、危险性物品的工作场所等),应设置自动检测报警装置、事故通风设施、冲洗设备(沐浴器、洗眼器和洗手池)、应急撤离通道和必要的泄险区。除为劳动者配备常规个人防护用品外,还应在施工现场醒目位置放置必需的防毒用具,以备逃生、抢救时应急使用,并设有专人管理和维护,保证其处于良好待用状态。应急撤离通道应保持通畅。",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 7.5施工现场应配备受过专业训练的急救员,配备急救箱、担架、毯子和其他急救用品。急救箱内应有简单明了的使用说明,并由受过急救培训的人员进行保管、定期检查和更换。超过200人的施工工地应配备急救室。",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 7.6应根据施工现场可能发生的各种职业病危害事故对全体劳动者进行有针对性的应急救援培训,使劳动者掌握事故预防和自救互救等应急处理能力,避免盲目救治。",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 7.7应与就近医疗机构建立合作关系,以便发生急性职业病危害事故时能够及时获得医疗救援援助。"
+                                                             ],
+                                                   "Count":  32
+                                               }
+                                           ],
+                          "blockingReasons":  {
+
+                                              },
+                          "dispositionReason":  "Original Phase 5.5 sampled checks passed; no contrary evidence in the reviewed artifacts.",
+                          "evidenceSource":  [
+                                                 "PHASE5_6_APPROVED_REINDEX_MANIFEST.json",
+                                                 "PHASE5_6C_30PDF_PRODUCTION_REIMPORT_REPORT.md",
+                                                 "t_legal_quality_report",
+                                                 "t_knowledge_chunk"
+                                             ]
+                      },
+                      {
+                          "documentId":  "leg079d1a68a9dc29576",
+                          "filename":  "《建筑设计防火规范》GB 50016-2022.pdf",
+                          "fileHash":  "079d1a68a9dc29576ab5543d36133018078c7bef3e5e37de486212f887cca8f3",
+                          "parserVersion":  "legal-pdf-mineru-adapter/2.0.0",
+                          "persistedStatus":  "REVIEW",
+                          "finalQualityStatus":  "PASS",
+                          "indexEligible":  true,
+                          "clauseCount":  225,
+                          "chunkCount":  233,
+                          "actualChunkCount":  233,
+                          "eligibleChunkCount":  233,
+                          "warningTypes":  [
+                                               {
+                                                   "value":  [
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 2.00h且无开口的防火隔墙分隔;",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@275",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 5.1一般规定",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 5.1.1建筑的耐火等级或工程结构的耐火性能,应与其火灾危险性,建筑高度、使用功能和重要性,火灾扑救难度等相适应。",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 5.1.2 地下、半地下建筑(室)的耐火等级应为一级。",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 5.1.3 建筑高度大于100m的工业与民用建筑楼板的耐火极限不应低于2.00h。一级耐火等级工业与民用建筑的上人平屋顶,屋面板的耐火极限不应低于1.50h;二级耐火等级工业与民用建筑的上人平屋顶,屋面板的耐火极限不应低于1.00h。",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 5.1.4 建筑中承重的下列结构或构件应根据设计耐火极限和受力情况等进行耐火性能验算和防火保护设计,或采用耐火试验验证其耐火性能:",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 5.1.5 下列汽车库的耐火等级应为一级:",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 5.1.6电动汽车充电站建筑、II类汽车库、II类修车库、变电站的耐火等级不应低于二级。",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 5.1.7 裙房的耐火等级不应低于高层建筑主体的耐火等级。",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 5.2工业建筑",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 5.2.1 下列工业建筑的耐火等级应为一级:",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 5.2.2 除本规范第5.2.1条规定的建筑外,下列工业建筑的耐火等级不应低于二级:",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 5.2.3 除本规范第5.2.1条和第5.2.2 条规定的建筑外,下列工业建筑的耐火等级不应低于三级:",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 5.2.4丙、丁类物流建筑应符合下列规定:",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 5.3民用建筑",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 5.3.1下列民用建筑的耐火等级应为一级:",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 5.3.2 下列民用建筑的耐火等级不应低于二级:",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 5.3.3 除本规范第5.3.1条、第5.3.2条规定的建筑外,下列民用建筑的耐火等级不应低于三级:",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 5.4其他工程",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 5.4.1地铁工程地下出入口通道、地上控制中心建筑、地上主变电站的耐火等级不应低于一级。地铁的地上车站建筑的耐火等级不应低于三级。",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 5.4.2 交通隧道承重结构体的耐火性能应与其车流量、隧道封闭段长度、通行车辆类型和隧道的修复难度等情况相适应。",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 5.4.3 城市交通隧道的消防救援出入口的耐火等级不应低于一级。城市交通隧道的地面重要设备用房、运营管理中心及其他地面附属用房的耐火等级不应低于二级。",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 0.80m,当住宅建筑高度不大于18m且一边设置栏杆时,室内疏散楼梯的净宽度不应小于1.0m,其他住宅建筑室内疏散楼梯的净宽度不应小于1.1m;"
+                                                             ],
+                                                   "Count":  24
+                                               }
+                                           ],
+                          "blockingReasons":  {
+
+                                              },
+                          "dispositionReason":  "Original Phase 5.5 sampled checks passed; no contrary evidence in the reviewed artifacts.",
+                          "evidenceSource":  [
+                                                 "PHASE5_6_APPROVED_REINDEX_MANIFEST.json",
+                                                 "PHASE5_6C_30PDF_PRODUCTION_REIMPORT_REPORT.md",
+                                                 "t_legal_quality_report",
+                                                 "t_knowledge_chunk"
+                                             ]
+                      },
+                      {
+                          "documentId":  "leg467cf4ca7017a40e7",
+                          "filename":  "《建设工程施工现场供用电安全规范》GB 50194-2014.pdf",
+                          "fileHash":  "467cf4ca7017a40e7884b08fed362bcdd2f092170a19852ace0ab4f365d3cf99",
+                          "parserVersion":  "legal-pdf-mineru-adapter/2.0.0",
+                          "persistedStatus":  "REVIEW",
+                          "finalQualityStatus":  "PASS",
+                          "indexEligible":  true,
+                          "clauseCount":  203,
+                          "chunkCount":  205,
+                          "actualChunkCount":  205,
+                          "eligibleChunkCount":  205,
+                          "warningTypes":  [
+                                               {
+                                                   "value":  [
+                                                                 "standardNo 冲突: filename=GB 50194-2014, body=GB/T 18379"
+                                                             ],
+                                                   "Count":  1
+                                               }
+                                           ],
+                          "blockingReasons":  {
+
+                                              },
+                          "dispositionReason":  "Original Phase 5.5 sampled checks passed; no contrary evidence in the reviewed artifacts.",
+                          "evidenceSource":  [
+                                                 "PHASE5_6_APPROVED_REINDEX_MANIFEST.json",
+                                                 "PHASE5_6C_30PDF_PRODUCTION_REIMPORT_REPORT.md",
+                                                 "t_legal_quality_report",
+                                                 "t_knowledge_chunk"
+                                             ]
+                      },
+                      {
+                          "documentId":  "legf4a197ea3ff0df6e6",
+                          "filename":  "《建设工程施工现场消防安全技术规范》GB 50720-2011.pdf",
+                          "fileHash":  "f4a197ea3ff0df6e6e70185beccd870a19002055c661615a3077a93de0a01eda",
+                          "parserVersion":  "legal-pdf-mineru-adapter/2.0.0",
+                          "persistedStatus":  "REVIEW",
+                          "finalQualityStatus":  "PASS",
+                          "indexEligible":  true,
+                          "clauseCount":  225,
+                          "chunkCount":  233,
+                          "actualChunkCount":  233,
+                          "eligibleChunkCount":  233,
+                          "warningTypes":  [
+                                               {
+                                                   "value":  [
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 2.00h且无开口的防火隔墙分隔;",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@275",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 5.1一般规定",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 5.1.1建筑的耐火等级或工程结构的耐火性能,应与其火灾危险性,建筑高度、使用功能和重要性,火灾扑救难度等相适应。",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 5.1.2 地下、半地下建筑(室)的耐火等级应为一级。",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 5.1.3 建筑高度大于100m的工业与民用建筑楼板的耐火极限不应低于2.00h。一级耐火等级工业与民用建筑的上人平屋顶,屋面板的耐火极限不应低于1.50h;二级耐火等级工业与民用建筑的上人平屋顶,屋面板的耐火极限不应低于1.00h。",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 5.1.4 建筑中承重的下列结构或构件应根据设计耐火极限和受力情况等进行耐火性能验算和防火保护设计,或采用耐火试验验证其耐火性能:",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 5.1.5 下列汽车库的耐火等级应为一级:",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 5.1.6电动汽车充电站建筑、II类汽车库、II类修车库、变电站的耐火等级不应低于二级。",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 5.1.7 裙房的耐火等级不应低于高层建筑主体的耐火等级。",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 5.2工业建筑",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 5.2.1 下列工业建筑的耐火等级应为一级:",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 5.2.2 除本规范第5.2.1条规定的建筑外,下列工业建筑的耐火等级不应低于二级:",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 5.2.3 除本规范第5.2.1条和第5.2.2 条规定的建筑外,下列工业建筑的耐火等级不应低于三级:",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 5.2.4丙、丁类物流建筑应符合下列规定:",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 5.3民用建筑",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 5.3.1下列民用建筑的耐火等级应为一级:",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 5.3.2 下列民用建筑的耐火等级不应低于二级:",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 5.3.3 除本规范第5.3.1条、第5.3.2条规定的建筑外,下列民用建筑的耐火等级不应低于三级:",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 5.4其他工程",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 5.4.1地铁工程地下出入口通道、地上控制中心建筑、地上主变电站的耐火等级不应低于一级。地铁的地上车站建筑的耐火等级不应低于三级。",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 5.4.2 交通隧道承重结构体的耐火性能应与其车流量、隧道封闭段长度、通行车辆类型和隧道的修复难度等情况相适应。",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 5.4.3 城市交通隧道的消防救援出入口的耐火等级不应低于一级。城市交通隧道的地面重要设备用房、运营管理中心及其他地面附属用房的耐火等级不应低于二级。",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 0.80m,当住宅建筑高度不大于18m且一边设置栏杆时,室内疏散楼梯的净宽度不应小于1.0m,其他住宅建筑室内疏散楼梯的净宽度不应小于1.1m;"
+                                                             ],
+                                                   "Count":  24
+                                               }
+                                           ],
+                          "blockingReasons":  {
+
+                                              },
+                          "dispositionReason":  "Original Phase 5.5 sampled checks passed; no contrary evidence in the reviewed artifacts.",
+                          "evidenceSource":  [
+                                                 "PHASE5_6_APPROVED_REINDEX_MANIFEST.json",
+                                                 "PHASE5_6C_30PDF_PRODUCTION_REIMPORT_REPORT.md",
+                                                 "t_legal_quality_report",
+                                                 "t_knowledge_chunk"
+                                             ]
+                      },
+                      {
+                          "documentId":  "leg131d16fadefa874b7",
+                          "filename":  "《建设工程监理规范》GB_T 50319-2013.pdf",
+                          "fileHash":  "131d16fadefa874b70d0d6f7430b80202af333caa1775ca5a4cfd88b79ab0fd3",
+                          "parserVersion":  "legal-pdf-mineru-adapter/2.0.0",
+                          "persistedStatus":  "REVIEW",
+                          "finalQualityStatus":  "PASS",
+                          "indexEligible":  true,
+                          "clauseCount":  189,
+                          "chunkCount":  189,
+                          "actualChunkCount":  189,
+                          "eligibleChunkCount":  189,
+                          "warningTypes":  [
+                                               {
+                                                   "value":  [
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@29"
+                                                             ],
+                                                   "Count":  1
+                                               }
+                                           ],
+                          "blockingReasons":  {
+
+                                              },
+                          "dispositionReason":  "Original Phase 5.5 sampled checks passed; no contrary evidence in the reviewed artifacts.",
+                          "evidenceSource":  [
+                                                 "PHASE5_6_APPROVED_REINDEX_MANIFEST.json",
+                                                 "PHASE5_6C_30PDF_PRODUCTION_REIMPORT_REPORT.md",
+                                                 "t_legal_quality_report",
+                                                 "t_knowledge_chunk"
+                                             ]
+                      },
+                      {
+                          "documentId":  "leg7bbee3590a1abbd38",
+                          "filename":  "《施工企业安全生产评价标准》JGJ_T 77-2010.pdf",
+                          "fileHash":  "7bbee3590a1abbd38f04a3d74d9af2a7c1eb09c36e60f0f6b1337c1b71c0f150",
+                          "parserVersion":  "legal-pdf-mineru-adapter/2.0.0",
+                          "persistedStatus":  "PASS",
+                          "finalQualityStatus":  "PASS",
+                          "indexEligible":  true,
+                          "clauseCount":  51,
+                          "chunkCount":  51,
+                          "actualChunkCount":  51,
+                          "eligibleChunkCount":  51,
+                          "warningTypes":  [
+                                               {
+                                                   "value":  [
+
+                                                             ],
+                                                   "Count":  0
+                                               }
+                                           ],
+                          "blockingReasons":  {
+
+                                              },
+                          "dispositionReason":  "Original Phase 5.5 sampled checks passed; no contrary evidence in the reviewed artifacts.",
+                          "evidenceSource":  [
+                                                 "PHASE5_6_APPROVED_REINDEX_MANIFEST.json",
+                                                 "PHASE5_6C_30PDF_PRODUCTION_REIMPORT_REPORT.md",
+                                                 "t_legal_quality_report",
+                                                 "t_knowledge_chunk"
+                                             ]
+                      },
+                      {
+                          "documentId":  "legfa598cdd9d7745a24",
+                          "filename":  "《施工现场机械设备检查技术规范》JGJ 160-2016.pdf",
+                          "fileHash":  "fa598cdd9d7745a24dbde58fa2eff0c9a5f70868049c4a34028046a0c98dab7c",
+                          "parserVersion":  "legal-pdf-mineru-adapter/2.0.0",
+                          "persistedStatus":  "REVIEW",
+                          "finalQualityStatus":  "PASS",
+                          "indexEligible":  true,
+                          "clauseCount":  516,
+                          "chunkCount":  517,
+                          "actualChunkCount":  517,
+                          "eligibleChunkCount":  517,
+                          "warningTypes":  [
+                                               {
+                                                   "value":  [
+                                                                 "standardNo 冲突: filename=JGJ 160-2016, body=JGJ 46"
+                                                             ],
+                                                   "Count":  1
+                                               }
+                                           ],
+                          "blockingReasons":  {
+
+                                              },
+                          "dispositionReason":  "Original Phase 5.5 sampled checks passed; no contrary evidence in the reviewed artifacts.",
+                          "evidenceSource":  [
+                                                 "PHASE5_6_APPROVED_REINDEX_MANIFEST.json",
+                                                 "PHASE5_6C_30PDF_PRODUCTION_REIMPORT_REPORT.md",
+                                                 "t_legal_quality_report",
+                                                 "t_knowledge_chunk"
+                                             ]
+                      },
+                      {
+                          "documentId":  "leg31382d432b8b26e00",
+                          "filename":  "《爆破安全规程》GB 6722-2014.pdf",
+                          "fileHash":  "31382d432b8b26e000d9cb19ba8c202fcafea0c57e7ac9294b528e223910bd89",
+                          "parserVersion":  "legal-pdf-mineru-adapter/2.0.0",
+                          "persistedStatus":  "REVIEW",
+                          "finalQualityStatus":  "PASS",
+                          "indexEligible":  true,
+                          "clauseCount":  96,
+                          "chunkCount":  170,
+                          "actualChunkCount":  170,
+                          "eligibleChunkCount":  170,
+                          "warningTypes":  [
+                                               {
+                                                   "value":  [
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@8",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@11",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@20",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 3.1",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 3.2",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 3.3",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 3.4",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 3.5",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 3.6",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 3.7",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 3.8",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 3.9",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 3.10",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 3.11",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 3.12",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 3.13",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 3.14",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 3.15",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 3.16",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 3.17",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 3.18",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 3.19",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 3.20",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 3.21",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 3.22",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 3.23",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 3.24",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 3.25",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 3.26",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 3.27",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 3.28",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 3.29",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 3.30",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 3.31",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 3.32",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 3.33",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 3.34",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@125",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@139",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@145",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@182",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@202",
+                                                                 "PDF_HEADING_NUMBER_UNCERTAIN: 61 爆破作业环境",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@217",
+                                                                 "PDF_HEADING_NUMBER_UNCERTAIN: 62 爆破工程施工准备",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@266",
+                                                                 "PDF_HEADING_NUMBER_UNCERTAIN: 63 爆破器材现场检测、加工和起爆方法",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@279",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@331",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@356",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@416",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@457",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@459",
+                                                                 "PDF_HEADING_NUMBER_UNCERTAIN: 68 爆后检查",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@470",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 6.8.2 爆后检查内容",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 6.8.3 检查人员",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 6.8.3.1 A、B级及复杂环境的爆破工程,爆后检查工作应由现场技术负责人、起爆组长和有经验的爆破员、安全员组成检查小组实施。",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@499",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@513",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 6.11.2 爆破总结应包括:",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@543",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@553",
+                                                                 "PDF_HEADING_NUMBER_UNCERTAIN: 73 预裂爆破和光面爆破",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@571",
+                                                                 "PDF_HEADING_NUMBER_UNCERTAIN: 75 浅孔爆破",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@584",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@594",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@599",
+                                                                 "PDF_HEADING_NUMBER_UNCERTAIN: 79 地震勘探爆破",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 7.9.2 制作炸药包时,应设置半径大于15m的警戒区,并远离炸药车15m以上,远离无线电设备30m以上;不应提前制作炸药包,炸药包不得在野外过夜。",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@651",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@662",
+                                                                 "PDF_HEADING_NUMBER_UNCERTAIN: 83 地下大跨度硐群开挖爆破",
+                                                                 "PDF_HEADING_NUMBER_UNCERTAIN: 84 地下采场爆破",
+                                                                 "PDF_HEADING_NUMBER_UNCERTAIN: 85 溜井(含矿仓)堵塞处理",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 8.5.3 用矿用火箭弹处理溜井堵塞时,应遵守下列规定:",
+                                                                 "PDF_HEADING_NUMBER_UNCERTAIN: 86 煤矿井下爆破(包括有瓦斯或煤尘爆炸危险的地下工程爆破)",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@777",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@784",
+                                                                 "PDF_HEADING_NUMBER_UNCERTAIN: 89 放射性矿井爆破",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@807",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@827",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@836",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@861",
+                                                                 "PDF_HEADING_NUMBER_UNCERTAIN: 94 热凝结物爆破",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@901",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@919",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@930",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@984",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@997",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@1018",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@1027",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 11.10.3 当采用大规模或一次性爆破拆除基坑钢筋混凝土支撑时,应采用全封闭的防护棚,防护棚应",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@1068",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@1073",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@1088",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@1119",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@1135",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@1153",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@1186",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@1194",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@1197",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 13.3.3 空气冲击波超压的安全允许标准:对不设防的非作业人员为 $0 . 0 2 \\times 1 0 ^ { 5 } \\ \\mathrm { P a }$ ,掩体中的作业人员为 $0 . 1 \\times 1 0 ^ { 5 } \\ \\mathrm { P a } ;$ ;建筑物的破坏程度与超压的关系列入表 。",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 13.3.5 露天及地下爆破作业,对人员和其他保护对象的空气冲击波安全允许距离由设计确定。",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 13.6.2 抛掷爆破时,个别飞散物对人员、设备和建筑物的安全允许距离应由设计确定。",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 13.8.1 有害气体",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@1345",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@1385",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@1443",
+                                                                 "存在 3 个超过 hardLimitTokens 的 chunk"
+                                                             ],
+                                                   "Count":  111
+                                               }
+                                           ],
+                          "blockingReasons":  {
+
+                                              },
+                          "dispositionReason":  "Review triggers are OCR and oversized-chunk diagnostics only; no confirmed body, table, or hierarchy loss.",
+                          "evidenceSource":  [
+                                                 "PHASE5_6_APPROVED_REINDEX_MANIFEST.json",
+                                                 "PHASE5_6C_30PDF_PRODUCTION_REIMPORT_REPORT.md",
+                                                 "t_legal_quality_report",
+                                                 "t_knowledge_chunk"
+                                             ]
+                      },
+                      {
+                          "documentId":  "legd6a9ea33842199f74",
+                          "filename":  "《石棉作业职业卫生管理规范》GBZ_T 193-2007.pdf",
+                          "fileHash":  "d6a9ea33842199f74c4e85f1a201b1c0a164ad8ac2b6274c04f78dccc8f4e8c9",
+                          "parserVersion":  "legal-pdf-mineru-adapter/2.0.0",
+                          "persistedStatus":  "REVIEW",
+                          "finalQualityStatus":  "PASS",
+                          "indexEligible":  true,
+                          "clauseCount":  3,
+                          "chunkCount":  3,
+                          "actualChunkCount":  3,
+                          "eligibleChunkCount":  3,
+                          "warningTypes":  [
+                                               {
+                                                   "value":  [
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@8",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@11",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@23",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 3.1",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 3.2",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 4.1 建筑布局",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 4.1.1 涉及石棉作业建设项目的厂址选择、厂区布置应按GBZ1和GB 50187的规定执行;厂区与居住区之间设置相应的卫生防护距离按照GB 18077 的规定执行。",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 4.1.2 工作场所布局应合理,符合有害与无害作业分开的原则。",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 4.1.2.1 应尽量使生产流程衔接紧密,缩短物料传送路径;产生石棉尘的工序应与其它工序隔开,并布置在工作场所自然通风的下风侧。",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 4.1.2.2 存放含石棉的材料或制品的地方,应在地面上用明显颜色标出区域,并按GBZ158规定在醒目位置设置警示标识。"
+                                                             ],
+                                                   "Count":  10
+                                               }
+                                           ],
+                          "blockingReasons":  {
+
+                                              },
+                          "dispositionReason":  "Original Phase 5.5 sampled checks passed; no contrary evidence in the reviewed artifacts.",
+                          "evidenceSource":  [
+                                                 "PHASE5_6_APPROVED_REINDEX_MANIFEST.json",
+                                                 "PHASE5_6C_30PDF_PRODUCTION_REIMPORT_REPORT.md",
+                                                 "t_legal_quality_report",
+                                                 "t_knowledge_chunk"
+                                             ]
+                      },
+                      {
+                          "documentId":  "leg5823eea75cd5364c9",
+                          "filename":  "《职业健康监护技术规范》GBZ 188-2025.pdf",
+                          "fileHash":  "5823eea75cd5364c934f12170acec6ee9e2df2baaee736d7251cd3bc4353d0d7",
+                          "parserVersion":  "legal-pdf-mineru-adapter/2.0.0",
+                          "persistedStatus":  "REVIEW",
+                          "finalQualityStatus":  "REVIEW_REQUIRED",
+                          "indexEligible":  false,
+                          "clauseCount":  1001,
+                          "chunkCount":  1008,
+                          "actualChunkCount":  1008,
+                          "eligibleChunkCount":  0,
+                          "warningTypes":  [
+                                               {
+                                                   "value":  [
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@8",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@11",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@16",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 3.1",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 3.2",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@42",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@127",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 5.46.1 上岗前职业健康检查",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 5.46.1.1 目标疾病为职业禁忌证:",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 5.46.1.2 检查内容:",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 5.46.2 应急健康检查",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 5.46.2.1 目标疾病:",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 5.46.2.2 检查内容:",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 5.48.1 上岗前职业健康检查",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 5.48.1.1 目标疾病为职业禁忌证:慢性阻塞性肺疾病。",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 5.48.1.2 检查内容:",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 5.48.2 在岗期间职业健康检查",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 5.48.2.1 目标疾病:",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 5.48.2.2 检查内容:",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 5.48.2.3 健康检查周期:1 年。",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 5.48.3 离岗时职业健康检查",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 5.48.3.1 目标疾病:职业性肿瘤[氯甲醚(或双氯甲醚)所致肺癌]。",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 5.48.3.2 检查内容:同 5.48.2.2。",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@1624",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 6.4.1 上岗前职业健康检查",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 6.4.1.1 目标疾病为职业禁忌证:",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 6.4.1.2 检查内容:",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 6.4.2 在岗期间职业健康检查",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 6.4.2.1 目标疾病:",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 6.4.2.2 检查内容:",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 6.4.2.3 健康检查周期(按 GBZ/T 229.1):",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 6.4.3 离岗时职业健康检查",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 6.4.3.1 目标疾病:职业性炭黑尘肺、石墨尘肺、滑石尘肺、云母尘肺、水泥尘肺、铸工尘肺、陶工尘肺、铝尘肺、电焊工尘肺、根据尘肺病诊断标准可诊断的其他尘肺病。",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 6.4.3.2 检查内容:同 6.4.2.2。",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 6.6.1 上岗前职业健康检查",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 6.6.1.1 目标疾病为职业禁忌证:",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 6.6.1.2 检查内容:",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 6.6.2 在岗期间职业健康检查",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 6.6.2.1 目标疾病:",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 6.6.2.2 检查内容:",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 6.6.2.3 健康检查周期(按 GBZ/T 229.1):",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 6.6.3 离岗时职业健康检查",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 6.6.3.1 目标疾病:",
+                                                                 "PDF_NUMBER_NOT_A_NEW_CLAUSE: 6.6.3.2 检查内容:同 6.6.2.2。",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@2116",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@2673",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@2740",
+                                                                 "PDF_CONTENT_WITHOUT_RELIABLE_CLAUSE_NO: UNNUMBERED@2742",
+                                                                 "PDF_HEADING_NUMBER_UNCERTAIN: 16 疑似职业病告知书",
+                                                                 "存在 1 个超过 hardLimitTokens 的 chunk"
+                                                             ],
+                                                   "Count":  50
+                                               }
+                                           ],
+                          "blockingReasons":  "Large unresolved coverage warning; cannot safely promote on the available evidence.",
+                          "dispositionReason":  "Large unresolved coverage warning; cannot safely promote on the available evidence.",
+                          "evidenceSource":  [
+                                                 "PHASE5_6_APPROVED_REINDEX_MANIFEST.json",
+                                                 "PHASE5_6C_30PDF_PRODUCTION_REIMPORT_REPORT.md",
+                                                 "t_legal_quality_report",
+                                                 "t_knowledge_chunk"
+                                             ]
+                      }
+                  ]
+}
