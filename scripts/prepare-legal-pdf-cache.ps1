@@ -35,7 +35,7 @@ if ($ResultZip) {
     $items = @($response.data.extract_result)
     $item = @($items | Where-Object { $_.file_name -eq [IO.Path]::GetFileName($sourcePdf) })
     if ($item.Count -ne 1 -or $item[0].state -ne 'done') { throw 'No unique completed result with matching filename.' }
-    $downloadArguments = @('--fail', '--silent', '--show-error', '--location', '--max-time', '120', '--retry', '2', '--output', $zipPath)
+    $downloadArguments = @('--fail', '--silent', '--show-error', '--location', '--max-time', '120', '--retry', '2', '--continue-at', '-', '--output', $zipPath)
     if ($DirectDownload) { $downloadArguments += @('--noproxy', '*') }
     & curl.exe @downloadArguments $item[0].full_zip_url
     if ($LASTEXITCODE -ne 0) { throw 'Completed batch ZIP download failed; no new parse was submitted.' }
@@ -55,7 +55,7 @@ $manifest = [ordered]@{
     schemaVersion = 1; sourceFile = [IO.Path]::GetFileName($sourcePdf); pdfPath = $sourcePdf
     pdfSha256 = $pdfHash; zipSha256 = (Get-FileHash -LiteralPath $zipPath).Hash.ToLowerInvariant()
     originPdfSha256 = (Get-FileHash -LiteralPath (Join-Path $sampleDir 'origin.pdf')).Hash.ToLowerInvariant()
-    batchId = $BatchId; provenance = $provenance; cachedAtUtc = [DateTime]::UtcNow.ToString('o')
+    batchId = $BatchId; parserVersion = 'mineru-result/v4'; provenance = $provenance; cachedAtUtc = [DateTime]::UtcNow.ToString('o')
 }
 $manifest | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $manifestPath -Encoding utf8
 Write-Output "CACHED $pdfHash"

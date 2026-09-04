@@ -1,79 +1,66 @@
-# Phase 5.5 Full Corpus Offline Quality Replay
+# PDF 离线质量诊断
 
-Run status: **BLOCKED — full 30-PDF offline replay was not possible without violating the requested constraints.**
+本次回放网络调用=0；无 Spring/数据库/Embedding/VLM。回放当前工作区中的生产解析、过滤、清洗、分块实现，不写入知识库。
 
-The source directory contains 30 PDFs, but the current workspace contains only 3 complete MinerU result caches. The remaining 27 PDFs have no local MinerU ZIP/Markdown/Content-List cache. Re-running MinerU for them would be an online parse, and no such call was made in this phase. No database, knowledge base, vector index, keyword index, or source PDF was modified.
+缓存统计：PDF 总数=30；reusedCacheCount=1；reusedHistoricalResultCount=29；newlyParsedCount=0；failedCount=0。
 
-## Corpus availability
+人工标注的正文起止位置独立于 contentRole。页码为缓存 origin.pdf 的物理页码（JSON page_idx+1），重复匹配列出候选页，不猜唯一页。
 
-| item | count | evidence |
-|---|---:|---|
-| source PDFs | 30 | `C:\Users\ojj\Desktop\法律法规数据集` |
-| complete offline MinerU caches | 3 | `.output/legal-pdf-cache/<pdf-sha256>` |
-| PDFs available for latest-pipeline replay | 3 | supplied manifest + ZIP SHA256 validation |
-| PDFs without offline cache | 27 | no local result ZIP found |
-| new MinerU parse submissions | 0 | offline constraint |
-| database/index writes | 0 | phase scope |
+|样本|Clause 前/后|Chunk 前/后|正文误删 Block|非正文残留 Block|未覆盖正文 Block|层级冲突|表格期望/覆盖|超长 Chunk|空 Chunk|OCR Review|
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+|供用电规范|206/203|210/205|0|0|0|0|0|8/8|0|0|0|
+|安全帽|24/23|31/30|0|0|0|0|0|3/3|2|0|20|
+|建设工程安全生产管理条例|71/71|71/71|0|0|0|0|0|0/0|0|0|0|
+|《建筑设计防火规范》GB 50016-2022.pdf|225/225|233/233|0|0|0|0|0|4/4|0|0|24|
+|《建设工程监理规范》GB_T 50319-2013.pdf|214/189|230/189|0|0|0|0|0|0/0|0|0|1|
+|《建筑施工脚手架安全技术统一标准》GB 51210-2016.pdf|200/174|212/183|0|0|0|0|0|18/18|0|0|0|
+|《建筑施工组织设计规范》GB_T 50502-2009.pdf|109/98|109/98|0|0|0|0|0|0/0|0|0|0|
+|《爆破安全规程》GB 6722-2014.pdf|96/96|170/170|0|0|0|0|0|15/15|3|0|110|
+|《建筑与市政工程地下水控制技术规范》JGJ 111-2016.pdf|210/200|222/209|0|0|0|59|0|15/15|2|0|10|
+|《建筑施工安全技术统一规范》GB 50870-2013.pdf|96/96|97/97|0|0|0|0|0|2/2|0|0|0|
+|安全生产许可证条例.pdf|24/24|24/24|0|0|0|0|0|0/0|0|0|0|
+|《建筑基坑支护技术规程》JGJ 120-2012.pdf|395/340|425/366|0|0|0|99|0|9/9|1|0|5|
+|《建筑与市政工程施工现场临时用电安全技术标准》JGJ_T 46-2024.pdf|243/243|245/245|0|0|0|0|0|16/16|0|0|2|
+|《建筑灭火器配置设计规范》GB 50140-2005.pdf|122/122|122/122|0|0|0|0|0|1/1|0|0|0|
+|中华人民共和国国务院令（第302号）　　国务院关于特大安全事故行政责任追究的规定__2001年第19号国务院公报_中国政府网.pdf|24/24|24/24|0|0|0|0|0|0/0|0|0|0|
+|《建筑施工易发事故防治安全标准》JGJ_T 429-2018.pdf|285/285|286/286|0|0|0|0|0|0/0|0|0|0|
+|《职业健康监护技术规范》GBZ 188-2025.pdf|1001/1001|1080/1008|0|0|0|1057|0|0/0|1|0|49|
+|《建筑施工门式钢管脚手架安全技术标准》JGJ_T 128-2019.pdf|240/227|279/243|0|0|0|0|0|23/23|2|0|0|
+|《建筑施工碗扣式钢管脚手架安全技术规范》JGJ 166-2016.pdf|190/187|204/195|0|0|0|4|0|22/22|0|0|7|
+|《建筑地基基础工程施工质量验收规范》GB 50202-2018.pdf|300/280|388/368|0|0|0|0|0|90/90|35|0|8|
+|《施工企业安全生产评价标准》JGJ_T 77-2010.pdf|94/51|94/51|0|0|0|0|0|2/2|0|0|0|
+|《建筑行业职业病危害预防控制规范》GBZ_T 211-2008.pdf|97/97|99/99|0|0|0|0|0|0/0|0|0|32|
+|安全生产违法行为行政处罚办法.pdf|69/69|70/70|0|0|0|0|0|0/0|0|0|0|
+|《建筑机械使用安全技术规程》JGJ 33-2018.pdf|1241/1195|1241/1195|0|0|0|0|0|4/4|0|0|0|
+|《建筑施工起重吊装工程安全技术规范》JGJ 276-2012.pdf|160/142|174/148|0|0|0|0|0|3/3|0|0|1|
+|《建筑施工高处作业安全技术规范》JGJ 80-2016.pdf|122/111|123/111|0|0|0|0|0|1/1|0|0|0|
+|《石棉作业职业卫生管理规范》GBZ_T 193-2007.pdf|3/3|3/3|0|0|0|0|0|0/0|0|0|10|
+|《建设工程施工现场消防安全技术规范》GB 50720-2011.pdf|225/225|233/233|0|0|0|0|0|4/4|0|0|24|
+|《土方与爆破工程施工及验收规范》GB 50201-2012.pdf|448/271|448/271|0|0|0|0|0|7/7|0|0|30|
+|《施工现场机械设备检查技术规范》JGJ 160-2016.pdf|516/516|517/517|0|0|0|0|0|3/3|0|0|0|
 
-## Replay results for the 3 available caches
+## 合成边界用例（不计入真实 PDF 样本）
 
-The following results were produced by the latest Phase 5.4 pipeline, using the same cached MinerU ZIP for before/after comparison:
+- TABLE OF CONTENTS: true
+- Appendix A: true
+- 本标准用词说明: true
 
-`MinerU result → LegalSectionFilter → Block-preserving cleaning → PDF-aware LegalStructureParser → LegalChunker`
+## 全量汇总与 Reindex 判定
 
-| sample | Clause before→after | Chunk before→after | body blocks deleted | non-body blocks retained | hierarchy conflicts | body table coverage | body coverage gaps |
-|---|---:|---:|---:|---:|---:|---:|---:|
-| 供用电规范 GB 50194-2014 | 206→203 | 210→205 | 0 | 0 | 0 | 8/8 | 0 |
-| 安全帽 GB 2811-2019 | 24→23 | 31→30 | 0 | 0 | 0 | 3/3 | 0 |
-| 建设工程安全生产管理条例 | 71→71 | 71→71 | 0 | 0 | 0 | 无表格 | 0 |
+|指标|总计|
+|---|---:|
+|正文误删 Block| 0|
+|非正文残留 Block| 0|
+|正文覆盖缺口| 1219|
+|Clause 层级冲突候选| 0|
+|表格期望| 250|
+|表格覆盖缺口| 0|
+|超长 Chunk| 46|
+|空 Chunk| 0|
+|OCR Review| 333|
 
-For the 3 replayable samples:
+Reindex allowed: **NO**. Reason: full-corpus body coverage gate is not zero for every PDF.
 
-- 正文误删：0
-- 非正文残留：0
-- 已识别数字条号的章/节层级冲突：0
-- 正文表格覆盖：11/11
-- 正文 Block 覆盖缺口：0
-- 目录边界合成用例：`目次`、`目 次`、`TABLE OF CONTENTS`、`Contents` 均通过
-- `Clause_no` 和 `Hierarchy` 字段非空比例：100%
+REVIEW_REQUIRED 样本数：8；运行秒数：45.371。
 
-The latest pipeline keeps uncertain OCR content under explicit technical identifiers such as `UNNUMBERED@<elementIndex>` and `TABLE@<elementIndex>`. These are retained evidence containers, not reconstructed legal clause numbers. The `安全帽` cache still contains upstream OCR errors and two table chunks above the current hard token limit; its quality status remains REVIEW.
-
-## Full-corpus gate
-
-The required full-corpus gate is intentionally **not passed**:
-
-| required check | result |
-|---|---|
-| 30/30 PDFs replayed through latest pipeline | NOT VERIFIED; 3/30 cached |
-| 30-PDF body deletion count | NOT VERIFIED |
-| 30-PDF non-body residue count | NOT VERIFIED |
-| 30-PDF Clause hierarchy conflict count | NOT VERIFIED |
-| 30-PDF table coverage | NOT VERIFIED |
-| 30-PDF Chunk statistics | NOT VERIFIED |
-| safe to enter Reindex | **NO** |
-
-The previous Phase 5.3 30-PDF run is historical evidence for that earlier pipeline version and is not substituted for this phase's full-corpus result. Its aggregate numbers must not be reported as Phase 5.5 latest-pipeline metrics.
-
-## Reproduction
-
-The replay is deterministic and offline:
-
-```powershell
-Set-Location 'D:\1-project\ragent'
-.\mvnw.cmd -o -pl rag `
-  '-Dtest=LegalPdfHardeningTest,LegalPdfOfflineAuditTest' `
-  '-Dlegal.pdf.cache.dir=D:\1-project\ragent\.output\legal-pdf-cache' `
-  '-Dlegal.pdf.audit.out=D:\1-project\ragent\.output\phase5-4-quality' `
-  '-Dlegal.pdf.audit.hardening=true' test
-```
-
-Result: 61 tests, 56 passed, 5 skipped, 0 failed. The 3 cached PDFs replayed without network calls in about one second. The 27 missing caches require a separate cache acquisition step before a valid Phase 5.5 full-corpus replay; that step is outside this run because it would require online MinerU calls.
-
-Detailed evidence is available in:
-
-- [latest-pipeline machine report](D:/1-project/ragent/.output/phase5-4-quality/REPORT.md)
-- [latest-pipeline aggregate JSON](D:/1-project/ragent/.output/phase5-4-quality/summary.json)
-- [Phase 5.4 hardening report](D:/1-project/ragent/PHASE5_4_QUALITY_HARDENING_REPORT.md)
-
-Reindex is intentionally not started. This report is the stopping point for Phase 5.5 until all 30 MinerU result caches are present.
+未覆盖正文 Block 使用去空白、去 HTML 标签后的完整文本匹配，属于待人工确认项，分块边界/标记变化也可能产生告警。字段完整率不等于识别召回率。

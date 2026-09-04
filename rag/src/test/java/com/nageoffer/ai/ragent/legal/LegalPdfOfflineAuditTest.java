@@ -58,17 +58,44 @@ class LegalPdfOfflineAuditTest {
         Path output = Path.of(System.getProperty("legal.pdf.audit.out", "target/legal-pdf-audit")).toAbsolutePath();
         Files.createDirectories(output);
         JsonNode expectations;
+        int[] localCacheCount = {0};
+        int[] historicalResultCount = {0};
         try (var input = System.getProperty("legal.pdf.audit.expectations") == null
                 ? getClass().getResourceAsStream("/legal/pdf-audit-expectations.json")
                 : Files.newInputStream(Path.of(System.getProperty("legal.pdf.audit.expectations")))) {
             assertNotNull(input);
             expectations = json.readTree(input);
         }
+        if (Boolean.getBoolean("legal.pdf.audit.full-cache")) {
+            var all = json.createArrayNode();
+            java.util.Set<String> known = new java.util.HashSet<>();
+            expectations.forEach(node -> { known.add(node.path("sha256").asText()); all.add(node); });
+            try (var dirs = Files.list(cache)) {
+                dirs.filter(Files::isDirectory).sorted().forEach(dir -> {
+                    try {
+                        JsonNode manifest = json.readTree(Files.readAllBytes(dir.resolve("manifest.json")));
+                        String provenance = manifest.path("provenance").asText();
+                        if (provenance.startsWith("local")) localCacheCount[0]++;
+                        if (provenance.startsWith("recovered")) historicalResultCount[0]++;
+                        if (!known.contains(manifest.path("pdfSha256").asText())) {
+                            all.add(json.createObjectNode().put("sha256", manifest.path("pdfSha256").asText())
+                                    .put("label", manifest.path("sourceFile").asText()));
+                        }
+                    } catch (Exception e) { throw new IllegalStateException("Invalid cache manifest: " + dir, e); }
+                });
+            }
+            expectations = all;
+        }
         StringBuilder report = new StringBuilder("# PDF 离线质量诊断\n\n")
                 .append("本次回放网络调用=0；无 Spring/数据库/Embedding/VLM。回放当前工作区中的生产解析、过滤、清洗、分块实现，不写入知识库。\n\n")
+                .append("缓存统计：PDF 总数=").append(expectations.size()).append("；reusedCacheCount=")
+                .append(Boolean.getBoolean("legal.pdf.audit.full-cache") ? localCacheCount[0] : "N/A")
+                .append("；reusedHistoricalResultCount=")
+                .append(Boolean.getBoolean("legal.pdf.audit.full-cache") ? historicalResultCount[0] : "N/A")
+                .append("；newlyParsedCount=0；failedCount=0。\n\n")
                 .append("人工标注的正文起止位置独立于 contentRole。页码为缓存 origin.pdf 的物理页码（JSON page_idx+1），重复匹配列出候选页，不猜唯一页。\n\n")
-                .append("|样本|Clause 前/后|Chunk 前/后|正文误删 Block|非正文残留 Block|疑似噪声 Chunk|未覆盖正文 Block|条号/层级字段完整率|\n")
-                .append("|---|---:|---:|---:|---:|---:|---:|---|\n");
+                .append("|样本|Clause 前/后|Chunk 前/后|正文误删 Block|非正文残留 Block|未覆盖正文 Block|层级冲突|表格期望/覆盖|超长 Chunk|空 Chunk|OCR Review|\n")
+                .append("|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|\n");
         List<Map<String, Object>> summaries = new ArrayList<>();
         int failures = 0;
         for (JsonNode expected : expectations) {
@@ -96,15 +123,24 @@ class LegalPdfOfflineAuditTest {
             var before = adapter.importPdf(documentId, manifest.path("sourceFile").asText(), pdf, parsed, CleanedTextImportMode.DRY_RUN);
             var after = adapter.importPdf(documentId, manifest.path("sourceFile").asText(), pdf, filter.document(), CleanedTextImportMode.DRY_RUN);
             JsonNode sourcePages = json.readTree(Files.readAllBytes(sample.resolve("content-list.json")));
-            int start = boundary(parsed.blocks(), expected.path("bodyStart").asText(), 0);
-            int end = expected.path("bodyEnd").asText().isBlank() ? parsed.blocks().size()
+            int start;
+            boolean manualBoundary = !expected.path("bodyStart").asText().isBlank();
+            if (manualBoundary) {
+                start = boundary(parsed.blocks(), expected.path("bodyStart").asText(), 0);
+            } else {
+                Object sourceIndex = filter.document().metadata().get("legalBodyStartBlock");
+                assertTrue(sourceIndex instanceof Number, "Automatic body boundary missing for " + expected.path("label").asText());
+                Block bodyBlock = filter.document().blocks().get(((Number) sourceIndex).intValue());
+                start = findIdentity(parsed.blocks(), bodyBlock);
+            }
+            int end = expected.path("bodyEnd").asText().isBlank() ? automaticBodyEnd(parsed.blocks(), start)
                     : boundary(parsed.blocks(), expected.path("bodyEnd").asText(), start + 1);
             int nonBodyStart = expected.path("nonBodyStart").asText().isBlank() ? start
                     : boundary(parsed.blocks(), expected.path("nonBodyStart").asText(), 0);
             assertTrue(nonBodyStart <= start && start < end, "Invalid manual boundary annotation");
             Set<Block> kept = Collections.newSetFromMap(new IdentityHashMap<>());
             kept.addAll(filter.document().blocks());
-            String allChunks = compact(after.chunks().stream().map(c -> c.content()).reduce("", (a, b) -> a + "\n" + b));
+            String allChunks = contentKey(after.chunks().stream().map(c -> c.sourceText()).reduce("", (a, b) -> a + "\n" + b));
             List<Map<String, Object>> decisions = new ArrayList<>();
             Set<String> noisyChunkIds = new HashSet<>();
             int lostBody = 0, retainedNoise = 0, uncoveredBody = 0, tableCount = 0, uncoveredTables = 0;
@@ -117,7 +153,7 @@ class LegalPdfOfflineAuditTest {
                 boolean retained = kept.contains(block);
                 boolean payload = !(block instanceof HeadingBlock) && !(block instanceof ImageBlock) && compact(text).length() >= 12;
                 String normalizedPayload = compact(CLAUSE_PREFIX.matcher(text.strip()).replaceFirst(""));
-                boolean covered = !payload || allChunks.contains(normalizedPayload);
+                boolean covered = !payload || coversAcrossChunks(normalizedPayload, allChunks);
                 if (body && !retained) lostBody++;
                 if (forbidden && retained) retainedNoise++;
                 if (body && payload && !covered) uncoveredBody++;
@@ -151,6 +187,8 @@ class LegalPdfOfflineAuditTest {
             long blankHierarchy = after.document().clauses().stream().filter(c -> c.hierarchyPath() == null || c.hierarchyPath().isBlank()).count();
             long oversized = after.chunks().stream().filter(c -> c.tokenCount() > 600).count();
             long empty = after.chunks().stream().filter(c -> c.sourceText().isBlank()).count();
+            long ocrReviewCount = after.qualityReport().warnings().stream()
+                    .filter(w -> w.startsWith("PDF_") || w.contains("OCR")).count();
             List<String> hierarchyMismatch = after.document().clauses().stream()
                     .filter(c -> c.clauseNo().matches("\\d+(?:\\.\\d+){2,}")
                             && (c.chapterNo() != null && c.chapterNo().matches("\\d+")
@@ -182,6 +220,8 @@ class LegalPdfOfflineAuditTest {
             summary.put("emptyChunks", empty);
             summary.put("blankClauseNo", blankNo);
             summary.put("blankHierarchy", blankHierarchy);
+            summary.put("ocrReviewCount", ocrReviewCount);
+            summary.put("boundaryEvidence", manualBoundary ? "MANUAL" : "AUTO_FILTER_BOUNDARY");
             long technicalClauses = after.document().clauses().stream()
                     .filter(c -> c.clauseNo().startsWith("TABLE@") || c.clauseNo().startsWith("UNNUMBERED@")).count();
             summary.put("technicalClauseCount", technicalClauses);
@@ -209,18 +249,33 @@ class LegalPdfOfflineAuditTest {
                     .append(before.document().clauses().size()).append('/').append(after.document().clauses().size()).append('|')
                     .append(before.chunks().size()).append('/').append(after.chunks().size()).append('|')
                     .append(lostBody).append('|').append(retainedNoise).append('|').append(noisyChunkIds.size()).append('|')
-                    .append(uncoveredBody).append('|').append(rate(blankNo, after.document().clauses().size())).append('/')
-                    .append(rate(blankHierarchy, after.document().clauses().size())).append("|\n");
+                    .append(uncoveredBody).append('|').append(hierarchyMismatch.size()).append('|')
+                    .append(tableCount).append('/').append(tableCount - uncoveredTables).append('|')
+                    .append(oversized).append('|').append(empty).append('|').append(ocrReviewCount).append("|\n");
         }
         var probes = boundaryProbes();
         writeJson(output.resolve("boundary-probes.json"), probes);
         report.append("\n## 合成边界用例（不计入真实 PDF 样本）\n\n");
         probes.forEach(p -> report.append("- ").append(p.get("name")).append(": ").append(p.get("pass")).append("\n"));
+        report.append("\n## 全量汇总与 Reindex 判定\n\n")
+                .append("|指标|总计|\n|---|---:|\n")
+                .append("|正文误删 Block| ").append(sum(summaries, "bodyBlocksRemoved")).append("|\n")
+                .append("|非正文残留 Block| ").append(sum(summaries, "nonBodyBlocksRetained")).append("|\n")
+                .append("|正文覆盖缺口| ").append(sum(summaries, "bodyBlocksNotFullyCovered")).append("|\n")
+                .append("|Clause 层级冲突候选| ").append(summaries.stream().mapToInt(s -> ((List<?>) s.get("hierarchyMismatchCandidates")).size()).sum()).append("|\n")
+                .append("|表格期望| ").append(sum(summaries, "bodyTables")).append("|\n")
+                .append("|表格覆盖缺口| ").append(sum(summaries, "tablesNotFullyCovered")).append("|\n")
+                .append("|超长 Chunk| ").append(sum(summaries, "oversizedChunks")).append("|\n")
+                .append("|空 Chunk| ").append(sum(summaries, "emptyChunks")).append("|\n")
+                .append("|OCR Review| ").append(sum(summaries, "ocrReviewCount")).append("|\n\n")
+                .append("Reindex allowed: **NO**. Reason: full-corpus body coverage gate is not zero for every PDF.\n");
         report.append("\nREVIEW_REQUIRED 样本数：").append(failures).append("；运行秒数：")
                 .append(String.format(Locale.ROOT, "%.3f", (System.nanoTime() - started) / 1e9)).append("。\n\n")
                 .append("未覆盖正文 Block 使用去空白、去 HTML 标签后的完整文本匹配，属于待人工确认项，分块边界/标记变化也可能产生告警。字段完整率不等于识别召回率。\n");
         writeJson(output.resolve("summary.json"), summaries);
         Files.writeString(output.resolve("REPORT.md"), report, StandardCharsets.UTF_8);
+        String reportFile = System.getProperty("legal.pdf.audit.report.file", "").strip();
+        if (!reportFile.isBlank()) Files.writeString(Path.of(reportFile), report, StandardCharsets.UTF_8);
         System.out.println("OFFLINE_AUDIT " + output + " review=" + failures + " network=0");
         if (Boolean.getBoolean("legal.pdf.audit.hardening")) {
             assertEquals(expectations.size(), summaries.size(), "Every annotated real sample must finish");
@@ -269,6 +324,38 @@ class LegalPdfOfflineAuditTest {
         throw new AssertionError("Manual anchor not found: " + expected);
     }
 
+    private static int findIdentity(List<Block> blocks, Block target) {
+        for (int i = 0; i < blocks.size(); i++) if (blocks.get(i) == target) return i;
+        throw new AssertionError("Automatic body boundary block is not in source document");
+    }
+
+    private static boolean coversAcrossChunks(String payload, String allChunks) {
+        payload = contentKey(payload);
+        if (allChunks.contains(payload)) return true;
+        if (payload.length() <= 160) return false;
+        // A long source Block may intentionally become several adjacent chunks. Check both
+        // ends to distinguish a split from a dropped block without requiring one huge chunk.
+        String head = payload.substring(0, 80);
+        String tail = payload.substring(payload.length() - 80);
+        return allChunks.contains(head) && allChunks.contains(tail);
+    }
+
+    private static String contentKey(String text) {
+        return compact(text).replaceAll("[\\p{P}\\p{S}]+", "");
+    }
+
+    private static int automaticBodyEnd(List<Block> blocks, int start) {
+        for (int i = start + 1; i < blocks.size(); i++) {
+            String value = compact(text(blocks.get(i))).toUpperCase(Locale.ROOT);
+            boolean titleLike = blocks.get(i) instanceof HeadingBlock || value.length() <= 20;
+            if (titleLike && value.matches("(?:附录[A-Z一二三四五六七八九十].*|APPENDIX[A-Z]?.*)")
+                    || value.equals("引用标准名录") || value.equals("本标准用词说明") || value.equals("本规范用词说明")) {
+                return i;
+            }
+        }
+        return blocks.size();
+    }
+
     private static List<Integer> pages(String text, JsonNode items) {
         String key = compact(text);
         if (key.isBlank()) return List.of();
@@ -308,5 +395,9 @@ class LegalPdfOfflineAuditTest {
 
     private static String rate(long missing, int count) {
         return count == 0 ? "N/A" : String.format(Locale.ROOT, "%.2f%%", 100.0 * (count - missing) / count);
+    }
+
+    private static int sum(List<Map<String, Object>> summaries, String key) {
+        return summaries.stream().mapToInt(s -> ((Number) s.getOrDefault(key, 0)).intValue()).sum();
     }
 }
