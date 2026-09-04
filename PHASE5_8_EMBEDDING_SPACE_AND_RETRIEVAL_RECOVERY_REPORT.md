@@ -1,7 +1,7 @@
 # Phase 5.8 — Embedding Space Consistency & Retrieval Recovery Report
 
-日期：2026-09-04  
-结论：**PARTIAL PASS / BLOCKED**  
+日期：2026-09-04
+结论：**PARTIAL PASS / BLOCKED**
 Ready for Phase 6：**NO**
 
 ## 1. Phase 5.7 严重回归根因
@@ -110,7 +110,7 @@ Phase 5.7 对比：Recall@20=0.02、Miss@20=49/50。Phase 5.8 统一后 Full col
 
 Phase 5.8 已完成 embedding provenance 审计、Query transform 验证、current-only/full 对照实验，并将全 Legal KB 统一迁移到 bge-m3。混合 embedding space 已消除，但 Retrieval Regression 没有从 0.02 级严重退化中恢复。
 
-**Phase 5.8：PARTIAL PASS / BLOCKED**  
+**Phase 5.8：PARTIAL PASS / BLOCKED**
 **Ready for Phase 6：NO**
 
 停止边界：不继续修改 PDF Parser、Chunker、Retriever 参数、Rerank、Gold、Prompt、Agent 或 Safe-team；Phase 6 不启动。
