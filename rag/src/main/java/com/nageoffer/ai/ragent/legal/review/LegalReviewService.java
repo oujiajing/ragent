@@ -103,7 +103,7 @@ public class LegalReviewService {
     public void enrichChunks(String documentId, List<KnowledgeChunkVO> chunks) {
         if (chunks == null || chunks.isEmpty()) return;
         for (KnowledgeChunkVO chunk : chunks) {
-            Map<String, Object> summary = jdbcTemplate.query("SELECT COALESCE(bool_or(review_status='PENDING_REVIEW'), false), COALESCE(bool_or(review_status='ISSUE_CONFIRMED'), false), count(*) FROM t_legal_review_signal WHERE document_id=? AND lifecycle_status='ACTIVE' AND related_chunk_ids ? ?", rs -> {
+            Map<String, Object> summary = jdbcTemplate.query("SELECT COALESCE(bool_or(review_status='PENDING_REVIEW'), false), COALESCE(bool_or(review_status='ISSUE_CONFIRMED'), false), count(*) FROM t_legal_review_signal WHERE document_id=? AND lifecycle_status='ACTIVE' AND jsonb_exists(related_chunk_ids, ?)", rs -> {
                 if (!rs.next()) return Map.<String, Object>of();
                 return Map.of("pending", rs.getBoolean(1), "issue", rs.getBoolean(2), "count", rs.getInt(3));
             }, documentId, chunk.getId());
@@ -122,7 +122,7 @@ public class LegalReviewService {
     }
 
     public void markChunkChanged(String documentId, String chunkId) {
-        jdbcTemplate.update("UPDATE t_legal_review_signal SET lifecycle_status='STALE', update_time=CURRENT_TIMESTAMP WHERE document_id=? AND lifecycle_status='ACTIVE' AND related_chunk_ids ? ?", documentId, chunkId);
+        jdbcTemplate.update("UPDATE t_legal_review_signal SET lifecycle_status='STALE', update_time=CURRENT_TIMESTAMP WHERE document_id=? AND lifecycle_status='ACTIVE' AND jsonb_exists(related_chunk_ids, ?)", documentId, chunkId);
         jdbcTemplate.update("UPDATE t_legal_review_run SET status='PENDING_RECHECK', updated_at=CURRENT_TIMESTAMP WHERE document_id=?", documentId);
     }
 
@@ -132,8 +132,19 @@ public class LegalReviewService {
 
     public List<LegalReviewSignalVO> list(String documentId, String signalType, String reviewStatus) {
         requireDocument(documentId);
-        return jdbcTemplate.query("SELECT id, document_id, scope, target_id, signal_type, message, related_clause_ids, related_chunk_ids, evidence, review_status, review_reason, version, reviewed_at FROM t_legal_review_signal WHERE document_id=? AND lifecycle_status='ACTIVE' AND (? IS NULL OR signal_type=?) AND (? IS NULL OR review_status=?) ORDER BY create_time, id",
-                (rs, row) -> mapRow(rs), documentId, signalType, signalType, reviewStatus, reviewStatus);
+        StringBuilder sql = new StringBuilder("SELECT id, document_id, scope, target_id, signal_type, message, related_clause_ids, related_chunk_ids, evidence, review_status, review_reason, version, reviewed_at FROM t_legal_review_signal WHERE document_id=? AND lifecycle_status='ACTIVE'");
+        List<Object> args = new ArrayList<>();
+        args.add(documentId);
+        if (signalType != null && !signalType.isBlank()) {
+            sql.append(" AND signal_type=?");
+            args.add(signalType);
+        }
+        if (reviewStatus != null && !reviewStatus.isBlank()) {
+            sql.append(" AND review_status=?");
+            args.add(reviewStatus);
+        }
+        sql.append(" ORDER BY create_time, id");
+        return jdbcTemplate.query(sql.toString(), (rs, row) -> mapRow(rs), args.toArray());
     }
 
     @Transactional(rollbackFor = Exception.class)
