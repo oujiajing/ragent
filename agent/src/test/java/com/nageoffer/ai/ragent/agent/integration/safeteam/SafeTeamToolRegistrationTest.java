@@ -32,6 +32,7 @@ import com.nageoffer.ai.ragent.rag.core.mcp.McpToolExecutor;
 import com.nageoffer.ai.ragent.rag.core.mcp.McpToolRegistry;
 import com.nageoffer.ai.ragent.rag.core.prompt.AgentPromptResolver;
 import com.nageoffer.ai.ragent.rag.core.prompt.AgentPromptSlot;
+import com.nageoffer.ai.ragent.rag.core.skill.AgentSkillRegistry;
 import com.nageoffer.ai.ragent.rag.enums.IntentKind;
 import com.nageoffer.ai.ragent.rag.service.KnowledgeSearchFacade;
 import io.agentscope.core.tool.Toolkit;
@@ -64,7 +65,7 @@ class SafeTeamToolRegistrationTest {
 
         AgentToolCatalog catalog = new AgentToolCatalog(
                 mock(KnowledgeSearchFacade.class), mock(AgentConversationService.class), intents,
-                registry, prompts, memory, mock(AgentMemoryPipeline.class));
+                registry, prompts, memory, mock(AgentMemoryPipeline.class), mock(AgentSkillRegistry.class));
         Toolkit toolkit = catalog.buildToolkit(catalog.resolve());
 
         assertThat(toolkit.getToolNames()).containsExactlyInAnyOrder(
