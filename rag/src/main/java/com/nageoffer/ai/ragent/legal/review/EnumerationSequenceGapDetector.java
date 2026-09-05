@@ -36,7 +36,7 @@ public final class EnumerationSequenceGapDetector {
         for (LegalClause clause : clauses == null ? List.<LegalClause>of() : clauses) {
             List<String> structured = structuredMarkers(clause.children());
             List<String> raw = lineMarkers(clause.rawText());
-            List<String> markers = raw.size() > structured.size() ? raw : structured;
+            List<String> markers = isContinuousFromOne(structured) ? structured : raw.size() > structured.size() ? raw : structured;
             if (markers.size() < 2) markers = raw;
             if (markers.size() < 2) continue;
             List<Integer> numbers = markers.stream().map(this::parse).filter(value -> value != null).toList();
@@ -60,6 +60,15 @@ public final class EnumerationSequenceGapDetector {
     private List<String> structuredMarkers(List<LegalSubUnit> children) {
         if (children == null) return List.of();
         return children.stream().map(LegalSubUnit::marker).filter(value -> value != null && !value.isBlank()).toList();
+    }
+
+    private boolean isContinuousFromOne(List<String> markers) {
+        if (markers.size() < 2) return false;
+        for (int i = 0; i < markers.size(); i++) {
+            Integer number = parse(markers.get(i));
+            if (number == null || number != i + 1) return false;
+        }
+        return true;
     }
 
     private List<String> lineMarkers(String rawText) {

@@ -55,6 +55,7 @@ public class LegalReviewService {
     public int audit(String documentId) {
         requireDocument(documentId);
         markRun(documentId, "RUNNING", 0, null);
+        jdbcTemplate.update("UPDATE t_legal_review_signal SET lifecycle_status='STALE', update_time=CURRENT_TIMESTAMP WHERE document_id=? AND lifecycle_status='ACTIVE' AND review_status='PENDING_REVIEW'", documentId);
         try {
             List<LegalClauseDO> rows = jdbcTemplate.query("SELECT id, document_id, content_role, structure_type, chapter_no, chapter_title, section_no, section_title, clause_no, hierarchy_path, raw_text, normalized_text, children_json, first_element_id, last_element_id, page_start, page_end, create_time FROM t_legal_clause WHERE document_id=? ORDER BY create_time, id",
                     (rs, rowNum) -> LegalClauseDO.builder()
@@ -166,7 +167,7 @@ public class LegalReviewService {
         String chunkFingerprint = relatedChunkIds.isEmpty() ? "" : jdbcTemplate.queryForObject("SELECT COALESCE(string_agg(id || ':' || COALESCE(content_hash, ''), ',' ORDER BY chunk_index), '') FROM t_knowledge_chunk WHERE doc_id=? AND id IN (" + placeholders(relatedChunkIds.size()) + ") AND deleted=0", String.class, concat(candidate.documentId(), relatedChunkIds).toArray());
         String fingerprint = sha256(candidate.stableKey() + evidence + chunkFingerprint);
         String effectiveStableKey = candidate.stableKey() + "|" + fingerprint;
-        jdbcTemplate.update("INSERT INTO t_legal_review_signal (id, document_id, scope, target_id, signal_type, stable_key, related_clause_ids, related_chunk_ids, message, evidence, detector_version, input_fingerprint) VALUES (?, ?, ?, ?, ?, ?, ?::jsonb, ?::jsonb, ?, ?::jsonb, ?, ?) ON CONFLICT (stable_key) DO UPDATE SET target_id=EXCLUDED.target_id, related_clause_ids=EXCLUDED.related_clause_ids, related_chunk_ids=EXCLUDED.related_chunk_ids, message=EXCLUDED.message, evidence=EXCLUDED.evidence, detector_version=EXCLUDED.detector_version, input_fingerprint=EXCLUDED.input_fingerprint, update_time=CURRENT_TIMESTAMP WHERE t_legal_review_signal.review_status='PENDING_REVIEW'",
+        jdbcTemplate.update("INSERT INTO t_legal_review_signal (id, document_id, scope, target_id, signal_type, stable_key, related_clause_ids, related_chunk_ids, message, evidence, detector_version, input_fingerprint) VALUES (?, ?, ?, ?, ?, ?, ?::jsonb, ?::jsonb, ?, ?::jsonb, ?, ?) ON CONFLICT (stable_key) DO UPDATE SET lifecycle_status='ACTIVE', target_id=EXCLUDED.target_id, related_clause_ids=EXCLUDED.related_clause_ids, related_chunk_ids=EXCLUDED.related_chunk_ids, message=EXCLUDED.message, evidence=EXCLUDED.evidence, detector_version=EXCLUDED.detector_version, input_fingerprint=EXCLUDED.input_fingerprint, update_time=CURRENT_TIMESTAMP WHERE t_legal_review_signal.review_status='PENDING_REVIEW'",
                 id(effectiveStableKey), candidate.documentId(), candidate.scope().name(), candidate.targetId(), candidate.signalType().name(), effectiveStableKey, clauses, chunks, candidate.message(), evidence, DETECTOR_VERSION, fingerprint);
     }
 

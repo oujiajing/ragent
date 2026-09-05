@@ -65,6 +65,23 @@ class EnumerationSequenceGapDetectorTest {
         assertThat(new EnumerationSequenceGapDetector().detect(List.of(withRawText))).isEmpty();
     }
 
+    @Test
+    void doesNotMergeNestedRestartedListWithOuterList() {
+        List<LegalSubUnit> outerItems = List.of(
+                new LegalSubUnit(LegalStructureType.ITEM, "1", "", "", 0),
+                new LegalSubUnit(LegalStructureType.ITEM, "2", "", "", 1),
+                new LegalSubUnit(LegalStructureType.ITEM, "3", "", "", 2),
+                new LegalSubUnit(LegalStructureType.ITEM, "4", "", "", 3),
+                new LegalSubUnit(LegalStructureType.ITEM, "5", "", "", 4),
+                new LegalSubUnit(LegalStructureType.ITEM, "6", "", "", 5),
+                new LegalSubUnit(LegalStructureType.ITEM, "7", "", "", 9),
+                new LegalSubUnit(LegalStructureType.ITEM, "8", "", "", 10));
+        LegalClause clause = new LegalClause("nested", "doc", LegalContentRole.NORMATIVE, LegalStructureType.CLAUSE,
+                "1", "", "", "", "1.1", "", "1\n2\n3\n4\n5\n6\n1）nested\n2）nested\n3）nested\n7\n8", "", outerItems, "e", "e", 1, 1, 0, 1);
+
+        assertThat(new EnumerationSequenceGapDetector().detect(List.of(clause))).isEmpty();
+    }
+
     private static LegalClause clause(List<LegalSubUnit> children) {
         return new LegalClause("a", "doc", LegalContentRole.NORMATIVE, LegalStructureType.CLAUSE,
                 "1", "", "", "", "1.1", "", "", "", children, "e", "e", 1, 1, 0, 1);
