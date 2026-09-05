@@ -17,14 +17,12 @@
 
 package com.nageoffer.ai.ragent.legal.review;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nageoffer.ai.ragent.framework.context.UserContext;
 import com.nageoffer.ai.ragent.framework.exception.ClientException;
 import com.nageoffer.ai.ragent.legal.dao.entity.LegalClauseDO;
-import com.nageoffer.ai.ragent.legal.dao.mapper.LegalClauseMapper;
 import com.nageoffer.ai.ragent.legal.model.LegalClause;
 import com.nageoffer.ai.ragent.knowledge.dao.entity.KnowledgeDocumentDO;
 import com.nageoffer.ai.ragent.knowledge.dao.mapper.KnowledgeDocumentMapper;
@@ -50,7 +48,6 @@ public class LegalReviewService {
     private static final String DETECTOR_VERSION = "1.0.0";
     private final JdbcTemplate jdbcTemplate;
     private final ObjectMapper objectMapper;
-    private final LegalClauseMapper clauseMapper;
     private final KnowledgeDocumentMapper documentMapper;
     private final ClauseSequenceGapDetector clauseDetector = new ClauseSequenceGapDetector();
     private final EnumerationSequenceGapDetector enumerationDetector = new EnumerationSequenceGapDetector();
@@ -59,8 +56,27 @@ public class LegalReviewService {
         requireDocument(documentId);
         markRun(documentId, "RUNNING", 0, null);
         try {
-            List<LegalClauseDO> rows = clauseMapper.selectList(new LambdaQueryWrapper<LegalClauseDO>()
-                    .eq(LegalClauseDO::getDocumentId, documentId).orderByAsc(LegalClauseDO::getCreateTime));
+            List<LegalClauseDO> rows = jdbcTemplate.query("SELECT id, document_id, content_role, structure_type, chapter_no, chapter_title, section_no, section_title, clause_no, hierarchy_path, raw_text, normalized_text, children_json, first_element_id, last_element_id, page_start, page_end, create_time FROM t_legal_clause WHERE document_id=? ORDER BY create_time, id",
+                    (rs, rowNum) -> LegalClauseDO.builder()
+                            .id(rs.getString("id"))
+                            .documentId(rs.getString("document_id"))
+                            .contentRole(rs.getString("content_role"))
+                            .structureType(rs.getString("structure_type"))
+                            .chapterNo(rs.getString("chapter_no"))
+                            .chapterTitle(rs.getString("chapter_title"))
+                            .sectionNo(rs.getString("section_no"))
+                            .sectionTitle(rs.getString("section_title"))
+                            .clauseNo(rs.getString("clause_no"))
+                            .hierarchyPath(rs.getString("hierarchy_path"))
+                            .rawText(rs.getString("raw_text"))
+                            .normalizedText(rs.getString("normalized_text"))
+                            .childrenJson(rs.getString("children_json"))
+                            .firstElementId(rs.getString("first_element_id"))
+                            .lastElementId(rs.getString("last_element_id"))
+                            .pageStart(rs.getObject("page_start", Integer.class))
+                            .pageEnd(rs.getObject("page_end", Integer.class))
+                            .createTime(rs.getTimestamp("create_time"))
+                            .build(), documentId);
             List<LegalClause> clauses = rows.stream().map(this::toModel).toList();
             List<ReviewSignalCandidate> candidates = new ArrayList<>(clauseDetector.detect(clauses));
             candidates.addAll(enumerationDetector.detect(clauses));
