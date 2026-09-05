@@ -346,6 +346,7 @@ export function KnowledgeDocumentsPage() {
   const documents = pageData?.records || [];
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [batchOperating, setBatchOperating] = useState(false);
+  const [selectingAll, setSelectingAll] = useState(false);
   const [batchDeleteOpen, setBatchDeleteOpen] = useState(false);
 
   useEffect(() => {
@@ -361,15 +362,32 @@ export function KnowledgeDocumentsPage() {
     });
   };
 
-  const toggleSelectAll = () => {
-    if (documents.length === 0) return;
-    const currentPageIds = documents.map((d) => String(d.id));
-    const allCurrentSelected = currentPageIds.every(id => selectedIds.has(id));
-    setSelectedIds(prev => {
-      const next = new Set(prev);
-      currentPageIds.forEach(id => allCurrentSelected ? next.delete(id) : next.add(id));
-      return next;
-    });
+  const selectAllDocuments = async () => {
+    if (!kbId || !pageData || pageData.total === 0) return;
+    if (selectedIds.size >= pageData.total) {
+      setSelectedIds(new Set());
+      return;
+    }
+    setSelectingAll(true);
+    try {
+      const allIds: string[] = [];
+      const size = 200;
+      for (let page = 1; page <= pageData.pages; page++) {
+        const result = await getDocumentsPage(kbId, {
+          current: page,
+          size,
+          status: statusFilter,
+          keyword: keyword || undefined
+        });
+        allIds.push(...result.records.map(doc => String(doc.id)));
+      }
+      setSelectedIds(new Set(allIds));
+      toast.success(`已全选 ${allIds.length} 个文档`);
+    } catch (error) {
+      toast.error(getErrorMessage(error, "全选文档失败"));
+    } finally {
+      setSelectingAll(false);
+    }
   };
 
   const handleBatchChunk = async () => {
@@ -756,10 +774,10 @@ export function KnowledgeDocumentsPage() {
               </Button>
               <Button
                 variant="outline"
-                onClick={toggleSelectAll}
-                disabled={documents.length === 0 || batchOperating}
+                onClick={selectAllDocuments}
+                disabled={documents.length === 0 || batchOperating || selectingAll}
               >
-                {documents.length > 0 && documents.every(doc => selectedIds.has(String(doc.id))) ? "取消全选本页" : "全选本页"}
+                {selectingAll ? "全选中..." : pageData && selectedIds.size >= pageData.total ? "取消全选" : "全选全部文档"}
               </Button>
             </div>
           </div>
@@ -775,8 +793,8 @@ export function KnowledgeDocumentsPage() {
                   <TableRow>
                     <TableHead className="w-[40px]">
                       <Checkbox
-                        checked={documents.length > 0 && documents.every(doc => selectedIds.has(String(doc.id)))}
-                        onCheckedChange={toggleSelectAll}
+                        checked={pageData ? pageData.total > 0 && selectedIds.size >= pageData.total : false}
+                        onCheckedChange={selectAllDocuments}
                       />
                     </TableHead>
                     <TableHead className="w-[280px]">文档</TableHead>
