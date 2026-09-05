@@ -278,6 +278,7 @@ export function KnowledgeChunksPage() {
                       <SelectItem value="ISSUE_CONFIRMED">已确认异常</SelectItem>
                       <SelectItem value="VERIFIED_OK">已确认正常</SelectItem>
                       <SelectItem value="NOT_FOUND">未发现异常</SelectItem>
+                      <SelectItem value="NOT_DETECTED">未检测</SelectItem>
                       <SelectItem value="DETECTION_FAILED">检测失败</SelectItem>
                     </SelectContent>
                   </Select>
@@ -533,6 +534,7 @@ const reviewStatusLabel = (status?: KnowledgeChunk["reviewStatus"], count?: numb
   if (status === "VERIFIED_OK") return "已确认正常";
   if (status === "DETECTION_FAILED") return "检测失败";
   if (status === "DETECTION_PENDING") return "检测中";
+  if (status === "NOT_DETECTED") return "未检测";
   if (status === "NOT_FOUND") return "未发现异常";
   return "";
 };

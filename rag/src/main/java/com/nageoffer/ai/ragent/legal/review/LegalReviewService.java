@@ -116,7 +116,7 @@ public class LegalReviewService {
             else if (count > 0) chunk.setReviewStatus("VERIFIED_OK");
             else {
                 String status = jdbcTemplate.query("SELECT status FROM t_legal_review_run WHERE document_id=?", rs -> rs.next() ? rs.getString(1) : "NOT_RUN", documentId);
-                chunk.setReviewStatus("SUCCESS".equals(status) ? "NOT_FOUND" : "FAILED".equals(status) ? "DETECTION_FAILED" : "DETECTION_PENDING");
+                chunk.setReviewStatus("SUCCESS".equals(status) ? "NOT_FOUND" : "FAILED".equals(status) ? "DETECTION_FAILED" : "RUNNING".equals(status) || "PENDING_RECHECK".equals(status) ? "DETECTION_PENDING" : "NOT_DETECTED");
             }
         }
     }

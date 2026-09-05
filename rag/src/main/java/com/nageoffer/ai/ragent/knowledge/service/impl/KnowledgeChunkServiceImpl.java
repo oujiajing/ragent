@@ -100,7 +100,7 @@ public class KnowledgeChunkServiceImpl implements KnowledgeChunkService {
 
         if (StrUtil.isNotBlank(requestParam.getReviewStatus())) {
             String status = requestParam.getReviewStatus();
-            if (!List.of("NEEDS_REVIEW", "ISSUE_CONFIRMED", "VERIFIED_OK", "NOT_FOUND", "DETECTION_FAILED", "DETECTION_PENDING").contains(status)) {
+            if (!List.of("NEEDS_REVIEW", "ISSUE_CONFIRMED", "VERIFIED_OK", "NOT_FOUND", "NOT_DETECTED", "DETECTION_FAILED", "DETECTION_PENDING").contains(status)) {
                 throw new ClientException("复核状态不合法");
             }
             String exists = "EXISTS (SELECT 1 FROM t_legal_review_signal s WHERE s.document_id = t_knowledge_chunk.doc_id AND s.lifecycle_status='ACTIVE' AND jsonb_exists(s.related_chunk_ids, t_knowledge_chunk.id))";
@@ -108,13 +108,16 @@ public class KnowledgeChunkServiceImpl implements KnowledgeChunkService {
             else if ("ISSUE_CONFIRMED".equals(status)) queryWrapper.apply("EXISTS (SELECT 1 FROM t_legal_review_signal s WHERE s.document_id = t_knowledge_chunk.doc_id AND s.lifecycle_status='ACTIVE' AND s.review_status='ISSUE_CONFIRMED' AND jsonb_exists(s.related_chunk_ids, t_knowledge_chunk.id)) AND NOT EXISTS (SELECT 1 FROM t_legal_review_signal p WHERE p.document_id=t_knowledge_chunk.doc_id AND p.lifecycle_status='ACTIVE' AND p.review_status='PENDING_REVIEW' AND jsonb_exists(p.related_chunk_ids, t_knowledge_chunk.id))");
             else if ("VERIFIED_OK".equals(status)) queryWrapper.apply(exists + " AND NOT EXISTS (SELECT 1 FROM t_legal_review_signal p WHERE p.document_id=t_knowledge_chunk.doc_id AND p.lifecycle_status='ACTIVE' AND p.review_status='PENDING_REVIEW' AND jsonb_exists(p.related_chunk_ids, t_knowledge_chunk.id)) AND NOT EXISTS (SELECT 1 FROM t_legal_review_signal i WHERE i.document_id=t_knowledge_chunk.doc_id AND i.lifecycle_status='ACTIVE' AND i.review_status='ISSUE_CONFIRMED' AND jsonb_exists(i.related_chunk_ids, t_knowledge_chunk.id))");
             else if ("NOT_FOUND".equals(status)) queryWrapper.apply("NOT " + exists + " AND EXISTS (SELECT 1 FROM t_legal_review_run r WHERE r.document_id=t_knowledge_chunk.doc_id AND r.status='SUCCESS')");
+            else if ("NOT_DETECTED".equals(status)) queryWrapper.apply("NOT EXISTS (SELECT 1 FROM t_legal_review_run r WHERE r.document_id=t_knowledge_chunk.doc_id)");
             else queryWrapper.apply("EXISTS (SELECT 1 FROM t_legal_review_run r WHERE r.document_id=t_knowledge_chunk.doc_id AND r.status IN ('FAILED','RUNNING'))");
         }
 
         Page<KnowledgeChunkDO> page = new Page<>(requestParam.getCurrent(), requestParam.getSize());
         IPage<KnowledgeChunkDO> result = chunkMapper.selectPage(page, queryWrapper);
         IPage<KnowledgeChunkVO> converted = result.convert(each -> BeanUtil.toBean(each, KnowledgeChunkVO.class));
-        legalReviewService.enrichChunks(docId, converted.getRecords());
+        if ("LEGAL".equalsIgnoreCase(documentDO.getProcessingStrategy())) {
+            legalReviewService.enrichChunks(docId, converted.getRecords());
+        }
         return converted;
     }
 

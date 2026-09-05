@@ -56,7 +56,7 @@ export interface KnowledgeChunk {
   clauseNo?: string | null;
   pageStart?: number | null;
   pageEnd?: number | null;
-  reviewStatus?: "NEEDS_REVIEW" | "ISSUE_CONFIRMED" | "VERIFIED_OK" | "NOT_FOUND" | "DETECTION_FAILED" | "DETECTION_PENDING" | null;
+  reviewStatus?: "NEEDS_REVIEW" | "ISSUE_CONFIRMED" | "VERIFIED_OK" | "NOT_FOUND" | "NOT_DETECTED" | "DETECTION_FAILED" | "DETECTION_PENDING" | null;
   reviewIssueCount?: number | null;
 }
 
