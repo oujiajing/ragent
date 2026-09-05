@@ -82,6 +82,24 @@ class EnumerationSequenceGapDetectorTest {
         assertThat(new EnumerationSequenceGapDetector().detect(List.of(clause))).isEmpty();
     }
 
+    @Test
+    void keepsDirectlyJoinedOuterItemsAndSkipsNestedItemsAfter下列() {
+        List<LegalSubUnit> children = List.of(
+                new LegalSubUnit(LegalStructureType.ITEM, "1", "1 第一项", "", 0),
+                new LegalSubUnit(LegalStructureType.PARAGRAPH, null, "2第二项", "", 1),
+                new LegalSubUnit(LegalStructureType.ITEM, "3", "3 第三项", "", 2),
+                new LegalSubUnit(LegalStructureType.PARAGRAPH, null, "4第四项", "", 3),
+                new LegalSubUnit(LegalStructureType.ITEM, "5", "5 第五项", "", 4),
+                new LegalSubUnit(LegalStructureType.ITEM, "6", "6 还应符合下列安全装置", "", 5),
+                new LegalSubUnit(LegalStructureType.PARAGRAPH, null, "1）内部第一项", "", 6),
+                new LegalSubUnit(LegalStructureType.PARAGRAPH, null, "2）内部第二项", "", 7),
+                new LegalSubUnit(LegalStructureType.ITEM, "7", "7 第七项", "", 8));
+        LegalClause clause = new LegalClause("nested-joined", "doc", LegalContentRole.NORMATIVE, LegalStructureType.CLAUSE,
+                "1", "", "", "", "1.1", "", "", "", children, "e", "e", 1, 1, 0, 1);
+
+        assertThat(new EnumerationSequenceGapDetector().detect(List.of(clause))).isEmpty();
+    }
+
     private static LegalClause clause(List<LegalSubUnit> children) {
         return new LegalClause("a", "doc", LegalContentRole.NORMATIVE, LegalStructureType.CLAUSE,
                 "1", "", "", "", "1.1", "", "", "", children, "e", "e", 1, 1, 0, 1);

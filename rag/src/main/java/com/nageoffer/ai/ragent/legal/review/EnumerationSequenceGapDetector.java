@@ -59,7 +59,25 @@ public final class EnumerationSequenceGapDetector {
 
     private List<String> structuredMarkers(List<LegalSubUnit> children) {
         if (children == null) return List.of();
-        return children.stream().map(LegalSubUnit::marker).filter(value -> value != null && !value.isBlank()).toList();
+        List<String> result = new ArrayList<>();
+        boolean nestedList = false;
+        for (LegalSubUnit child : children) {
+            boolean outerItem = child.structureType() == com.nageoffer.ai.ragent.legal.enums.LegalStructureType.ITEM;
+            if (outerItem) nestedList = false;
+            if (!outerItem && nestedList) continue;
+
+            String marker = child.marker();
+            if (marker == null || marker.isBlank()) marker = markerFromText(child.rawText());
+            if (marker != null && !marker.isBlank()) result.add(marker);
+            if (outerItem && child.rawText() != null && child.rawText().contains("下列")) nestedList = true;
+        }
+        return result;
+    }
+
+    private String markerFromText(String text) {
+        if (text == null) return null;
+        Matcher matcher = MARKER.matcher(text);
+        return matcher.matches() ? matcher.group(1) : null;
     }
 
     private boolean isContinuousFromOne(List<String> markers) {
