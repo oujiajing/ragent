@@ -7,7 +7,7 @@ $availableSql="SELECT DISTINCT d.doc_name FROM t_knowledge_vector v JOIN t_knowl
 $available=@(docker exec ragent-postgres psql -U postgres -d ragent -A -t -P footer=off -c $availableSql)
 foreach($g in $gold){
   $body=(@{model='bge-m3';input=@($g.query)}|ConvertTo-Json -Compress)
-  $x=Invoke-RestMethod -Uri 'http://127.0.0.1:18080/v1/embeddings' -Method Post -ContentType 'application/json' -Body $body -TimeoutSec 30
+  $x=Invoke-RestMethod -Uri 'http://127.0.0.1:18083/v1/embeddings' -Method Post -ContentType 'application/json' -Body $body -TimeoutSec 30
   $a=@($x.data[0].embedding); while($a.Count -lt 1536){$a+=0}; if($a.Count -ne 1536){throw "Embedding dimension $($a.Count)"}
   $v='['+($a -join ',')+']'
   $sql="SELECT d.doc_name,d.quality_status FROM t_knowledge_vector v JOIN t_knowledge_document d ON d.id=v.metadata->>'doc_id' WHERE v.collection_name='legal_corpus_2b' ORDER BY v.embedding <=> '$v'::vector LIMIT 20;"

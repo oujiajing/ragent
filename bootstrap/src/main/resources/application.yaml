@@ -224,7 +224,7 @@ ai:
         chat: /v1/chat/completions
         embedding: /v1/embeddings
     tei:
-      url: http://127.0.0.1:18080
+      url: http://127.0.0.1:18083
       endpoints:
         embedding: /v1/embeddings
     bailian:

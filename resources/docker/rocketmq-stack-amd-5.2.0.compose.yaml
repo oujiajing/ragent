@@ -29,7 +29,7 @@ services:
       - "10909:10909"
       - "18080:8080"
       - "18081:8081"
-      - "18082:8082"                              # host ports isolated from Safe-team 8080
+      - "18082:8082"                              # RocketMQ owns 18080-18082; TEI owns 18083
     environment:
       NAMESRV_ADDR: "rmqnamesrv:9876"
       JAVA_OPT_EXT: "-Xms512m -Xmx512m"

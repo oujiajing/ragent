@@ -7,6 +7,7 @@ New-Item -ItemType Directory -Force -Path $runDir | Out-Null
 $stdinPath = Join-Path $runDir 'dev-start.stdin'
 if (-not (Test-Path -LiteralPath $stdinPath)) { New-Item -ItemType File -Path $stdinPath | Out-Null }
 . (Join-Path $PSScriptRoot 'dev-runtime.ps1')
+. (Join-Path $PSScriptRoot 'local-runtime.ps1')
 
 function Invoke-LocalDocker {
     param([string[]]$DockerArguments, [string]$Label, [int]$TimeoutSeconds = 30, [switch]$Quiet)
@@ -23,6 +24,8 @@ try {
     $dockerPath = (Get-Command docker.exe -ErrorAction Stop).Source
     $null = Invoke-LocalDocker @('info','--format','{{.ServerVersion}}') 'Docker Desktop check' -Quiet
     Write-Host '[OK] Docker Desktop is ready'
+    Assert-LocalRuntimePortOwnership
+    & (Join-Path $PSScriptRoot 'start-tei.ps1')
     $running = Invoke-LocalDocker @('ps','--format','{{.Names}}') 'Inspect running containers' -Quiet
     $containerNames = $running -split '\r?\n'
     if ('ragent-postgres' -notin $containerNames -or 'ragent-rustfs' -notin $containerNames) {

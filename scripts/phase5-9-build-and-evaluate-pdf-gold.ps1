@@ -41,7 +41,7 @@ $evaluated=@()
 foreach($case in $cases){
   if(-not $case.indexEligible){$evaluated += [pscustomobject]@{caseId=$case.caseId;queryType=$case.queryType;filename=$case.filename;qualityStatus=$case.qualityStatus;rank=0;disposition='ISOLATED_SOURCE';top20=@()};continue}
   $body=(@{model='bge-m3';input=@($case.query)}|ConvertTo-Json -Compress)
-  $response=Invoke-RestMethod -Uri 'http://127.0.0.1:18080/v1/embeddings' -Method Post -ContentType 'application/json' -Body $body -TimeoutSec 30
+  $response=Invoke-RestMethod -Uri 'http://127.0.0.1:18083/v1/embeddings' -Method Post -ContentType 'application/json' -Body $body -TimeoutSec 30
   $vector=@($response.data[0].embedding);while($vector.Count -lt 1536){$vector+=0};if($vector.Count -ne 1536){throw "Unexpected embedding dimension $($vector.Count)"}
   $literal='['+($vector -join ',')+']'
   $search="SELECT v.id,d.id FROM t_knowledge_vector v JOIN t_knowledge_document d ON d.id=v.metadata->>'doc_id' WHERE v.collection_name='legal_corpus_2b' AND d.file_type='pdf' AND d.parser_version='legal-pdf-mineru-adapter/2.0.0' AND d.quality_status='PASS' ORDER BY v.embedding <=> '$literal'::vector LIMIT 20;"

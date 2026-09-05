@@ -1,1 +1,27 @@
-$ErrorActionPreference='Continue';function T([int]$p,[string]$n,[string[]]$m){foreach($x in(Get-NetTCPConnection -LocalPort $p -State Listen -ErrorAction SilentlyContinue|Sort-Object OwningProcess -Unique)){$c=[string](Get-CimInstance Win32_Process -Filter "ProcessId = $($x.OwningProcess)").CommandLine;if($m|Where-Object{$c-like "*$($_)*"}){Stop-Process $x.OwningProcess -Force -ErrorAction SilentlyContinue;Write-Host "[OK] Stopped $n (PID $($x.OwningProcess))"}else{Write-Host "[WARN] Port $p belongs to another process; left untouched"}}};T 9090 'ragent backend' @('ragent','bootstrap','spring-boot.run.profiles=local');T 5173 'ragent frontend' @('frontend','vite');Write-Host '[OK] Docker volumes and database data were not removed'
+$ErrorActionPreference = 'Continue'
+
+function Stop-LocalProcessOnPort {
+    param([int]$Port, [string]$Name, [string[]]$CommandPatterns)
+    foreach ($connection in @(Get-NetTCPConnection -LocalPort $Port -State Listen -ErrorAction SilentlyContinue | Sort-Object OwningProcess -Unique)) {
+        $process = Get-CimInstance Win32_Process -Filter "ProcessId = $($connection.OwningProcess)" -ErrorAction SilentlyContinue
+        if ($CommandPatterns | Where-Object { [string]$process.CommandLine -like "*$($_)*" }) {
+            Stop-Process $connection.OwningProcess -Force -ErrorAction SilentlyContinue
+            Write-Host "[OK] Stopped $Name (PID $($connection.OwningProcess))"
+        }
+        else { Write-Host "[WARN] Port $Port belongs to another process; left untouched" }
+    }
+}
+
+Stop-LocalProcessOnPort 9090 'ragent backend' @('ragent', 'bootstrap', 'spring-boot.run.profiles=local')
+Stop-LocalProcessOnPort 5173 'ragent frontend' @('frontend', 'vite')
+
+$docker = Get-Command docker.exe -ErrorAction SilentlyContinue
+if ($docker) {
+    $tei = @(& $docker.Source ps --filter 'name=^/tei-bge-m3$' --format '{{.Names}}' 2>$null | Where-Object { $_ })
+    if ($tei -contains 'tei-bge-m3') {
+        & $docker.Source stop tei-bge-m3 | Out-Null
+        Write-Host '[OK] Stopped TEI container tei-bge-m3'
+    }
+}
+
+Write-Host '[OK] Docker volumes and database data were not removed'

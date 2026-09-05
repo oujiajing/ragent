@@ -12,7 +12,7 @@
 
 ## 依赖服务
 
-PostgreSQL + pgvector：`127.0.0.1:15432`；Redis：`127.0.0.1:6379`，密码 `123456`；RustFS API：`http://localhost:9000`；RocketMQ NameServer：`127.0.0.1:9876`，proxy 宿主机端口 `18080-18082`（按需）；Ollama：`http://localhost:11434`（可选）；Elasticsearch：`127.0.0.1:9200`，当前 `rag.keyword.type=none`；MinerU：外部 API，可选。
+PostgreSQL + pgvector：`127.0.0.1:15432`；Redis：`127.0.0.1:6379`，密码 `123456`；RustFS API：`http://localhost:9000`；RocketMQ NameServer：`127.0.0.1:9876`，proxy 宿主机端口 `18080-18082`；TEI/bge-m3：`http://127.0.0.1:18083`（启动脚本执行 health + embedding smoke）；Ollama：`http://localhost:11434`（可选）；Elasticsearch：`127.0.0.1:9200`，当前 `rag.keyword.type=none`；MinerU：外部 API，可选。
 
 ## 第一次启动
 
