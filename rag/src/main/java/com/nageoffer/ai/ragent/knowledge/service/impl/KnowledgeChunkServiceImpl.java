@@ -198,9 +198,7 @@ public class KnowledgeChunkServiceImpl implements KnowledgeChunkService {
 
         // 同步写入向量库
         syncChunkToVector(collectionName, docId, chunkDO, vectorTargetResolver.resolve(kbDO));
-        if ("LEGAL".equalsIgnoreCase(documentDO.getProcessingStrategy())) {
-            legalReviewService.markChunkChanged(docId, chunkDO.getId());
-        }
+        refreshLegalReview(documentDO, chunkDO.getId());
 
         bizChangeLogContext.put(String.valueOf(chunkDO.getId()), null, chunkDO);
         return BeanUtil.toBean(chunkDO, KnowledgeChunkVO.class);
@@ -255,9 +253,7 @@ public class KnowledgeChunkServiceImpl implements KnowledgeChunkService {
         // 同步向量数据库
         vectorStoreService.updateChunk(collectionName, docId,
                 embedPersisted(List.of(chunkDO), vectorTargetResolver.resolve(kbDO)).get(0));
-        if ("LEGAL".equalsIgnoreCase(documentDO.getProcessingStrategy())) {
-            legalReviewService.markChunkChanged(docId, chunkId);
-        }
+        refreshLegalReview(documentDO, chunkId);
         bizChangeLogContext.put(chunkId, before, chunkMapper.selectById(chunkId));
     }
 
@@ -297,9 +293,7 @@ public class KnowledgeChunkServiceImpl implements KnowledgeChunkService {
         log.info("删除 Chunk 成功, kbId={}, docId={}, chunkId={}", documentDO.getKbId(), docId, chunkId);
 
         deleteChunkFromVector(collectionName, chunkId);
-        if ("LEGAL".equalsIgnoreCase(documentDO.getProcessingStrategy())) {
-            legalReviewService.markChunkChanged(docId, chunkId);
-        }
+        refreshLegalReview(documentDO, chunkId);
         bizChangeLogContext.put(chunkId, before, null);
     }
 
@@ -530,5 +524,15 @@ public class KnowledgeChunkServiceImpl implements KnowledgeChunkService {
             return 0;
         }
         return tokenCounterService.countTokens(content);
+    }
+
+    private void refreshLegalReview(KnowledgeDocumentDO documentDO, String chunkId) {
+        if (!"LEGAL".equalsIgnoreCase(documentDO.getProcessingStrategy())) return;
+        legalReviewService.markChunkChanged(documentDO.getId(), chunkId);
+        try {
+            legalReviewService.audit(documentDO.getId());
+        } catch (RuntimeException error) {
+            log.warn("Chunk 已保存，但 Legal 复核重检失败，保留待重检状态, docId={}, chunkId={}", documentDO.getId(), chunkId, error);
+        }
     }
 }
