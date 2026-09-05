@@ -110,6 +110,15 @@ public class KnowledgeDocumentController {
     }
 
     /**
+     * Retry vector indexing from persisted eligible chunks only; does not invoke parsing or chunking.
+     */
+    @PostMapping("/knowledge-base/docs/{doc-id}/index-retry")
+    public Result<Void> retryIndex(@PathVariable(value = "doc-id") String docId) {
+        documentService.retryIndex(docId);
+        return Results.success();
+    }
+
+    /**
      * 删除文档：逻辑删除。可选同时删除向量库中该文档的所有 chunk
      */
     @DeleteMapping("/knowledge-base/docs/{doc-id}")

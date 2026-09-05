@@ -157,3 +157,77 @@ use the production Legal Pipeline: YES`, while Phase 5.10 remains PARTIAL PASS u
 pre-registered PASS fixture proves `vectorCount = indexEligibleChunkCount > 0` and a
 fixed retrieval query returns the target document. Phase 6 code development remains
 not approved.
+
+## 10. Runtime Hardening / PASS Indexing Retry
+
+Date: 2026-09-05
+
+The original failure was isolated to TEI availability. The original `tei-bge-m3`
+container had exited with code 255, while host port 18080 was occupied by the
+RocketMQ broker HTTP proxy. Existing TEI logs contained model readiness and successful
+requests, with no OOM, panic, model-load failure, or timeout evidence. A temporary
+same-image TEI instance using the same bge-m3 model mount was started on port 18083
+with GPU access. Health returned 200 and the model loaded successfully.
+
+Direct TEI smoke passed:
+
+| Test | Result |
+|---|---|
+| Short text, 1 input | PASS, native dimension 1024 |
+| Batch of 5 | PASS, 5 vectors, native dimension 1024 |
+| Batch of 10 | PASS, 10 vectors, native dimension 1024 |
+| Application client | PASS, provider `tei`, model `bge-m3`, application dimension 1536 |
+| Existing Legal index retry | PASS, 16-sized batches, final batch 15 |
+
+The application was started with a runtime-only Spring property override to point TEI
+to 18083; no application YAML or embedding model configuration was changed. A
+minimal `index-retry` API was added for persisted PASS Legal documents. It validates
+`LEGAL + qualityStatus=PASS` and invokes the existing persisted-chunk indexing path;
+it does not read the PDF or invoke MinerU, Parser, Cleaner, StructureParser, Chunker,
+or Quality Gate.
+
+### PASS document result
+
+| Field | Result |
+|---|---|
+| documentId | `2096095129306767360` |
+| kbId | `2096095024373669888` |
+| processingStrategy | `LEGAL` |
+| parserVersion | `legal-pdf-mineru-adapter/2.0.0` |
+| qualityStatus | `PASS` |
+| processingStatus | `success` |
+| Clause | 111 |
+| Chunk | 111 |
+| indexEligibleChunkCount | 111 |
+| vectorCount | 111 |
+| vector dimension | 1536 for all 111 |
+| missing/duplicate/orphan vectors | 0 / 0 / 0 |
+| Clause/Chunk duplicate or orphan | 0 / 0 |
+
+Fixed Retrieval smoke query:
+`施工现场临边作业应采取哪些安全防护措施？`
+
+Default retrieval returned the target document at rank 1. The first matching Chunk
+was `e9a787c21ff0d6155ad5`, Clause `4.1.1`; another target Chunk was present at rank 5
+(`fb223f776d93f071005d`). Retrieval used the existing default vector path; no
+Retriever parameters or ranking code were changed. The unrelated LLM rewrite/rerank
+providers were unavailable in this local environment, but vector retrieval and target
+document recall succeeded.
+
+### REVIEW isolation
+
+The existing REVIEW document `2095897086401806336` remains `qualityStatus=REVIEW`,
+with `eligibleChunk=0` and `vectorCount=0`.
+
+### Frontend terminal status
+
+The document list polling path now refreshes until `success` or `failed` rather than
+leaving a completed task displayed as “processing”. The source lint check passed.
+The Vite build could not complete in this environment because pnpm rewired the local
+dependency tree to a `highlight.js` variant missing `sql_more.js`; this is a dependency
+installation/environment issue, not a TypeScript or ESLint error. No package manifest
+or lockfile was changed.
+
+Backend compile and targeted legal tests passed: 10 tests, 0 failures, 0 errors,
+0 skipped. The existing parser, chunk, quality, Retriever, Agent, Citation and
+Safe-team modules were not modified.

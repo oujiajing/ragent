@@ -253,6 +253,46 @@ public class KnowledgeDocumentServiceImpl implements KnowledgeDocumentService {
         runChunkTask(documentDO);
     }
 
+    @Override
+    public void retryIndex(String docId) {
+        KnowledgeDocumentDO documentDO = documentMapper.selectById(docId);
+        Assert.notNull(documentDO, () -> new ClientException("文档不存在"));
+        ProcessingStrategy strategy = ProcessingStrategy.normalize(documentDO.getProcessingStrategy());
+        if (ProcessingStrategy.LEGAL != strategy) {
+            throw new ClientException("仅支持法律法规文档索引续跑");
+        }
+        if (!"PASS".equalsIgnoreCase(documentDO.getQualityStatus())) {
+            throw new ClientException("仅允许质量通过的文档索引续跑");
+        }
+
+        KnowledgeBaseDO kbDO = knowledgeBaseMapper.selectById(documentDO.getKbId());
+        VectorTarget target = vectorTargetResolver.resolve(kbDO);
+        documentMapper.updateById(KnowledgeDocumentDO.builder()
+                .id(docId)
+                .status(DocumentStatus.RUNNING.getCode())
+                .updatedBy(UserContext.getUsername())
+                .updateTime(new Date())
+                .build());
+        try {
+            int chunkCount = legalDocumentProcessingService.reindex(documentDO, target);
+            documentMapper.updateById(KnowledgeDocumentDO.builder()
+                    .id(docId)
+                    .status(DocumentStatus.SUCCESS.getCode())
+                    .chunkCount(chunkCount)
+                    .updatedBy(UserContext.getUsername())
+                    .updateTime(new Date())
+                    .build());
+        } catch (Exception e) {
+            documentMapper.updateById(KnowledgeDocumentDO.builder()
+                    .id(docId)
+                    .status(DocumentStatus.FAILED.getCode())
+                    .updatedBy(UserContext.getUsername())
+                    .updateTime(new Date())
+                    .build());
+            throw e;
+        }
+    }
+
     private void runChunkTask(KnowledgeDocumentDO documentDO) {
         String docId = documentDO.getId();
         ProcessMode processMode = ProcessMode.normalize(documentDO.getProcessMode());

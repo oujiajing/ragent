@@ -60,6 +60,13 @@ public interface KnowledgeDocumentService {
     void executeChunk(String docId);
 
     /**
+     * Retry indexing for an already persisted PASS legal document without parsing or regenerating chunks.
+     *
+     * @param docId document ID
+     */
+    void retryIndex(String docId);
+
+    /**
      * 删除文档
      *
      * @param docId 文档 ID

@@ -292,6 +292,10 @@ export const startDocumentChunk = async (docId: string): Promise<void> => {
   await api.post(`/knowledge-base/docs/${docId}/chunk`);
 };
 
+export const retryDocumentIndex = async (docId: string): Promise<void> => {
+  await api.post(`/knowledge-base/docs/${docId}/index-retry`);
+};
+
 export const enableDocument = async (docId: string, enabled: boolean): Promise<void> => {
   await api.patch(`/knowledge-base/docs/${docId}/enable`, null, {
     params: { value: enabled }

@@ -191,6 +191,8 @@ const statusDotClass = (status?: string | null) => {
   return "bg-muted-foreground/40";
 };
 
+const terminalDocumentStatuses = new Set(["success", "failed"]);
+
 const formatSize = (size?: number | null) => {
   if (!size && size !== 0) return "-";
   if (size < 1024) return `${size} B`;
@@ -526,6 +528,15 @@ export function KnowledgeDocumentsPage() {
       toast.success("已开始分块");
       setChunkTarget(null);
       await loadDocuments(current, statusFilter, keyword);
+      const docId = String(chunkTarget.id);
+      for (let attempt = 0; attempt < 60; attempt += 1) {
+        await new Promise((resolve) => window.setTimeout(resolve, 2000));
+        const latest = await getDocument(docId);
+        if (terminalDocumentStatuses.has((latest.status || "").toLowerCase())) {
+          await loadDocuments(current, statusFilter, keyword);
+          break;
+        }
+      }
     } catch (error) {
       toast.error(getErrorMessage(error, "分块失败"));
       console.error(error);
