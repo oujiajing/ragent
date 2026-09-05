@@ -863,7 +863,28 @@ export function KnowledgeDocumentsPage() {
                         <div>{doc.processingStrategy === "LEGAL" ? "法律法规" : "通用文档"}</div>
                         {doc.processingStrategy === "LEGAL" && doc.qualityStatus ? (
                           <div className={cn(doc.qualityStatus === "PASS" ? "text-emerald-600" : "text-amber-600")}>
-                            {doc.qualityStatus === "PASS" ? "通过" : doc.qualityStatus === "REVIEW" ? "需复核" : "未通过"}
+                            质量：{doc.qualityStatus === "PASS" ? "通过" : doc.qualityStatus === "REVIEW" ? "需核查" : "未通过"}
+                          </div>
+                        ) : null}
+                        {doc.processingStrategy === "LEGAL" && doc.reviewStatus ? (
+                          <div className={cn(
+                            doc.reviewStatus === "PENDING_REVIEW" || doc.reviewStatus === "DETECTION_FAILED"
+                              ? "text-amber-600"
+                              : doc.reviewStatus === "NO_ISSUE" || doc.reviewStatus === "COMPLETED"
+                                ? "text-emerald-600"
+                                : "text-muted-foreground"
+                          )}>
+                            复核：{doc.reviewStatus === "PENDING_REVIEW"
+                              ? `待复核${doc.reviewPendingCount ? ` ${doc.reviewPendingCount} 项` : ""}`
+                              : doc.reviewStatus === "COMPLETED"
+                                ? "已完成"
+                                : doc.reviewStatus === "NO_ISSUE"
+                                  ? "未发现问题"
+                                  : doc.reviewStatus === "DETECTION_PENDING"
+                                    ? "检测中"
+                                    : doc.reviewStatus === "DETECTION_FAILED"
+                                      ? "检测失败"
+                                      : "未检测"}
                           </div>
                         ) : null}
                       </div>
@@ -968,8 +989,14 @@ export function KnowledgeDocumentsPage() {
         onOpenChange={setUploadOpen}
         onSubmit={async (payload) => {
           if (!kbId) return;
-          await uploadDocument(kbId, payload);
-          toast.success("上传成功");
+          const files = payload.files?.length ? payload.files : payload.file ? [payload.file] : [];
+          let uploaded = 0;
+          for (const file of files) {
+            await uploadDocument(kbId, { ...payload, file, files: undefined });
+            uploaded++;
+          }
+          if (payload.sourceType === "url") uploaded = 1;
+          toast.success(`成功上传 ${uploaded} 个文档`);
           setUploadOpen(false);
           setCurrent(1);
           await loadDocuments(1, statusFilter, keyword);
@@ -1110,6 +1137,7 @@ export function KnowledgeDocumentsPage() {
                 </>
               ) : null}
 
+              {detailTarget?.processingStrategy !== "LEGAL" ? <>
               <div>
                 <div className="text-sm font-medium mb-2">处理模式</div>
                 <Select value={detailProcessMode} onValueChange={setDetailProcessMode}>
@@ -1137,6 +1165,7 @@ export function KnowledgeDocumentsPage() {
                   </Select>
                 </div>
               ) : null}
+              </> : null}
 
               {detailProcessMode === "chunk" ? (
                 <div className="space-y-3 rounded-lg border p-3">
@@ -1482,7 +1511,8 @@ type UploadFormValues = z.infer<typeof uploadSchema>;
 type BudgetFieldName = "maxChars" | "overlapChars" | "rowsPerChunk" | "toleranceFactor";
 
 function UploadDialog({ open, knowledgeBase, onOpenChange, onSubmit }: UploadDialogProps) {
-  const [file, setFile] = useState<File | null>(null);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const file = selectedFiles[0] ?? null;
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [saving, setSaving] = useState(false);
@@ -1545,7 +1575,7 @@ function UploadDialog({ open, knowledgeBase, onOpenChange, onSubmit }: UploadDia
 
   useEffect(() => {
     if (open) {
-      setFile(null);
+      setSelectedFiles([]);
       form.reset({
         sourceType: "file",
         sourceLocation: "",
@@ -1569,7 +1599,7 @@ function UploadDialog({ open, knowledgeBase, onOpenChange, onSubmit }: UploadDia
 
   useEffect(() => {
     if (isUrlSource) {
-      setFile(null);
+      setSelectedFiles([]);
     }
   }, [isUrlSource]);
 
@@ -1592,16 +1622,16 @@ function UploadDialog({ open, knowledgeBase, onOpenChange, onSubmit }: UploadDia
   const handleNoChunkToggle = () => setNoChunk(prev => !prev);
 
   const handleSubmit = async (values: UploadFormValues) => {
-    if (values.sourceType === "file" && !file) {
+    if (values.sourceType === "file" && selectedFiles.length === 0) {
       toast.error("请选择文件");
       return;
     }
-    if (values.sourceType === "file" && file && file.size > maxFileSize) {
+    if (values.sourceType === "file" && selectedFiles.some(item => item.size > maxFileSize)) {
       const sizeMB = Math.floor(maxFileSize / 1024 / 1024);
       toast.error(`上传文件大小超过限制，最大允许 ${sizeMB}MB`);
       return;
     }
-    if (values.processingStrategy === "LEGAL" && file && extOf(file.name) !== "pdf") {
+    if (values.processingStrategy === "LEGAL" && selectedFiles.some(item => extOf(item.name) !== "pdf")) {
       toast.error("法律法规处理策略仅支持 PDF 文件");
       return;
     }
@@ -1621,6 +1651,7 @@ function UploadDialog({ open, knowledgeBase, onOpenChange, onSubmit }: UploadDia
       const payload: KnowledgeDocumentUploadPayload = {
         sourceType: values.sourceType,
         file: values.sourceType === "file" ? file : null,
+        files: values.sourceType === "file" ? selectedFiles : undefined,
         sourceLocation: values.sourceType === "url" ? values.sourceLocation?.trim() ?? null : null,
         scheduleEnabled: values.sourceType === "url" ? values.scheduleEnabled : false,
         scheduleCron:
@@ -1718,28 +1749,29 @@ function UploadDialog({ open, knowledgeBase, onOpenChange, onSubmit }: UploadDia
                     onDrop={(e) => {
                       e.preventDefault();
                       setIsDragging(false);
-                      const dropped = e.dataTransfer.files[0];
-                      if (dropped) setFile(dropped);
+                      const dropped = Array.from(e.dataTransfer.files);
+                      if (dropped.length > 0) setSelectedFiles(dropped);
                     }}
                   >
                     <input
                       ref={fileInputRef}
                       type="file"
                       className="hidden"
+                      multiple
                       accept=".pdf,.md,.markdown,.doc,.docx,.txt,.xlsx,.xls,.csv,.png,.jpg,.jpeg,.svg"
-                      onChange={(e) => setFile(e.target.files?.[0] || null)}
+                      onChange={(e) => setSelectedFiles(Array.from(e.target.files || []))}
                     />
                     {file ? (
                       <>
                         <FileUp className="h-7 w-7 text-primary" />
-                        <div className="text-sm font-medium text-center break-all px-2">{file.name}</div>
-                        <div className="text-xs text-muted-foreground">{formatSize(file.size)}</div>
+                        <div className="text-sm font-medium text-center break-all px-2">{selectedFiles.length > 1 ? `已选择 ${selectedFiles.length} 个文件` : file.name}</div>
+                        <div className="text-xs text-muted-foreground">{selectedFiles.length > 1 ? selectedFiles.map(item => item.name).join("、") : formatSize(file.size)}</div>
                         <Button
                           type="button"
                           variant="ghost"
                           size="sm"
                           className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground"
-                          onClick={(e) => { e.stopPropagation(); setFile(null); if (fileInputRef.current) fileInputRef.current.value = ""; }}
+                          onClick={(e) => { e.stopPropagation(); setSelectedFiles([]); if (fileInputRef.current) fileInputRef.current.value = ""; }}
                         >
                           <X className="h-3 w-3 mr-1" />
                           重新选择
@@ -1812,7 +1844,7 @@ function UploadDialog({ open, knowledgeBase, onOpenChange, onSubmit }: UploadDia
                   </FormItem>
                 )}
               />
-              <FormField
+              {!isLegal ? <FormField
                 control={form.control}
                 name="processMode"
                 render={({ field }) => (
@@ -1835,7 +1867,7 @@ function UploadDialog({ open, knowledgeBase, onOpenChange, onSubmit }: UploadDia
                     <FormMessage />
                   </FormItem>
                 )}
-              />
+              /> : null}
 
               {!isLegal && isPipelineMode ? (
                 <FormField

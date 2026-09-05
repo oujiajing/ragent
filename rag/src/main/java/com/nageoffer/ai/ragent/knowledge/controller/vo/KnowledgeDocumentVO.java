@@ -97,6 +97,11 @@ public class KnowledgeDocumentVO {
      */
     private String qualityStatus;
 
+    /** 人工复核进度：NOT_DETECTED / DETECTION_PENDING / PENDING_REVIEW / COMPLETED / NO_ISSUE / DETECTION_FAILED */
+    private String reviewStatus;
+
+    private Long reviewPendingCount;
+
     /**
      * 处理模式：chunk / pipeline
      * - chunk: 使用分块策略直接分块

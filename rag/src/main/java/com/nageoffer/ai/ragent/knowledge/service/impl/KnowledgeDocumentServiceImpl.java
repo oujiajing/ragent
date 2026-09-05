@@ -51,6 +51,8 @@ import com.nageoffer.ai.ragent.ingestion.domain.pipeline.PipelineDefinition;
 import com.nageoffer.ai.ragent.ingestion.engine.IngestionEngine;
 import com.nageoffer.ai.ragent.ingestion.service.IngestionPipelineService;
 import com.nageoffer.ai.ragent.legal.service.LegalDocumentProcessingService;
+import com.nageoffer.ai.ragent.legal.review.LegalReviewOverviewVO;
+import com.nageoffer.ai.ragent.legal.review.LegalReviewService;
 import com.nageoffer.ai.ragent.knowledge.config.KnowledgeScheduleProperties;
 import com.nageoffer.ai.ragent.knowledge.controller.request.KnowledgeDocumentPageRequest;
 import com.nageoffer.ai.ragent.knowledge.controller.request.KnowledgeDocumentUpdateRequest;
@@ -112,6 +114,7 @@ public class KnowledgeDocumentServiceImpl implements KnowledgeDocumentService {
     private final ParserRegistry parserRegistry;
     private final IngestionKernel ingestionKernel;
     private final LegalDocumentProcessingService legalDocumentProcessingService;
+    private final LegalReviewService legalReviewService;
     private final ChunkIndexWriter chunkIndexWriter;
     private final IngestionSpecCodec ingestionSpecCodec;
     private final FileStorageService fileStorageService;
@@ -152,6 +155,11 @@ public class KnowledgeDocumentServiceImpl implements KnowledgeDocumentService {
         ProcessingStrategy processingStrategy = ProcessingStrategy.normalize(requestParam.getProcessingStrategy());
         validateSourceAndSchedule(sourceType, requestParam);
         validateLegalUploadRequest(processingStrategy, sourceType, kbDO);
+        if (processingStrategy == ProcessingStrategy.LEGAL
+                && requestParam.getProcessMode() != null
+                && !"chunk".equalsIgnoreCase(requestParam.getProcessMode())) {
+            throw new ClientException("法律法规处理策略固定使用法规处理流程，不支持数据通道");
+        }
         // 摄取配置的校验排在存文件之前：它只看请求参数，而一旦落了对象再抛异常，
         // 存储里就留下一个没有文档指向它的孤儿。纯校验一律前置到第一个副作用之前
         ProcessModeConfig modeConfig = resolveProcessModeConfig(requestParam);
@@ -668,7 +676,14 @@ public class KnowledgeDocumentServiceImpl implements KnowledgeDocumentService {
                 .map(KnowledgeDocumentVO::getId)
                 .collect(Collectors.toList());
         Set<String> editedDocIds = findEditedDocIds(docIds);
-        result.getRecords().forEach(vo -> vo.setChunksEdited(editedDocIds.contains(vo.getId())));
+        result.getRecords().forEach(vo -> {
+            vo.setChunksEdited(editedDocIds.contains(vo.getId()));
+            if ("LEGAL".equalsIgnoreCase(vo.getProcessingStrategy())) {
+                LegalReviewOverviewVO overview = legalReviewService.overview(vo.getId());
+                vo.setReviewPendingCount(overview.pendingSignalCount());
+                vo.setReviewStatus(resolveReviewStatus(overview));
+            }
+        });
 
         return result;
     }
@@ -687,6 +702,16 @@ public class KnowledgeDocumentServiceImpl implements KnowledgeDocumentService {
             vo.setIngestionSpec(ingestionSpecCodec.write(ingestionSpecCodec.read(documentDO.getIngestionSpec())));
         }
         return vo;
+    }
+
+    private String resolveReviewStatus(LegalReviewOverviewVO overview) {
+        if (overview.pendingSignalCount() > 0) return "PENDING_REVIEW";
+        return switch (overview.detectionStatus()) {
+            case "SUCCESS" -> overview.signalCount() == 0 ? "NO_ISSUE" : "COMPLETED";
+            case "FAILED" -> "DETECTION_FAILED";
+            case "RUNNING", "PENDING_RECHECK" -> "DETECTION_PENDING";
+            default -> "NOT_DETECTED";
+        };
     }
 
     private void validateLegalUploadRequest(ProcessingStrategy strategy, SourceType sourceType, KnowledgeBaseDO kbDO) {

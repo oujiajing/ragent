@@ -26,6 +26,8 @@ export interface KnowledgeDocument {
   fileSize?: number | null;
   processingStrategy?: "GENERAL" | "LEGAL" | null;
   qualityStatus?: "PASS" | "REVIEW" | "FAILED" | null;
+  reviewStatus?: "NOT_DETECTED" | "DETECTION_PENDING" | "PENDING_REVIEW" | "COMPLETED" | "NO_ISSUE" | "DETECTION_FAILED" | null;
+  reviewPendingCount?: number | null;
   processMode?: string | null;
   ingestionSpec?: string | null;
   pipelineId?: string | number | null;
@@ -136,6 +138,7 @@ export interface KnowledgeDocumentPageParams {
 export interface KnowledgeDocumentUploadPayload {
   sourceType: "file" | "url";
   file?: File | null;
+  files?: File[];
   sourceLocation?: string | null;
   scheduleEnabled?: boolean;
   scheduleCron?: string | null;

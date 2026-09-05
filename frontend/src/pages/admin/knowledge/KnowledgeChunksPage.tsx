@@ -373,7 +373,7 @@ export function KnowledgeChunksPage() {
                     <TableCell>
                       <div className="flex flex-col items-start gap-1">
                         <Badge variant={chunk.enabled === 1 ? "default" : "outline"}>{enabledLabel(chunk.enabled)}</Badge>
-                        {doc?.processingStrategy === "LEGAL" && chunk.reviewStatus ? (
+                        {doc?.processingStrategy === "LEGAL" && chunk.reviewStatus && chunk.reviewStatus !== "NOT_FOUND" ? (
                           <Badge
                             variant={chunk.reviewStatus === "NEEDS_REVIEW" ? "destructive" : "secondary"}
                             className="cursor-pointer"
