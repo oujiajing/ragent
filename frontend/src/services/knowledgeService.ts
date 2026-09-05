@@ -60,6 +60,7 @@ export interface KnowledgeChunk {
   pageEnd?: number | null;
   reviewStatus?: "NEEDS_REVIEW" | "ISSUE_CONFIRMED" | "VERIFIED_OK" | "NOT_FOUND" | "NOT_DETECTED" | "DETECTION_FAILED" | "DETECTION_PENDING" | null;
   reviewIssueCount?: number | null;
+  parentClauseId?: string | null;
 }
 
 export interface LegalReviewOverview {
@@ -68,6 +69,17 @@ export interface LegalReviewOverview {
   pendingSignalCount: number;
   documentSignalCount: number;
   affectedChunkCount: number;
+}
+
+export interface LegalChunkSourceContext {
+  available: boolean;
+  chapterTitle?: string | null;
+  sectionTitle?: string | null;
+  clauseNo?: string | null;
+  originalText?: string | null;
+  pageStart?: number | null;
+  pageEnd?: number | null;
+  message?: string | null;
 }
 
 export interface LegalReviewSignal {
@@ -171,6 +183,9 @@ export const reviewLegalSignal = async (
 
 export const getChunkChapters = async (docId: string): Promise<string[]> =>
   api.get<string[], string[]>(`/knowledge-base/docs/${docId}/chunk-chapters`);
+
+export const getLegalChunkSourceContext = async (docId: string, chunkId: string): Promise<LegalChunkSourceContext> =>
+  api.get<LegalChunkSourceContext, LegalChunkSourceContext>(`/knowledge-base/docs/${docId}/legal-review/chunks/${chunkId}/source-context`);
 
 // 知识库管理
 export interface ParseProfileOption {

@@ -177,6 +177,23 @@ public class LegalReviewService {
         return new LegalReviewSignalVO(rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5), rs.getString(6), clauseIds, clauseNos, readList(rs.getString(8)), readMap(rs.getString(9)), rs.getString(10), rs.getString(11), rs.getInt(12), rs.getObject(13, LocalDateTime.class));
     }
 
+    public LegalChunkSourceContextVO sourceContext(String documentId, String chunkId) {
+        KnowledgeDocumentDO document = documentMapper.selectById(documentId);
+        if (document == null) throw new ClientException("文档不存在");
+        Map<String, Object> chunk = jdbcTemplate.query("SELECT parent_clause_id FROM t_knowledge_chunk WHERE id=? AND doc_id=? AND deleted=0", rs -> {
+            if (!rs.next()) return Map.<String, Object>of();
+            return Map.of("parentClauseId", rs.getString(1));
+        }, chunkId, documentId);
+        String parentClauseId = (String) chunk.get("parentClauseId");
+        if (parentClauseId == null || parentClauseId.isBlank()) {
+            return new LegalChunkSourceContextVO(false, null, null, null, null, null, null, "该分块没有可靠的原文条款关联");
+        }
+        return jdbcTemplate.query("SELECT chapter_title, section_title, clause_no, raw_text, page_start, page_end FROM t_legal_clause WHERE id=? AND document_id=?", rs -> {
+            if (!rs.next()) return new LegalChunkSourceContextVO(false, null, null, null, null, null, null, "未找到关联的原文条款");
+            return new LegalChunkSourceContextVO(true, rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getObject(5, Integer.class), rs.getObject(6, Integer.class), null);
+        }, parentClauseId, documentId);
+    }
+
     private String clauseNo(String clauseId) {
         return jdbcTemplate.query("SELECT clause_no FROM t_legal_clause WHERE id=?", rs -> rs.next() ? rs.getString(1) : "", clauseId);
     }

@@ -15,7 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { RelativeTime } from "@/components/RelativeTime";
 
-import type { KnowledgeChunk, KnowledgeDocument, LegalReviewSignal, PageResult } from "@/services/knowledgeService";
+import type { KnowledgeChunk, KnowledgeDocument, LegalChunkSourceContext, LegalReviewSignal, PageResult } from "@/services/knowledgeService";
 import {
   batchToggleChunks,
   createChunk,
@@ -27,7 +27,8 @@ import {
   updateChunk,
   getLegalReviewSignals,
   reviewLegalSignal,
-  getChunkChapters
+  getChunkChapters,
+  getLegalChunkSourceContext
 } from "@/services/knowledgeService";
 import { getErrorMessage } from "@/utils/error";
 
@@ -549,16 +550,24 @@ function ChunkDialog({ mode, open, chunk, onOpenChange, onSubmit }: ChunkDialogP
   const [content, setContent] = useState("");
   const [chunkIndex, setChunkIndex] = useState<string>("");
   const [saving, setSaving] = useState(false);
+  const [sourceContext, setSourceContext] = useState<LegalChunkSourceContext | null>(null);
 
   useEffect(() => {
     if (!open) return;
     if (mode === "edit") {
       setContent(chunk?.content || "");
       setChunkIndex("");
+      setSourceContext(null);
+      if (chunk?.docId && chunk.id) {
+        getLegalChunkSourceContext(String(chunk.docId), String(chunk.id))
+          .then(setSourceContext)
+          .catch(() => setSourceContext({ available: false, message: "暂无原文对照" }));
+      }
       return;
     }
     setContent("");
     setChunkIndex("");
+    setSourceContext(null);
   }, [open, mode, chunk]);
 
   const handleSubmit = async () => {
@@ -612,13 +621,34 @@ function ChunkDialog({ mode, open, chunk, onOpenChange, onSubmit }: ChunkDialogP
               <span className="text-xs text-muted-foreground">留空则自动追加到末尾</span>
             </div>
           )}
-          <div className="flex min-h-0 flex-1 flex-col">
-            <label className="text-sm font-medium">内容</label>
-            <Textarea
-              className="mt-2 flex-1 min-h-[280px] resize-none chunk-editor-textarea"
-              value={content}
-              onChange={(event) => setContent(event.target.value)}
-            />
+          <div className={mode === "edit" ? "grid min-h-0 flex-1 gap-4 lg:grid-cols-2" : "flex min-h-0 flex-1 flex-col"}>
+            {mode === "edit" ? (
+              <div className="min-h-[280px] rounded-md border bg-muted/20 p-3">
+                <div className="mb-2 text-sm font-medium">原文对照</div>
+                {sourceContext?.available ? (
+                  <>
+                    <div className="mb-2 text-xs text-muted-foreground">
+                      {sourceContext.chapterTitle || sourceContext.sectionTitle || ""}
+                      {sourceContext.clauseNo ? ` · 条款 ${sourceContext.clauseNo}` : ""}
+                      {sourceContext.pageStart ? ` · PDF 第 ${sourceContext.pageStart}${sourceContext.pageEnd && sourceContext.pageEnd !== sourceContext.pageStart ? `-${sourceContext.pageEnd}` : ""} 页` : ""}
+                    </div>
+                    <div className="max-h-[360px] overflow-y-auto whitespace-pre-wrap text-sm leading-6 text-muted-foreground">
+                      {sourceContext.originalText}
+                    </div>
+                  </>
+                ) : (
+                  <div className="text-sm text-muted-foreground">{sourceContext?.message || "正在加载原文对照..."}</div>
+                )}
+              </div>
+            ) : null}
+            <div className="flex min-h-0 flex-1 flex-col">
+              <label className="text-sm font-medium">当前分块内容</label>
+              <Textarea
+                className="mt-2 flex-1 min-h-[280px] resize-none chunk-editor-textarea"
+                value={content}
+                onChange={(event) => setContent(event.target.value)}
+              />
+            </div>
           </div>
         </div>
         <DialogFooter>

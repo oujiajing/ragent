@@ -42,6 +42,12 @@ public class LegalReviewController {
 
     private final LegalReviewService service;
 
+    @GetMapping("/{doc-id}/legal-review/chunks/{chunk-id}/source-context")
+    public Result<LegalChunkSourceContextVO> sourceContext(@PathVariable("doc-id") String docId,
+                                                           @PathVariable("chunk-id") String chunkId) {
+        return Results.success(service.sourceContext(docId, chunkId));
+    }
+
     @GetMapping("/{doc-id}/legal-review/overview")
     public Result<LegalReviewOverviewVO> overview(@PathVariable("doc-id") String docId) {
         return Results.success(service.overview(docId));
