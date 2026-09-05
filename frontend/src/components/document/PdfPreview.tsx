@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { getDocument, GlobalWorkerOptions } from "pdfjs-dist";
 import type { PDFDocumentProxy, RenderTask } from "pdfjs-dist";
 // worker 走 Vite 产物，不依赖运行时从 CDN 取
@@ -19,6 +19,7 @@ interface PdfPreviewProps {
   pageStart?: number | null;
   pageEnd?: number | null;
   pageNumber?: number | null;
+  initialPage?: number | null;
   scale?: number;
   onPageCount?: (count: number) => void;
 }
@@ -90,7 +91,7 @@ function PdfPage({ pdf, pageNumber, width, aspect, scale }: PdfPageProps) {
  * PDF 在线预览：拉取鉴权后的源文件，用 pdf.js 自行绘制
  * 不走 iframe 是因为浏览器原生阅读器自带背景、页面外框与悬浮工具栏，样式不可控且各家不一致
  */
-export function PdfPreview({ docId, pageStart, pageEnd, pageNumber, scale = 1, onPageCount }: PdfPreviewProps) {
+export function PdfPreview({ docId, pageStart, pageEnd, pageNumber, initialPage, scale = 1, onPageCount }: PdfPreviewProps) {
   const listRef = useRef<HTMLDivElement>(null);
   const [pdf, setPdf] = useState<PDFDocumentProxy | null>(null);
   const [aspect, setAspect] = useState(0);
@@ -136,6 +137,14 @@ export function PdfPreview({ docId, pageStart, pageEnd, pageNumber, scale = 1, o
     return () => observer.disconnect();
   }, []);
 
+  useEffect(() => {
+    if (!pdf || !initialPage || initialPage < 1) return;
+    requestAnimationFrame(() => {
+      document.querySelector(`[data-pdf-page="${Math.min(initialPage, pdf.numPages)}"]`)
+        ?.scrollIntoView({ block: "start" });
+    });
+  }, [pdf, initialPage]);
+
   return (
     // 页面自带页边距，容器再留白会把正文挤成窄条，这里让整页铺满对话框
     <div className="relative h-full w-full overflow-auto">
@@ -156,10 +165,10 @@ export function PdfPreview({ docId, pageStart, pageEnd, pageNumber, scale = 1, o
               return Array.from({ length: end - start + 1 }, (_, index) => {
                 const pageNumber = start + index;
                 return (
-                  <Fragment key={pageNumber}>
+                  <div key={pageNumber} data-pdf-page={pageNumber}>
                     {index > 0 || start > 1 ? <div className="doc-page-divider px-8">第 {pageNumber} 页</div> : null}
                     <PdfPage pdf={pdf} pageNumber={pageNumber} width={width} aspect={aspect} scale={scale} />
-                  </Fragment>
+                  </div>
                 );
               });
             })()

@@ -647,10 +647,10 @@ function ChunkDialog({ mode, open, chunk, legal = false, onOpenChange, onSubmit 
                 <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
                   <div className="text-sm font-medium">原 PDF 对照</div>
                   <div className="flex items-center gap-1 text-xs">
-                    <Button type="button" variant="outline" size="sm" className="h-7 px-2" disabled={pdfPage <= 1} onClick={() => { const next = Math.max(1, pdfPage - 1); setPdfPage(next); setPdfPageInput(String(next)); }}>上一页</Button>
+                    <span>定位页码</span>
                     <Input className="h-7 w-14 px-1 text-center" value={pdfPageInput} onChange={event => setPdfPageInput(event.target.value)} onKeyDown={event => { if (event.key === "Enter") { const next = Math.max(1, Math.min(pdfPageCount || 1, Number(pdfPageInput) || 1)); setPdfPage(next); setPdfPageInput(String(next)); } }} />
                     <span>/ {pdfPageCount || "-"}</span>
-                    <Button type="button" variant="outline" size="sm" className="h-7 px-2" disabled={!pdfPageCount || pdfPage >= pdfPageCount} onClick={() => { const next = Math.min(pdfPageCount, pdfPage + 1); setPdfPage(next); setPdfPageInput(String(next)); }}>下一页</Button>
+                    <Button type="button" variant="outline" size="sm" className="h-7 px-2" onClick={() => { const next = Math.max(1, Math.min(pdfPageCount || 1, Number(pdfPageInput) || 1)); setPdfPage(next); setPdfPageInput(String(next)); }}>定位</Button>
                     <Button type="button" variant="outline" size="sm" className="h-7 px-2" onClick={() => setPdfZoom(value => Math.max(0.75, Number((value - 0.25).toFixed(2))))}>−</Button>
                     <span className="w-10 text-center">{Math.round(pdfZoom * 100)}%</span>
                     <Button type="button" variant="outline" size="sm" className="h-7 px-2" onClick={() => setPdfZoom(value => Math.min(2.5, Number((value + 0.25).toFixed(2))))}>＋</Button>
@@ -660,12 +660,12 @@ function ChunkDialog({ mode, open, chunk, legal = false, onOpenChange, onSubmit 
                   <>
                     <div className="mb-2 text-xs text-muted-foreground">
                       {sourceContext.available && sourceContext.clauseNo ? `条款 ${sourceContext.clauseNo}` : "暂无可靠条款定位"}
-                      {sourceContext.pageStart ? ` · 已定位到 PDF 第 ${sourceContext.pageStart}${sourceContext.pageEnd && sourceContext.pageEnd !== sourceContext.pageStart ? `-${sourceContext.pageEnd}` : ""} 页` : " · 可手动浏览 PDF"}
+                      {sourceContext.pageStart ? ` · 打开时定位到 PDF 第 ${sourceContext.pageStart} 页` : " · 连续滚动浏览 PDF"}
                     </div>
-                    <div className="min-h-0 flex-1 overflow-hidden rounded border bg-white"><PdfPreview docId={String(chunk?.docId)} pageNumber={pdfPage} scale={pdfZoom} onPageCount={setPdfPageCount} /></div>
+                    <div className="min-h-0 flex-1 overflow-hidden rounded border bg-white"><PdfPreview docId={String(chunk?.docId)} initialPage={pdfPage} scale={pdfZoom} onPageCount={setPdfPageCount} /></div>
                   </>
                 ) : legal ? (
-                  <div className="min-h-0 flex-1 overflow-hidden rounded border bg-white"><PdfPreview docId={String(chunk?.docId)} pageNumber={pdfPage} scale={pdfZoom} onPageCount={setPdfPageCount} /></div>
+                  <div className="min-h-0 flex-1 overflow-hidden rounded border bg-white"><PdfPreview docId={String(chunk?.docId)} initialPage={pdfPage} scale={pdfZoom} onPageCount={setPdfPageCount} /></div>
                 ) : (
                   <div className="text-sm text-muted-foreground">普通文档暂无原文对照</div>
                 )}
