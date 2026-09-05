@@ -1260,6 +1260,7 @@ export function KnowledgeDocumentsPage() {
             <div className="space-y-4">
               {logData.records.slice(0, 1).map((log) => {
                 const isPipelineLog = log.processMode?.toLowerCase() === "pipeline";
+                const isIndexLog = log.processMode?.toLowerCase() === "index";
                 const chunkLabel = isPipelineLog ? "数据通道耗时" : "分块耗时";
                 return (
                 <div key={log.id} className="space-y-4">
@@ -1275,7 +1276,7 @@ export function KnowledgeDocumentsPage() {
                         {formatLogStatus(log.status)}
                       </span>
                       <span className="text-sm text-muted-foreground">
-                        {log.processMode === "pipeline" ? "数据通道" : "直接分块"}
+                        {isIndexLog ? "索引续跑" : log.processMode === "pipeline" ? "数据通道" : "直接分块"}
                         {log.processMode === "chunk" && parseProfileLabelOf(specSchema, log.parseProfile) ? ` · ${parseProfileLabelOf(specSchema, log.parseProfile)}` : ""}
                         {log.processMode === "pipeline" && (log.pipelineName || log.pipelineId) ? ` · ${log.pipelineName || log.pipelineId}` : ""}
                       </span>
@@ -1284,27 +1285,29 @@ export function KnowledgeDocumentsPage() {
                   </div>
 
                   {/* 耗时指标卡片 */}
-                  <div className={cn("grid gap-3", isPipelineLog ? "grid-cols-2 md:grid-cols-3" : "grid-cols-2 md:grid-cols-3 lg:grid-cols-4")}>
-                    {!isPipelineLog && (
+                  <div className={cn("grid gap-3", isPipelineLog || isIndexLog ? "grid-cols-2 md:grid-cols-3" : "grid-cols-2 md:grid-cols-3 lg:grid-cols-4")}>
+                    {!isPipelineLog && !isIndexLog && (
                       <div className="rounded-lg border bg-slate-50/50 p-3">
                         <div className="text-xs text-muted-foreground mb-1">文本提取</div>
                         <div className="text-lg font-semibold tabular-nums">{formatDuration(log.extractDuration)}</div>
                       </div>
                     )}
-                    <div className="rounded-lg border bg-slate-50/50 p-3">
-                      <div className="text-xs text-muted-foreground mb-1">{chunkLabel}</div>
-                      <div className="text-lg font-semibold tabular-nums">{formatDuration(log.chunkDuration)}</div>
-                    </div>
+                    {!isIndexLog && (
+                      <div className="rounded-lg border bg-slate-50/50 p-3">
+                        <div className="text-xs text-muted-foreground mb-1">{chunkLabel}</div>
+                        <div className="text-lg font-semibold tabular-nums">{formatDuration(log.chunkDuration)}</div>
+                      </div>
+                    )}
                     {!isPipelineLog && (
                       <div className="rounded-lg border bg-slate-50/50 p-3">
-                        <div className="text-xs text-muted-foreground mb-1">向量化</div>
+                        <div className="text-xs text-muted-foreground mb-1">{isIndexLog ? "索引处理" : "向量化"}</div>
                         <div className="text-lg font-semibold tabular-nums">{formatDuration(log.embedDuration)}</div>
                       </div>
                     )}
-                    <div className="rounded-lg border bg-slate-50/50 p-3">
+                    {!isIndexLog && <div className="rounded-lg border bg-slate-50/50 p-3">
                       <div className="text-xs text-muted-foreground mb-1">持久化</div>
                       <div className="text-lg font-semibold tabular-nums">{formatDuration(log.persistDuration)}</div>
-                    </div>
+                    </div>}
                     <div className="rounded-lg border bg-slate-50/50 p-3">
                       <div className="text-xs text-muted-foreground mb-1">其他</div>
                       <div className="text-lg font-semibold tabular-nums">{formatDuration(log.otherDuration)}</div>

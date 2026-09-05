@@ -267,6 +267,15 @@ public class KnowledgeDocumentServiceImpl implements KnowledgeDocumentService {
 
         KnowledgeBaseDO kbDO = knowledgeBaseMapper.selectById(documentDO.getKbId());
         VectorTarget target = vectorTargetResolver.resolve(kbDO);
+        KnowledgeDocumentChunkLogDO indexLog = KnowledgeDocumentChunkLogDO.builder()
+                .docId(docId)
+                .status(DocumentStatus.RUNNING.getCode())
+                .processMode("index")
+                .parseProfile("retry")
+                .startTime(new Date())
+                .build();
+        chunkLogMapper.insert(indexLog);
+        long indexStartTime = System.currentTimeMillis();
         documentMapper.updateById(KnowledgeDocumentDO.builder()
                 .id(docId)
                 .status(DocumentStatus.RUNNING.getCode())
@@ -275,6 +284,9 @@ public class KnowledgeDocumentServiceImpl implements KnowledgeDocumentService {
                 .build());
         try {
             int chunkCount = legalDocumentProcessingService.reindex(documentDO, target);
+            long totalDuration = System.currentTimeMillis() - indexStartTime;
+            updateChunkLog(indexLog.getId(), DocumentStatus.SUCCESS.getCode(), chunkCount,
+                    0, 0, totalDuration, 0, totalDuration, null);
             documentMapper.updateById(KnowledgeDocumentDO.builder()
                     .id(docId)
                     .status(DocumentStatus.SUCCESS.getCode())
@@ -283,6 +295,9 @@ public class KnowledgeDocumentServiceImpl implements KnowledgeDocumentService {
                     .updateTime(new Date())
                     .build());
         } catch (Exception e) {
+            long totalDuration = System.currentTimeMillis() - indexStartTime;
+            updateChunkLog(indexLog.getId(), DocumentStatus.FAILED.getCode(), 0,
+                    0, 0, totalDuration, 0, totalDuration, e.getMessage());
             documentMapper.updateById(KnowledgeDocumentDO.builder()
                     .id(docId)
                     .status(DocumentStatus.FAILED.getCode())
