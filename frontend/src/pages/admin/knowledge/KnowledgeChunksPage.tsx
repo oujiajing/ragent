@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { RelativeTime } from "@/components/RelativeTime";
+import { PdfPreview } from "@/components/document/PdfPreview";
 
 import type { KnowledgeChunk, KnowledgeDocument, LegalChunkSourceContext, LegalReviewSignal, PageResult } from "@/services/knowledgeService";
 import {
@@ -498,6 +499,7 @@ export function KnowledgeChunksPage() {
         mode="edit"
         open={editDialog.open}
         chunk={editDialog.chunk}
+        legal={doc?.processingStrategy === "LEGAL"}
         onOpenChange={(open) => setEditDialog({ open, chunk: open ? editDialog.chunk : null })}
         onSubmit={async (payload) => {
           if (!docId || !editDialog.chunk) return;
@@ -542,11 +544,12 @@ interface ChunkDialogProps {
   mode: "create" | "edit";
   open: boolean;
   chunk?: KnowledgeChunk | null;
+  legal?: boolean;
   onOpenChange: (open: boolean) => void;
   onSubmit: (payload: { content: string; index?: number | null }) => Promise<void>;
 }
 
-function ChunkDialog({ mode, open, chunk, onOpenChange, onSubmit }: ChunkDialogProps) {
+function ChunkDialog({ mode, open, chunk, legal = false, onOpenChange, onSubmit }: ChunkDialogProps) {
   const [content, setContent] = useState("");
   const [chunkIndex, setChunkIndex] = useState<string>("");
   const [saving, setSaving] = useState(false);
@@ -558,7 +561,7 @@ function ChunkDialog({ mode, open, chunk, onOpenChange, onSubmit }: ChunkDialogP
       setContent(chunk?.content || "");
       setChunkIndex("");
       setSourceContext(null);
-      if (chunk?.docId && chunk.id) {
+      if (legal && chunk?.docId && chunk.id) {
         getLegalChunkSourceContext(String(chunk.docId), String(chunk.id))
           .then(setSourceContext)
           .catch(() => setSourceContext({ available: false, message: "暂无原文对照" }));
@@ -568,7 +571,7 @@ function ChunkDialog({ mode, open, chunk, onOpenChange, onSubmit }: ChunkDialogP
     setContent("");
     setChunkIndex("");
     setSourceContext(null);
-  }, [open, mode, chunk]);
+  }, [open, mode, chunk, legal]);
 
   const handleSubmit = async () => {
     const trimmed = content.trim();
@@ -625,19 +628,18 @@ function ChunkDialog({ mode, open, chunk, onOpenChange, onSubmit }: ChunkDialogP
             {mode === "edit" ? (
               <div className="min-h-[280px] rounded-md border bg-muted/20 p-3">
                 <div className="mb-2 text-sm font-medium">原文对照</div>
-                {sourceContext?.available ? (
+                {legal && sourceContext?.available ? (
                   <>
                     <div className="mb-2 text-xs text-muted-foreground">
-                      {sourceContext.chapterTitle || sourceContext.sectionTitle || ""}
-                      {sourceContext.clauseNo ? ` · 条款 ${sourceContext.clauseNo}` : ""}
-                      {sourceContext.pageStart ? ` · PDF 第 ${sourceContext.pageStart}${sourceContext.pageEnd && sourceContext.pageEnd !== sourceContext.pageStart ? `-${sourceContext.pageEnd}` : ""} 页` : ""}
+                      {sourceContext.clauseNo ? `条款 ${sourceContext.clauseNo}` : "原文条款"}
+                      {sourceContext.pageStart ? ` · PDF 第 ${sourceContext.pageStart}${sourceContext.pageEnd && sourceContext.pageEnd !== sourceContext.pageStart ? `-${sourceContext.pageEnd}` : ""} 页` : " · 暂无精确页码定位"}
                     </div>
-                    <div className="max-h-[360px] overflow-y-auto whitespace-pre-wrap text-sm leading-6 text-muted-foreground">
-                      {sourceContext.originalText}
-                    </div>
+                    <div className="h-[360px] overflow-hidden rounded border bg-white"><PdfPreview docId={String(chunk?.docId)} pageStart={sourceContext.pageStart} pageEnd={sourceContext.pageEnd} /></div>
                   </>
+                ) : legal ? (
+                  <div className="text-sm text-muted-foreground">{sourceContext?.message || "正在加载 PDF 原文…"}</div>
                 ) : (
-                  <div className="text-sm text-muted-foreground">{sourceContext?.message || "正在加载原文对照..."}</div>
+                  <div className="text-sm text-muted-foreground">普通文档暂无原文对照</div>
                 )}
               </div>
             ) : null}

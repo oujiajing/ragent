@@ -16,6 +16,8 @@ const MAX_PIXEL_RATIO = 2;
 
 interface PdfPreviewProps {
   docId: string;
+  pageStart?: number | null;
+  pageEnd?: number | null;
 }
 
 interface PdfPageProps {
@@ -83,7 +85,7 @@ function PdfPage({ pdf, pageNumber, width, aspect }: PdfPageProps) {
  * PDF 在线预览：拉取鉴权后的源文件，用 pdf.js 自行绘制
  * 不走 iframe 是因为浏览器原生阅读器自带背景、页面外框与悬浮工具栏，样式不可控且各家不一致
  */
-export function PdfPreview({ docId }: PdfPreviewProps) {
+export function PdfPreview({ docId, pageStart, pageEnd }: PdfPreviewProps) {
   const listRef = useRef<HTMLDivElement>(null);
   const [pdf, setPdf] = useState<PDFDocumentProxy | null>(null);
   const [aspect, setAspect] = useState(0);
@@ -138,12 +140,19 @@ export function PdfPreview({ docId }: PdfPreviewProps) {
       ) : null}
       <div ref={listRef} className="flex flex-col">
         {pdf && aspect > 0 && width > 0
-          ? Array.from({ length: pdf.numPages }, (_, index) => (
-              <Fragment key={index}>
-                {index > 0 ? <div className="doc-page-divider px-8">第 {index + 1} 页</div> : null}
-                <PdfPage pdf={pdf} pageNumber={index + 1} width={width} aspect={aspect} />
-              </Fragment>
-            ))
+          ? (() => {
+              const start = pageStart && pageStart > 0 ? Math.min(pageStart, pdf.numPages) : 1;
+              const end = pageEnd && pageEnd >= start ? Math.min(pageEnd, pdf.numPages) : (pageStart && pageStart > 0 ? start : pdf.numPages);
+              return Array.from({ length: end - start + 1 }, (_, index) => {
+                const pageNumber = start + index;
+                return (
+                  <Fragment key={pageNumber}>
+                    {index > 0 || start > 1 ? <div className="doc-page-divider px-8">第 {pageNumber} 页</div> : null}
+                    <PdfPage pdf={pdf} pageNumber={pageNumber} width={width} aspect={aspect} />
+                  </Fragment>
+                );
+              });
+            })()
           : null}
       </div>
     </div>
