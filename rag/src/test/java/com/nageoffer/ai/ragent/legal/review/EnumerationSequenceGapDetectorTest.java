@@ -50,6 +50,21 @@ class EnumerationSequenceGapDetectorTest {
         assertThat(new EnumerationSequenceGapDetector().detect(List.of(complete, ordinary))).isEmpty();
     }
 
+    @Test
+    void recognizesMarkerJoinedDirectlyToChineseText() {
+        LegalClause clause = clause(List.of(
+                new LegalSubUnit(LegalStructureType.ITEM, "1", "", "", 0),
+                new LegalSubUnit(LegalStructureType.ITEM, "2", "", "", 1),
+                new LegalSubUnit(LegalStructureType.ITEM, "3", "", "", 2),
+                new LegalSubUnit(LegalStructureType.ITEM, "5", "", "", 4)));
+        LegalClause withRawText = new LegalClause(clause.clauseId(), clause.documentId(), clause.contentRole(), clause.structureType(),
+                clause.chapterNo(), clause.chapterTitle(), clause.sectionNo(), clause.sectionTitle(), clause.clauseNo(), clause.hierarchyPath(),
+                "1地下水范围\n2施工方案\n3勘察资料\n4周围建构筑物\n5现场条件", clause.normalizedText(), clause.children(),
+                clause.firstElementId(), clause.lastElementId(), clause.pageStart(), clause.pageEnd(), clause.sourceStartOffset(), clause.sourceEndOffset());
+
+        assertThat(new EnumerationSequenceGapDetector().detect(List.of(withRawText))).isEmpty();
+    }
+
     private static LegalClause clause(List<LegalSubUnit> children) {
         return new LegalClause("a", "doc", LegalContentRole.NORMATIVE, LegalStructureType.CLAUSE,
                 "1", "", "", "", "1.1", "", "", "", children, "e", "e", 1, 1, 0, 1);

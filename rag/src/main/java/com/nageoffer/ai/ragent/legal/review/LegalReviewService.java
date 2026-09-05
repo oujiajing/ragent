@@ -171,7 +171,13 @@ public class LegalReviewService {
     }
 
     private LegalReviewSignalVO mapRow(ResultSet rs) throws java.sql.SQLException {
-        return new LegalReviewSignalVO(rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5), rs.getString(6), readList(rs.getString(7)), readList(rs.getString(8)), readMap(rs.getString(9)), rs.getString(10), rs.getString(11), rs.getInt(12), rs.getObject(13, LocalDateTime.class));
+        List<String> clauseIds = readList(rs.getString(7));
+        List<String> clauseNos = clauseIds.stream().map(this::clauseNo).filter(value -> !value.isBlank()).toList();
+        return new LegalReviewSignalVO(rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5), rs.getString(6), clauseIds, clauseNos, readList(rs.getString(8)), readMap(rs.getString(9)), rs.getString(10), rs.getString(11), rs.getInt(12), rs.getObject(13, LocalDateTime.class));
+    }
+
+    private String clauseNo(String clauseId) {
+        return jdbcTemplate.query("SELECT clause_no FROM t_legal_clause WHERE id=?", rs -> rs.next() ? rs.getString(1) : "", clauseId);
     }
 
     private LegalClause toModel(LegalClauseDO row) {

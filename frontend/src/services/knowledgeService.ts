@@ -76,6 +76,7 @@ export interface LegalReviewSignal {
   signalType: "CLAUSE_SEQUENCE_GAP" | "ENUMERATION_SEQUENCE_GAP" | string;
   message: string;
   relatedClauseIds: string[];
+  relatedClauseNos: string[];
   relatedChunkIds: string[];
   evidence: Record<string, unknown>;
   reviewStatus: "PENDING_REVIEW" | "VERIFIED_OK" | "ISSUE_CONFIRMED";

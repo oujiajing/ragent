@@ -29,6 +29,7 @@ public record LegalReviewSignalVO(
         String signalType,
         String message,
         List<String> relatedClauseIds,
+        List<String> relatedClauseNos,
         List<String> relatedChunkIds,
         Map<String, Object> evidence,
         String reviewStatus,

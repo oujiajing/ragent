@@ -451,13 +451,11 @@ export function KnowledgeChunksPage() {
       <Dialog open={Boolean(reviewOpen)} onOpenChange={(open) => !open && setReviewOpen(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>记录问题复核结论</DialogTitle>
-            <DialogDescription>{reviewOpen?.message || "逐项记录结论，不会改变质量门禁或检索资格。"}</DialogDescription>
+            <DialogTitle>问题复核</DialogTitle>
           </DialogHeader>
           <div className="space-y-2 text-sm text-muted-foreground">
-            <div>关联条款：{reviewOpen?.relatedClauseIds.join(", ") || "-"}</div>
-            <div>关联分块：{reviewOpen?.relatedChunkIds.join(", ") || "-"}</div>
-            <div>检测证据：{reviewOpen ? JSON.stringify(reviewOpen.evidence) : "-"}</div>
+            <div><span className="font-medium text-foreground">可疑问题：</span>{reviewOpen?.message || "-"}</div>
+            <div><span className="font-medium text-foreground">关联条款：</span>{reviewOpen?.relatedClauseNos.join("、") || "当前条款"}</div>
           </div>
           {reviewOpen?.reviewStatus === "PENDING_REVIEW" ? <Textarea value={reviewReason} onChange={(event) => setReviewReason(event.target.value)} placeholder="请输入核对依据" /> : null}
           <DialogFooter>

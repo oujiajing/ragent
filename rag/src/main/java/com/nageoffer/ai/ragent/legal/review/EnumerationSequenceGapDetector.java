@@ -29,13 +29,15 @@ import java.util.regex.Pattern;
 /** Detects interior gaps in one clause's structured children or clearly delimited list lines. */
 public final class EnumerationSequenceGapDetector {
 
-    private static final Pattern MARKER = Pattern.compile("^\\s*(?:[（(]?)(\\d+)[）)]?\\s*(?:[、.:：]|$)(.*)$");
+    private static final Pattern MARKER = Pattern.compile("^\\s*(?:[（(]?)(\\d{1,3})(?:[）)]|[、:：]|\\.(?!\\d)|\\s+|(?=[\\u4e00-\\u9fff]))(.*)$");
 
     public List<ReviewSignalCandidate> detect(List<LegalClause> clauses) {
         List<ReviewSignalCandidate> result = new ArrayList<>();
         for (LegalClause clause : clauses == null ? List.<LegalClause>of() : clauses) {
-            List<String> markers = structuredMarkers(clause.children());
-            if (markers.size() < 2) markers = lineMarkers(clause.rawText());
+            List<String> structured = structuredMarkers(clause.children());
+            List<String> raw = lineMarkers(clause.rawText());
+            List<String> markers = raw.size() > structured.size() ? raw : structured;
+            if (markers.size() < 2) markers = raw;
             if (markers.size() < 2) continue;
             List<Integer> numbers = markers.stream().map(this::parse).filter(value -> value != null).toList();
             for (int i = 1; i < numbers.size(); i++) {
