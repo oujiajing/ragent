@@ -1,0 +1,166 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.nageoffer.ai.ragent.legal.review;
+
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nageoffer.ai.ragent.framework.context.UserContext;
+import com.nageoffer.ai.ragent.framework.exception.ClientException;
+import com.nageoffer.ai.ragent.legal.dao.entity.LegalClauseDO;
+import com.nageoffer.ai.ragent.legal.dao.mapper.LegalClauseMapper;
+import com.nageoffer.ai.ragent.legal.model.LegalClause;
+import com.nageoffer.ai.ragent.knowledge.dao.entity.KnowledgeDocumentDO;
+import com.nageoffer.ai.ragent.knowledge.dao.mapper.KnowledgeDocumentMapper;
+import com.nageoffer.ai.ragent.knowledge.controller.vo.KnowledgeChunkVO;
+import lombok.RequiredArgsConstructor;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.sql.ResultSet;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HexFormat;
+import java.util.List;
+import java.util.Map;
+
+@Service
+@RequiredArgsConstructor
+public class LegalReviewService {
+
+    private static final String DETECTOR_VERSION = "1.0.0";
+    private final JdbcTemplate jdbcTemplate;
+    private final ObjectMapper objectMapper;
+    private final LegalClauseMapper clauseMapper;
+    private final KnowledgeDocumentMapper documentMapper;
+    private final ClauseSequenceGapDetector clauseDetector = new ClauseSequenceGapDetector();
+    private final EnumerationSequenceGapDetector enumerationDetector = new EnumerationSequenceGapDetector();
+
+    public int audit(String documentId) {
+        requireDocument(documentId);
+        markRun(documentId, "RUNNING", 0, null);
+        try {
+            List<LegalClauseDO> rows = clauseMapper.selectList(new LambdaQueryWrapper<LegalClauseDO>()
+                    .eq(LegalClauseDO::getDocumentId, documentId).orderByAsc(LegalClauseDO::getCreateTime));
+            List<LegalClause> clauses = rows.stream().map(this::toModel).toList();
+            List<ReviewSignalCandidate> candidates = new ArrayList<>(clauseDetector.detect(clauses));
+            candidates.addAll(enumerationDetector.detect(clauses));
+            for (ReviewSignalCandidate candidate : candidates) upsert(candidate);
+            markRun(documentId, "SUCCESS", candidates.size(), null);
+            return candidates.size();
+        } catch (RuntimeException error) {
+            markRun(documentId, "FAILED", 0, error.getMessage());
+            throw error;
+        }
+    }
+
+    public LegalReviewOverviewVO overview(String documentId) {
+        requireDocument(documentId);
+        Long total = jdbcTemplate.queryForObject("SELECT count(*) FROM t_legal_review_signal WHERE document_id=? AND lifecycle_status='ACTIVE'", Long.class, documentId);
+        Long reviewed = jdbcTemplate.queryForObject("SELECT count(*) FROM t_legal_review_signal WHERE document_id=? AND lifecycle_status='ACTIVE' AND review_status<>'PENDING_REVIEW'", Long.class, documentId);
+        Long pending = jdbcTemplate.queryForObject("SELECT count(*) FROM t_legal_review_signal WHERE document_id=? AND lifecycle_status='ACTIVE' AND review_status='PENDING_REVIEW'", Long.class, documentId);
+        Long docs = jdbcTemplate.queryForObject("SELECT count(*) FROM t_legal_review_signal WHERE document_id=? AND lifecycle_status='ACTIVE' AND scope='DOCUMENT'", Long.class, documentId);
+        Long chunks = jdbcTemplate.queryForObject("SELECT count(DISTINCT x.value) FROM t_legal_review_signal s CROSS JOIN LATERAL jsonb_array_elements_text(s.related_chunk_ids) x(value) WHERE s.document_id=? AND s.lifecycle_status='ACTIVE'", Long.class, documentId);
+        String detectionStatus = jdbcTemplate.query("SELECT status FROM t_legal_review_run WHERE document_id=?", rs -> rs.next() ? rs.getString(1) : "NOT_RUN", documentId);
+        return new LegalReviewOverviewVO(detectionStatus, value(total), value(reviewed), value(pending), value(docs), value(chunks));
+    }
+
+    public void enrichChunks(String documentId, List<KnowledgeChunkVO> chunks) {
+        if (chunks == null || chunks.isEmpty()) return;
+        for (KnowledgeChunkVO chunk : chunks) {
+            Map<String, Object> summary = jdbcTemplate.query("SELECT COALESCE(bool_or(review_status='PENDING_REVIEW'), false), COALESCE(bool_or(review_status='ISSUE_CONFIRMED'), false), count(*) FROM t_legal_review_signal WHERE document_id=? AND lifecycle_status='ACTIVE' AND related_chunk_ids ? ?", rs -> {
+                if (!rs.next()) return Map.<String, Object>of();
+                return Map.of("pending", rs.getBoolean(1), "issue", rs.getBoolean(2), "count", rs.getInt(3));
+            }, documentId, chunk.getId());
+            boolean pending = Boolean.TRUE.equals(summary.get("pending"));
+            boolean issue = Boolean.TRUE.equals(summary.get("issue"));
+            int count = ((Number) summary.getOrDefault("count", 0)).intValue();
+            chunk.setReviewIssueCount(count);
+            if (pending) chunk.setReviewStatus("NEEDS_REVIEW");
+            else if (issue) chunk.setReviewStatus("ISSUE_CONFIRMED");
+            else if (count > 0) chunk.setReviewStatus("VERIFIED_OK");
+            else {
+                String status = jdbcTemplate.query("SELECT status FROM t_legal_review_run WHERE document_id=?", rs -> rs.next() ? rs.getString(1) : "NOT_RUN", documentId);
+                chunk.setReviewStatus("SUCCESS".equals(status) ? "NOT_FOUND" : "FAILED".equals(status) ? "DETECTION_FAILED" : "DETECTION_PENDING");
+            }
+        }
+    }
+
+    public void markChunkChanged(String documentId, String chunkId) {
+        jdbcTemplate.update("UPDATE t_legal_review_signal SET lifecycle_status='STALE', update_time=CURRENT_TIMESTAMP WHERE document_id=? AND lifecycle_status='ACTIVE' AND related_chunk_ids ? ?", documentId, chunkId);
+        jdbcTemplate.update("UPDATE t_legal_review_run SET status='PENDING_RECHECK', updated_at=CURRENT_TIMESTAMP WHERE document_id=?", documentId);
+    }
+
+    private void markRun(String documentId, String status, int count, String error) {
+        jdbcTemplate.update("INSERT INTO t_legal_review_run(document_id, status, detector_version, signal_count, error_message, updated_at) VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP) ON CONFLICT (document_id) DO UPDATE SET status=EXCLUDED.status, detector_version=EXCLUDED.detector_version, signal_count=EXCLUDED.signal_count, error_message=EXCLUDED.error_message, updated_at=CURRENT_TIMESTAMP", documentId, status, DETECTOR_VERSION, count, error);
+    }
+
+    public List<LegalReviewSignalVO> list(String documentId, String signalType, String reviewStatus) {
+        requireDocument(documentId);
+        return jdbcTemplate.query("SELECT id, document_id, scope, target_id, signal_type, message, related_clause_ids, related_chunk_ids, evidence, review_status, review_reason, version, reviewed_at FROM t_legal_review_signal WHERE document_id=? AND lifecycle_status='ACTIVE' AND (? IS NULL OR signal_type=?) AND (? IS NULL OR review_status=?) ORDER BY create_time, id",
+                (rs, row) -> mapRow(rs), documentId, signalType, signalType, reviewStatus, reviewStatus);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void review(String signalId, LegalReviewStatus status, String reason, int expectedVersion) {
+        if (status == null || status == LegalReviewStatus.PENDING_REVIEW) throw new ClientException("复核结论必须是 VERIFIED_OK 或 ISSUE_CONFIRMED");
+        if (reason == null || reason.isBlank() || reason.length() > 1000) throw new ClientException("复核原因不能为空且不能超过1000字");
+        int updated = jdbcTemplate.update("UPDATE t_legal_review_signal SET review_status=?, review_reason=?, reviewed_by=?, reviewed_at=CURRENT_TIMESTAMP, version=version+1, update_time=CURRENT_TIMESTAMP WHERE id=? AND lifecycle_status='ACTIVE' AND version=?",
+                status.name(), reason.trim(), UserContext.getUsername(), signalId, expectedVersion);
+        if (updated != 1) throw new ClientException("问题不存在、已失效或版本已变化，请刷新后重试");
+    }
+
+    private void upsert(ReviewSignalCandidate candidate) {
+        String evidence = write(candidate.evidence());
+        String clauses = write(candidate.relatedClauseIds());
+        List<String> relatedChunkIds = candidate.relatedChunkIds().isEmpty()
+                ? jdbcTemplate.query("SELECT id FROM t_knowledge_chunk WHERE doc_id=? AND parent_clause_id IN (" + placeholders(candidate.relatedClauseIds().size()) + ") AND deleted=0 ORDER BY chunk_index", (rs, row) -> rs.getString(1), concat(documentId(candidate), candidate.relatedClauseIds()).toArray())
+                : candidate.relatedChunkIds();
+        String chunks = write(relatedChunkIds);
+        String chunkFingerprint = relatedChunkIds.isEmpty() ? "" : jdbcTemplate.queryForObject("SELECT COALESCE(string_agg(id || ':' || COALESCE(content_hash, ''), ',' ORDER BY chunk_index), '') FROM t_knowledge_chunk WHERE doc_id=? AND id IN (" + placeholders(relatedChunkIds.size()) + ") AND deleted=0", String.class, concat(candidate.documentId(), relatedChunkIds).toArray());
+        String fingerprint = sha256(candidate.stableKey() + evidence + chunkFingerprint);
+        String effectiveStableKey = candidate.stableKey() + "|" + fingerprint;
+        jdbcTemplate.update("INSERT INTO t_legal_review_signal (id, document_id, scope, target_id, signal_type, stable_key, related_clause_ids, related_chunk_ids, message, evidence, detector_version, input_fingerprint) VALUES (?, ?, ?, ?, ?, ?, ?::jsonb, ?::jsonb, ?, ?::jsonb, ?, ?) ON CONFLICT (stable_key) DO UPDATE SET target_id=EXCLUDED.target_id, related_clause_ids=EXCLUDED.related_clause_ids, related_chunk_ids=EXCLUDED.related_chunk_ids, message=EXCLUDED.message, evidence=EXCLUDED.evidence, detector_version=EXCLUDED.detector_version, input_fingerprint=EXCLUDED.input_fingerprint, update_time=CURRENT_TIMESTAMP WHERE t_legal_review_signal.review_status='PENDING_REVIEW'",
+                id(effectiveStableKey), candidate.documentId(), candidate.scope().name(), candidate.targetId(), candidate.signalType().name(), effectiveStableKey, clauses, chunks, candidate.message(), evidence, DETECTOR_VERSION, fingerprint);
+    }
+
+    private LegalReviewSignalVO mapRow(ResultSet rs) throws java.sql.SQLException {
+        return new LegalReviewSignalVO(rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5), rs.getString(6), readList(rs.getString(7)), readList(rs.getString(8)), readMap(rs.getString(9)), rs.getString(10), rs.getString(11), rs.getInt(12), rs.getObject(13, LocalDateTime.class));
+    }
+
+    private LegalClause toModel(LegalClauseDO row) {
+        return new LegalClause(row.getId(), row.getDocumentId(), enumValue(row.getContentRole(), com.nageoffer.ai.ragent.legal.enums.LegalContentRole.UNKNOWN), enumValue(row.getStructureType(), com.nageoffer.ai.ragent.legal.enums.LegalStructureType.UNKNOWN), row.getChapterNo(), row.getChapterTitle(), row.getSectionNo(), row.getSectionTitle(), row.getClauseNo(), row.getHierarchyPath(), row.getRawText(), row.getNormalizedText(), readChildren(row.getChildrenJson()), row.getFirstElementId(), row.getLastElementId(), row.getPageStart(), row.getPageEnd(), 0, Math.max(0, row.getNormalizedText() == null ? 0 : row.getNormalizedText().length()));
+    }
+
+    private List<com.nageoffer.ai.ragent.legal.model.LegalSubUnit> readChildren(String value) { try { return value == null ? List.of() : objectMapper.readValue(value, new TypeReference<>() {}); } catch (Exception ignored) { return List.of(); } }
+    private List<String> readList(String value) { try { return objectMapper.readValue(value, new TypeReference<>() {}); } catch (Exception ignored) { return List.of(); } }
+    private Map<String, Object> readMap(String value) { try { return objectMapper.readValue(value, new TypeReference<>() {}); } catch (Exception ignored) { return Map.of(); } }
+    private String write(Object value) { try { return objectMapper.writeValueAsString(value); } catch (JsonProcessingException e) { throw new IllegalStateException(e); } }
+    private void requireDocument(String id) { KnowledgeDocumentDO document = documentMapper.selectById(id); if (document == null) throw new ClientException("文档不存在"); }
+    private static long value(Long value) { return value == null ? 0 : value; }
+    private static String id(String stableKey) { return sha256(stableKey).substring(0, 32); }
+    private static String placeholders(int count) { return String.join(",", java.util.Collections.nCopies(Math.max(1, count), "?")); }
+    private static List<Object> concat(String documentId, List<String> clauses) { List<Object> values = new ArrayList<>(); values.add(documentId); values.addAll(clauses); return values; }
+    private static String documentId(ReviewSignalCandidate candidate) { return candidate.documentId(); }
+    private static String sha256(String value) { try { return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(value.getBytes(StandardCharsets.UTF_8))); } catch (Exception e) { throw new IllegalStateException(e); } }
+    private static <T extends Enum<T>> T enumValue(String value, T fallback) { try { return value == null ? fallback : Enum.valueOf(fallback.getDeclaringClass(), value); } catch (Exception ignored) { return fallback; } }
+}

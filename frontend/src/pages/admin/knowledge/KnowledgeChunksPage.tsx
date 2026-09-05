@@ -15,7 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { RelativeTime } from "@/components/RelativeTime";
 
-import type { KnowledgeChunk, KnowledgeDocument, PageResult } from "@/services/knowledgeService";
+import type { KnowledgeChunk, KnowledgeDocument, LegalReviewSignal, PageResult } from "@/services/knowledgeService";
 import {
   batchToggleChunks,
   createChunk,
@@ -24,7 +24,10 @@ import {
   getChunksPage,
   getDocument,
   getKnowledgeBase,
-  updateChunk
+  updateChunk,
+  getLegalReviewSignals,
+  reviewLegalSignal,
+  getChunkChapters
 } from "@/services/knowledgeService";
 import { getErrorMessage } from "@/utils/error";
 
@@ -54,6 +57,13 @@ export function KnowledgeChunksPage() {
     chunk: null
   });
   const [deleteTarget, setDeleteTarget] = useState<KnowledgeChunk | null>(null);
+  const [chapters, setChapters] = useState<string[]>([]);
+  const [chapterFilter, setChapterFilter] = useState<string>("all");
+  const [reviewSignals, setReviewSignals] = useState<LegalReviewSignal[]>([]);
+  const [reviewFilter, setReviewFilter] = useState<string>("all");
+  const [reviewOpen, setReviewOpen] = useState<LegalReviewSignal | null>(null);
+  const [reviewReason, setReviewReason] = useState("");
+  const [pageInput, setPageInput] = useState("");
   const chunks = pageData?.records || [];
 
   const selectedList = useMemo(() => Array.from(selectedIds), [selectedIds]);
@@ -69,14 +79,16 @@ export function KnowledgeChunksPage() {
     }
   }, [docId]);
 
-  const loadChunks = useCallback(async (current = pageNo, enabled = enabledFilter) => {
+  const loadChunks = useCallback(async (current = pageNo, enabled = enabledFilter, chapter = chapterFilter, review = reviewFilter) => {
     if (!docId) return;
     setLoading(true);
     try {
       const data = await getChunksPage(docId, {
         current,
         size: PAGE_SIZE,
-        enabled
+        enabled,
+        chapterNo: chapter === "all" ? undefined : chapter,
+        reviewStatus: review === "all" ? undefined : review
       });
       setPageData(data);
     } catch (error) {
@@ -85,7 +97,7 @@ export function KnowledgeChunksPage() {
     } finally {
       setLoading(false);
     }
-  }, [docId, enabledFilter, pageNo]);
+  }, [docId, enabledFilter, pageNo, chapterFilter, reviewFilter]);
 
   useEffect(() => {
     loadDocument();
@@ -98,12 +110,54 @@ export function KnowledgeChunksPage() {
   }, [kbId]);
 
   useEffect(() => {
+    if (docId && doc?.processingStrategy === "LEGAL") {
+      getChunkChapters(docId).then(setChapters).catch(() => setChapters([]));
+    } else {
+      setChapters([]);
+    }
+  }, [docId, doc?.processingStrategy]);
+
+  useEffect(() => {
     loadChunks();
   }, [loadChunks]);
 
+  const loadLegalReview = useCallback(async () => {
+    if (!docId || doc?.processingStrategy !== "LEGAL") return;
+    try {
+      setReviewSignals(await getLegalReviewSignals(docId));
+    } catch (error) {
+      toast.error(getErrorMessage(error, "加载法律复核信息失败"));
+    }
+  }, [docId, doc?.processingStrategy]);
+
+  useEffect(() => {
+    loadLegalReview();
+  }, [loadLegalReview]);
+
   useEffect(() => {
     setSelectedIds(new Set());
-  }, [docId, enabledFilter]);
+  }, [docId, enabledFilter, chapterFilter, reviewFilter]);
+
+  const signalsByChunk = useMemo(() => {
+    const result = new Map<string, LegalReviewSignal[]>();
+    reviewSignals.forEach((signal) => signal.relatedChunkIds.forEach((chunkId) => {
+      const current = result.get(String(chunkId)) || [];
+      current.push(signal);
+      result.set(String(chunkId), current);
+    }));
+    return result;
+  }, [reviewSignals]);
+
+  const jumpToPage = () => {
+    const target = Number(pageInput);
+    const maxPage = pageData?.pages || 0;
+    if (!Number.isInteger(target) || target < 1 || target > maxPage) {
+      toast.error(maxPage > 0 ? `请输入 1-${maxPage} 之间的页码` : "当前没有可跳转的页面");
+      return;
+    }
+    setPageNo(target);
+    setPageInput("");
+  };
 
   const allSelected = chunks.length > 0 && chunks.every((chunk) => selectedIds.has(String(chunk.id)));
 
@@ -207,6 +261,28 @@ export function KnowledgeChunksPage() {
               <CardDescription>支持编辑、启停、批量操作</CardDescription>
             </div>
             <div className="flex flex-1 flex-wrap items-center justify-end gap-2">
+              {doc?.processingStrategy === "LEGAL" ? (
+                <>
+                  <Select value={chapterFilter} onValueChange={(value) => { setPageNo(1); setChapterFilter(value); }}>
+                    <SelectTrigger className="w-[160px]"><SelectValue placeholder="按章筛选" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">全部章节</SelectItem>
+                      {chapters.map((chapter) => <SelectItem key={chapter || "uncategorized"} value={chapter || "__UNCATEGORIZED__"}>{chapter || "未归类"}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                  <Select value={reviewFilter} onValueChange={(value) => { setPageNo(1); setReviewFilter(value); }}>
+                    <SelectTrigger className="w-[160px]"><SelectValue placeholder="复核状态" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">全部复核状态</SelectItem>
+                      <SelectItem value="NEEDS_REVIEW">需要复核</SelectItem>
+                      <SelectItem value="ISSUE_CONFIRMED">已确认异常</SelectItem>
+                      <SelectItem value="VERIFIED_OK">已确认正常</SelectItem>
+                      <SelectItem value="NOT_FOUND">未发现异常</SelectItem>
+                      <SelectItem value="DETECTION_FAILED">检测失败</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </>
+              ) : null}
               <Select
                 value={enabledFilter === undefined ? "all" : String(enabledFilter)}
                 onValueChange={(value) => {
@@ -258,7 +334,7 @@ export function KnowledgeChunksPage() {
                   </TableHead>
                   <TableHead className="w-[70px]">序号</TableHead>
                   <TableHead>内容</TableHead>
-                  <TableHead className="w-[90px]">状态</TableHead>
+                  <TableHead className="w-[150px]">状态</TableHead>
                   <TableHead className="w-[90px]">字符数</TableHead>
                   <TableHead className="w-[90px]">
                     <span className="inline-flex items-center gap-1">
@@ -294,9 +370,21 @@ export function KnowledgeChunksPage() {
                       {truncateText(chunk.content)}
                     </TableCell>
                     <TableCell>
-                      <Badge variant={chunk.enabled === 1 ? "default" : "outline"}>
-                        {enabledLabel(chunk.enabled)}
-                      </Badge>
+                      <div className="flex flex-col items-start gap-1">
+                        <Badge variant={chunk.enabled === 1 ? "default" : "outline"}>{enabledLabel(chunk.enabled)}</Badge>
+                        {doc?.processingStrategy === "LEGAL" && chunk.reviewStatus ? (
+                          <Badge
+                            variant={chunk.reviewStatus === "NEEDS_REVIEW" ? "destructive" : "secondary"}
+                            className="cursor-pointer"
+                            onClick={() => {
+                              const signal = signalsByChunk.get(String(chunk.id))?.[0];
+                              if (signal) { setReviewReason(""); setReviewOpen(signal); }
+                            }}
+                          >
+                            {reviewStatusLabel(chunk.reviewStatus, chunk.reviewIssueCount)}
+                          </Badge>
+                        ) : null}
+                      </div>
                     </TableCell>
                     <TableCell>{chunk.charCount ?? "-"}</TableCell>
                     <TableCell>{chunk.tokenCount ?? "-"}</TableCell>
@@ -337,6 +425,14 @@ export function KnowledgeChunksPage() {
                 <span>
                   {pageData.current} / {pageData.pages}
                 </span>
+                <Input
+                  className="h-8 w-20"
+                  value={pageInput}
+                  placeholder="页码"
+                  onChange={(event) => setPageInput(event.target.value)}
+                  onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); jumpToPage(); } }}
+                />
+                <Button variant="outline" size="sm" onClick={jumpToPage}>跳转</Button>
                 <Button
                   variant="outline"
                   size="sm"
@@ -350,6 +446,40 @@ export function KnowledgeChunksPage() {
           ) : null}
         </CardContent>
       </Card>
+
+      <Dialog open={Boolean(reviewOpen)} onOpenChange={(open) => !open && setReviewOpen(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>记录问题复核结论</DialogTitle>
+            <DialogDescription>{reviewOpen?.message || "逐项记录结论，不会改变质量门禁或检索资格。"}</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2 text-sm text-muted-foreground">
+            <div>关联条款：{reviewOpen?.relatedClauseIds.join(", ") || "-"}</div>
+            <div>关联分块：{reviewOpen?.relatedChunkIds.join(", ") || "-"}</div>
+            <div>检测证据：{reviewOpen ? JSON.stringify(reviewOpen.evidence) : "-"}</div>
+          </div>
+          {reviewOpen?.reviewStatus === "PENDING_REVIEW" ? <Textarea value={reviewReason} onChange={(event) => setReviewReason(event.target.value)} placeholder="请输入核对依据" /> : null}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setReviewOpen(null)}>关闭</Button>
+            {reviewOpen?.reviewStatus === "PENDING_REVIEW" ? <>
+              <Button variant="outline" onClick={async () => {
+                if (!reviewOpen || !reviewReason.trim()) return toast.error("请输入复核原因");
+                await reviewLegalSignal(reviewOpen.id, { signalStatus: "VERIFIED_OK", reason: reviewReason.trim(), expectedVersion: reviewOpen.version });
+                setReviewOpen(null);
+                await loadLegalReview();
+                await loadChunks(pageNo, enabledFilter);
+              }}>确认正常</Button>
+              <Button variant="destructive" onClick={async () => {
+                if (!reviewOpen || !reviewReason.trim()) return toast.error("请输入复核原因");
+                await reviewLegalSignal(reviewOpen.id, { signalStatus: "ISSUE_CONFIRMED", reason: reviewReason.trim(), expectedVersion: reviewOpen.version });
+                setReviewOpen(null);
+                await loadLegalReview();
+                await loadChunks(pageNo, enabledFilter);
+              }}>确认异常</Button>
+            </> : <span className="self-center text-sm">已记录：{reviewOpen?.reviewReason || "-"}</span>}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <ChunkDialog
         mode="create"
@@ -396,6 +526,16 @@ export function KnowledgeChunksPage() {
     </div>
   );
 }
+
+const reviewStatusLabel = (status?: KnowledgeChunk["reviewStatus"], count?: number | null) => {
+  if (status === "NEEDS_REVIEW") return `需要复核${count ? ` (${count})` : ""}`;
+  if (status === "ISSUE_CONFIRMED") return "已确认异常";
+  if (status === "VERIFIED_OK") return "已确认正常";
+  if (status === "DETECTION_FAILED") return "检测失败";
+  if (status === "DETECTION_PENDING") return "检测中";
+  if (status === "NOT_FOUND") return "未发现异常";
+  return "";
+};
 
 interface ChunkDialogProps {
   mode: "create" | "edit";

@@ -53,6 +53,7 @@ import com.nageoffer.ai.ragent.framework.exception.ServiceException;
 import com.nageoffer.ai.ragent.infra.token.TokenCounterService;
 import com.nageoffer.ai.ragent.knowledge.enums.DocumentStatus;
 import com.nageoffer.ai.ragent.rag.core.vector.VectorStoreService;
+import com.nageoffer.ai.ragent.legal.review.LegalReviewService;
 import com.nageoffer.ai.ragent.knowledge.service.KnowledgeChunkService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -83,6 +84,7 @@ public class KnowledgeChunkServiceImpl implements KnowledgeChunkService {
     private final VectorStoreService vectorStoreService;
     private final TransactionOperations transactionOperations;
     private final BizChangeLogContext bizChangeLogContext;
+    private final LegalReviewService legalReviewService;
 
     @Override
     public IPage<KnowledgeChunkVO> pageQuery(String docId, KnowledgeChunkPageRequest requestParam) {
@@ -92,11 +94,39 @@ public class KnowledgeChunkServiceImpl implements KnowledgeChunkService {
         LambdaQueryWrapper<KnowledgeChunkDO> queryWrapper = new LambdaQueryWrapper<KnowledgeChunkDO>()
                 .eq(KnowledgeChunkDO::getDocId, docId)
                 .eq(requestParam.getEnabled() != null, KnowledgeChunkDO::getEnabled, requestParam.getEnabled())
+                .eq(StrUtil.isNotBlank(requestParam.getChapterNo()) && !"__UNCATEGORIZED__".equals(requestParam.getChapterNo()), KnowledgeChunkDO::getChapterNo, requestParam.getChapterNo())
+                .apply("__UNCATEGORIZED__".equals(requestParam.getChapterNo()), "(chapter_no IS NULL OR chapter_no='')")
                 .orderByAsc(KnowledgeChunkDO::getChunkIndex);
+
+        if (StrUtil.isNotBlank(requestParam.getReviewStatus())) {
+            String status = requestParam.getReviewStatus();
+            if (!List.of("NEEDS_REVIEW", "ISSUE_CONFIRMED", "VERIFIED_OK", "NOT_FOUND", "DETECTION_FAILED", "DETECTION_PENDING").contains(status)) {
+                throw new ClientException("复核状态不合法");
+            }
+            String exists = "EXISTS (SELECT 1 FROM t_legal_review_signal s WHERE s.document_id = t_knowledge_chunk.doc_id AND s.lifecycle_status='ACTIVE' AND s.related_chunk_ids ? t_knowledge_chunk.id)";
+            if ("NEEDS_REVIEW".equals(status)) queryWrapper.apply("EXISTS (SELECT 1 FROM t_legal_review_signal s WHERE s.document_id = t_knowledge_chunk.doc_id AND s.lifecycle_status='ACTIVE' AND s.review_status='PENDING_REVIEW' AND s.related_chunk_ids ? t_knowledge_chunk.id)");
+            else if ("ISSUE_CONFIRMED".equals(status)) queryWrapper.apply("EXISTS (SELECT 1 FROM t_legal_review_signal s WHERE s.document_id = t_knowledge_chunk.doc_id AND s.lifecycle_status='ACTIVE' AND s.review_status='ISSUE_CONFIRMED' AND s.related_chunk_ids ? t_knowledge_chunk.id) AND NOT EXISTS (SELECT 1 FROM t_legal_review_signal p WHERE p.document_id=t_knowledge_chunk.doc_id AND p.lifecycle_status='ACTIVE' AND p.review_status='PENDING_REVIEW' AND p.related_chunk_ids ? t_knowledge_chunk.id)");
+            else if ("VERIFIED_OK".equals(status)) queryWrapper.apply(exists + " AND NOT EXISTS (SELECT 1 FROM t_legal_review_signal p WHERE p.document_id=t_knowledge_chunk.doc_id AND p.lifecycle_status='ACTIVE' AND p.review_status='PENDING_REVIEW' AND p.related_chunk_ids ? t_knowledge_chunk.id) AND NOT EXISTS (SELECT 1 FROM t_legal_review_signal i WHERE i.document_id=t_knowledge_chunk.doc_id AND i.lifecycle_status='ACTIVE' AND i.review_status='ISSUE_CONFIRMED' AND i.related_chunk_ids ? t_knowledge_chunk.id)");
+            else if ("NOT_FOUND".equals(status)) queryWrapper.apply("NOT " + exists + " AND EXISTS (SELECT 1 FROM t_legal_review_run r WHERE r.document_id=t_knowledge_chunk.doc_id AND r.status='SUCCESS')");
+            else queryWrapper.apply("EXISTS (SELECT 1 FROM t_legal_review_run r WHERE r.document_id=t_knowledge_chunk.doc_id AND r.status IN ('FAILED','RUNNING'))");
+        }
 
         Page<KnowledgeChunkDO> page = new Page<>(requestParam.getCurrent(), requestParam.getSize());
         IPage<KnowledgeChunkDO> result = chunkMapper.selectPage(page, queryWrapper);
-        return result.convert(each -> BeanUtil.toBean(each, KnowledgeChunkVO.class));
+        IPage<KnowledgeChunkVO> converted = result.convert(each -> BeanUtil.toBean(each, KnowledgeChunkVO.class));
+        legalReviewService.enrichChunks(docId, converted.getRecords());
+        return converted;
+    }
+
+    @Override
+    public List<String> listChapterNos(String docId) {
+        KnowledgeDocumentDO documentDO = documentMapper.selectById(docId);
+        Assert.notNull(documentDO, () -> new ClientException("文档不存在"));
+        return chunkMapper.selectList(Wrappers.lambdaQuery(KnowledgeChunkDO.class)
+                        .eq(KnowledgeChunkDO::getDocId, docId)
+                        .select(KnowledgeChunkDO::getChapterNo)
+                        .orderByAsc(KnowledgeChunkDO::getChunkIndex)).stream()
+                .map(KnowledgeChunkDO::getChapterNo).distinct().toList();
     }
 
     @Override
@@ -165,6 +195,9 @@ public class KnowledgeChunkServiceImpl implements KnowledgeChunkService {
 
         // 同步写入向量库
         syncChunkToVector(collectionName, docId, chunkDO, vectorTargetResolver.resolve(kbDO));
+        if ("LEGAL".equalsIgnoreCase(documentDO.getProcessingStrategy())) {
+            legalReviewService.markChunkChanged(docId, chunkDO.getId());
+        }
 
         bizChangeLogContext.put(String.valueOf(chunkDO.getId()), null, chunkDO);
         return BeanUtil.toBean(chunkDO, KnowledgeChunkVO.class);
@@ -219,6 +252,9 @@ public class KnowledgeChunkServiceImpl implements KnowledgeChunkService {
         // 同步向量数据库
         vectorStoreService.updateChunk(collectionName, docId,
                 embedPersisted(List.of(chunkDO), vectorTargetResolver.resolve(kbDO)).get(0));
+        if ("LEGAL".equalsIgnoreCase(documentDO.getProcessingStrategy())) {
+            legalReviewService.markChunkChanged(docId, chunkId);
+        }
         bizChangeLogContext.put(chunkId, before, chunkMapper.selectById(chunkId));
     }
 
@@ -258,6 +294,9 @@ public class KnowledgeChunkServiceImpl implements KnowledgeChunkService {
         log.info("删除 Chunk 成功, kbId={}, docId={}, chunkId={}", documentDO.getKbId(), docId, chunkId);
 
         deleteChunkFromVector(collectionName, chunkId);
+        if ("LEGAL".equalsIgnoreCase(documentDO.getProcessingStrategy())) {
+            legalReviewService.markChunkChanged(docId, chunkId);
+        }
         bizChangeLogContext.put(chunkId, before, null);
     }
 

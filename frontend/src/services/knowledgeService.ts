@@ -49,6 +49,39 @@ export interface KnowledgeChunk {
   enabled?: number | null;
   createTime?: string | null;
   updateTime?: string | null;
+  chapterNo?: string | null;
+  chapterTitle?: string | null;
+  sectionNo?: string | null;
+  sectionTitle?: string | null;
+  clauseNo?: string | null;
+  pageStart?: number | null;
+  pageEnd?: number | null;
+  reviewStatus?: "NEEDS_REVIEW" | "ISSUE_CONFIRMED" | "VERIFIED_OK" | "NOT_FOUND" | "DETECTION_FAILED" | "DETECTION_PENDING" | null;
+  reviewIssueCount?: number | null;
+}
+
+export interface LegalReviewOverview {
+  signalCount: number;
+  reviewedSignalCount: number;
+  pendingSignalCount: number;
+  documentSignalCount: number;
+  affectedChunkCount: number;
+}
+
+export interface LegalReviewSignal {
+  id: string;
+  documentId: string;
+  scope: "DOCUMENT" | "CLAUSE" | "CHUNK";
+  targetId?: string | null;
+  signalType: "CLAUSE_SEQUENCE_GAP" | "ENUMERATION_SEQUENCE_GAP" | string;
+  message: string;
+  relatedClauseIds: string[];
+  relatedChunkIds: string[];
+  evidence: Record<string, unknown>;
+  reviewStatus: "PENDING_REVIEW" | "VERIFIED_OK" | "ISSUE_CONFIRMED";
+  reviewReason?: string | null;
+  version: number;
+  reviewedAt?: string | null;
 }
 
 export interface KnowledgeDocumentSearchItem {
@@ -115,7 +148,25 @@ export interface KnowledgeChunkPageParams {
   current?: number;
   size?: number;
   enabled?: number;
+  chapterNo?: string;
+  reviewStatus?: string;
 }
+
+export const getLegalReviewSignals = async (
+  docId: string,
+  params: { signalType?: string; reviewStatus?: string } = {}
+): Promise<LegalReviewSignal[]> =>
+  api.get<LegalReviewSignal[], LegalReviewSignal[]>(`/knowledge-base/docs/${docId}/legal-review/signals`, { params });
+
+export const reviewLegalSignal = async (
+  signalId: string,
+  payload: { signalStatus: "VERIFIED_OK" | "ISSUE_CONFIRMED"; reason: string; expectedVersion: number }
+): Promise<void> => {
+  await api.post(`/knowledge-base/docs/legal-review/${signalId}/review`, payload);
+};
+
+export const getChunkChapters = async (docId: string): Promise<string[]> =>
+  api.get<string[], string[]>(`/knowledge-base/docs/${docId}/chunk-chapters`);
 
 // 知识库管理
 export interface ParseProfileOption {
@@ -317,7 +368,9 @@ export const getChunksPage = async (
       params: {
         current: params.current ?? 1,
         size: params.size ?? 10,
-        enabled: params.enabled ?? undefined
+        enabled: params.enabled ?? undefined,
+        chapterNo: params.chapterNo || undefined,
+        reviewStatus: params.reviewStatus || undefined
       }
     }
   );

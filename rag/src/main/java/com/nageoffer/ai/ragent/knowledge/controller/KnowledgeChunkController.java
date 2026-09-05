@@ -38,6 +38,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 /**
  * 知识库 Chunk 管理接口
  */
@@ -55,6 +57,11 @@ public class KnowledgeChunkController {
     public Result<IPage<KnowledgeChunkVO>> pageQuery(@PathVariable("doc-id") String docId,
                                                      @Validated KnowledgeChunkPageRequest requestParam) {
         return Results.success(knowledgeChunkService.pageQuery(docId, requestParam));
+    }
+
+    @GetMapping("/knowledge-base/docs/{doc-id}/chunk-chapters")
+    public Result<List<String>> listChapterNos(@PathVariable("doc-id") String docId) {
+        return Results.success(knowledgeChunkService.listChapterNos(docId));
     }
 
     /**

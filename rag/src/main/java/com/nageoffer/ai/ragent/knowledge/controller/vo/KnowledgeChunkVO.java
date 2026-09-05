@@ -81,4 +81,14 @@ public class KnowledgeChunkVO {
      * 更新时间
      */
     private LocalDateTime updateTime;
+
+    private String chapterNo;
+    private String chapterTitle;
+    private String sectionNo;
+    private String sectionTitle;
+    private String clauseNo;
+    private Integer pageStart;
+    private Integer pageEnd;
+    private String reviewStatus;
+    private Integer reviewIssueCount;
 }

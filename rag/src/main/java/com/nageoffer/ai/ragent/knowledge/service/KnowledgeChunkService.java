@@ -42,6 +42,8 @@ public interface KnowledgeChunkService {
      */
     IPage<KnowledgeChunkVO> pageQuery(String docId, KnowledgeChunkPageRequest requestParam);
 
+    List<String> listChapterNos(String docId);
+
     /**
      * 为指定文档新增分片
      *

@@ -334,6 +334,42 @@ CREATE TABLE t_legal_quality_report (
 CREATE INDEX idx_legal_quality_document ON t_legal_quality_report (document_id, create_time);
 COMMENT ON TABLE t_legal_quality_report IS '法规TXT摄取质量报告表';
 
+CREATE TABLE t_legal_review_signal (
+    id                 VARCHAR(64)  NOT NULL PRIMARY KEY,
+    document_id        VARCHAR(20)  NOT NULL,
+    scope              VARCHAR(16)  NOT NULL,
+    target_id          VARCHAR(64),
+    signal_type        VARCHAR(64)  NOT NULL,
+    stable_key         VARCHAR(512) NOT NULL UNIQUE,
+    related_clause_ids JSONB        NOT NULL DEFAULT '[]'::jsonb,
+    related_chunk_ids  JSONB        NOT NULL DEFAULT '[]'::jsonb,
+    message            TEXT         NOT NULL,
+    evidence           JSONB        NOT NULL DEFAULT '{}'::jsonb,
+    detector_version   VARCHAR(32)  NOT NULL,
+    input_fingerprint  VARCHAR(128) NOT NULL,
+    lifecycle_status   VARCHAR(16)  NOT NULL DEFAULT 'ACTIVE',
+    review_status      VARCHAR(24)  NOT NULL DEFAULT 'PENDING_REVIEW',
+    review_reason      VARCHAR(1000),
+    reviewed_by        VARCHAR(128),
+    reviewed_at        TIMESTAMP,
+    version            INTEGER      NOT NULL DEFAULT 0,
+    create_time        TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    update_time        TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX idx_legal_review_signal_document ON t_legal_review_signal (document_id, lifecycle_status);
+CREATE INDEX idx_legal_review_signal_type_status ON t_legal_review_signal (document_id, signal_type, review_status);
+COMMENT ON TABLE t_legal_review_signal IS '法规 Chunk 复核问题与人工结论';
+
+CREATE TABLE t_legal_review_run (
+    document_id    VARCHAR(20) PRIMARY KEY,
+    status         VARCHAR(16) NOT NULL,
+    detector_version VARCHAR(32) NOT NULL,
+    signal_count   INTEGER NOT NULL DEFAULT 0,
+    error_message  VARCHAR(2000),
+    updated_at     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+COMMENT ON TABLE t_legal_review_run IS '法规复核检测运行状态';
+
 CREATE TABLE t_legal_table (
     id               VARCHAR(64) NOT NULL PRIMARY KEY,
     document_id      VARCHAR(20) NOT NULL,

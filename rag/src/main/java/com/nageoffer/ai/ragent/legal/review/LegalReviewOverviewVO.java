@@ -15,15 +15,14 @@
  * limitations under the License.
  */
 
-package com.nageoffer.ai.ragent.knowledge.controller.request;
+package com.nageoffer.ai.ragent.legal.review;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import lombok.Data;
-
-@Data
-public class KnowledgeChunkPageRequest extends Page {
-
-    private Integer enabled;
-    private String chapterNo;
-    private String reviewStatus;
+public record LegalReviewOverviewVO(
+        String detectionStatus,
+        long signalCount,
+        long reviewedSignalCount,
+        long pendingSignalCount,
+        long documentSignalCount,
+        long affectedChunkCount
+) {
 }
