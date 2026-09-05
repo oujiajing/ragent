@@ -363,11 +363,13 @@ export function KnowledgeDocumentsPage() {
 
   const toggleSelectAll = () => {
     if (documents.length === 0) return;
-    if (selectedIds.size === documents.length) {
-      setSelectedIds(new Set());
-    } else {
-      setSelectedIds(new Set(documents.map((d) => String(d.id))));
-    }
+    const currentPageIds = documents.map((d) => String(d.id));
+    const allCurrentSelected = currentPageIds.every(id => selectedIds.has(id));
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      currentPageIds.forEach(id => allCurrentSelected ? next.delete(id) : next.add(id));
+      return next;
+    });
   };
 
   const handleBatchChunk = async () => {
@@ -752,6 +754,13 @@ export function KnowledgeDocumentsPage() {
                 <RefreshCw className="mr-2 h-4 w-4" />
                 刷新
               </Button>
+              <Button
+                variant="outline"
+                onClick={toggleSelectAll}
+                disabled={documents.length === 0 || batchOperating}
+              >
+                {documents.length > 0 && documents.every(doc => selectedIds.has(String(doc.id))) ? "取消全选本页" : "全选本页"}
+              </Button>
             </div>
           </div>
         </CardHeader>
@@ -766,7 +775,7 @@ export function KnowledgeDocumentsPage() {
                   <TableRow>
                     <TableHead className="w-[40px]">
                       <Checkbox
-                        checked={documents.length > 0 && selectedIds.size === documents.length}
+                        checked={documents.length > 0 && documents.every(doc => selectedIds.has(String(doc.id)))}
                         onCheckedChange={toggleSelectAll}
                       />
                     </TableHead>
