@@ -37,4 +37,4 @@
 
 ## Git
 
-本次未创建 commit。ragent 工作区原有多个阶段修改和运行产物；提交前需要按本阶段文件范围单独检查并排除既有改动。
+本次实现 commit：`8e9e714f`（`feat: integrate legal review into chunk list`）。ragent 工作区原有多个阶段修改和运行产物，均未纳入该 commit。
