@@ -18,6 +18,9 @@ interface PdfPreviewProps {
   docId: string;
   pageStart?: number | null;
   pageEnd?: number | null;
+  pageNumber?: number | null;
+  scale?: number;
+  onPageCount?: (count: number) => void;
 }
 
 interface PdfPageProps {
@@ -25,12 +28,13 @@ interface PdfPageProps {
   pageNumber: number;
   width: number;
   aspect: number;
+  scale: number;
 }
 
 /**
  * 单页：滚动到附近才真正绘制，避免长文档一次性吃掉几百张 canvas 的显存
  */
-function PdfPage({ pdf, pageNumber, width, aspect }: PdfPageProps) {
+function PdfPage({ pdf, pageNumber, width, aspect, scale }: PdfPageProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [visible, setVisible] = useState(false);
 
@@ -60,12 +64,13 @@ function PdfPage({ pdf, pageNumber, width, aspect }: PdfPageProps) {
       if (!context) return;
 
       const ratio = Math.min(window.devicePixelRatio || 1, MAX_PIXEL_RATIO);
-      const scale = width / page.getViewport({ scale: 1 }).width;
-      const viewport = page.getViewport({ scale: scale * ratio });
+      const fitScale = width / page.getViewport({ scale: 1 }).width;
+      const viewport = page.getViewport({ scale: fitScale * scale * ratio });
       canvas.width = Math.floor(viewport.width);
       canvas.height = Math.floor(viewport.height);
       // 页面尺寸可能与首页不一致，绘制后按真实高度纠正占位值
       canvas.style.height = `${Math.floor(viewport.height / ratio)}px`;
+      canvas.style.width = `${Math.floor(viewport.width / ratio)}px`;
 
       task = page.render({ canvasContext: context, viewport });
       // 宽度变化触发重绘时旧任务会被 cancel，抛出的是取消而非失败
@@ -76,16 +81,16 @@ function PdfPage({ pdf, pageNumber, width, aspect }: PdfPageProps) {
       cancelled = true;
       task?.cancel();
     };
-  }, [pdf, pageNumber, visible, width]);
+  }, [pdf, pageNumber, visible, width, scale]);
 
-  return <canvas ref={canvasRef} className="w-full bg-white" style={{ height: Math.round(width * aspect) }} />;
+  return <canvas ref={canvasRef} className="max-w-none bg-white" style={{ height: Math.round(width * aspect * scale), width: `${Math.round(width * scale)}px` }} />;
 }
 
 /**
  * PDF 在线预览：拉取鉴权后的源文件，用 pdf.js 自行绘制
  * 不走 iframe 是因为浏览器原生阅读器自带背景、页面外框与悬浮工具栏，样式不可控且各家不一致
  */
-export function PdfPreview({ docId, pageStart, pageEnd }: PdfPreviewProps) {
+export function PdfPreview({ docId, pageStart, pageEnd, pageNumber, scale = 1, onPageCount }: PdfPreviewProps) {
   const listRef = useRef<HTMLDivElement>(null);
   const [pdf, setPdf] = useState<PDFDocumentProxy | null>(null);
   const [aspect, setAspect] = useState(0);
@@ -109,6 +114,7 @@ export function PdfPreview({ docId, pageStart, pageEnd }: PdfPreviewProps) {
         if (cancelled) return;
         setAspect(viewport.height / viewport.width);
         setPdf(loaded);
+        onPageCount?.(loaded.numPages);
         setStatus("done");
       } catch {
         if (!cancelled) setStatus("error");
@@ -119,7 +125,7 @@ export function PdfPreview({ docId, pageStart, pageEnd }: PdfPreviewProps) {
       cancelled = true;
       loaded?.destroy();
     };
-  }, [docId]);
+  }, [docId, onPageCount]);
 
   useEffect(() => {
     const list = listRef.current;
@@ -132,7 +138,7 @@ export function PdfPreview({ docId, pageStart, pageEnd }: PdfPreviewProps) {
 
   return (
     // 页面自带页边距，容器再留白会把正文挤成窄条，这里让整页铺满对话框
-    <div className="relative flex-1 overflow-auto">
+    <div className="relative h-full w-full overflow-auto">
       {status !== "done" ? (
         <div className="absolute inset-0 z-10 flex items-center justify-center text-sm text-muted-foreground">
           {status === "loading" ? "正在加载 PDF…" : "PDF 预览失败"}
@@ -141,14 +147,18 @@ export function PdfPreview({ docId, pageStart, pageEnd }: PdfPreviewProps) {
       <div ref={listRef} className="flex flex-col">
         {pdf && aspect > 0 && width > 0
           ? (() => {
-              const start = pageStart && pageStart > 0 ? Math.min(pageStart, pdf.numPages) : 1;
-              const end = pageEnd && pageEnd >= start ? Math.min(pageEnd, pdf.numPages) : (pageStart && pageStart > 0 ? start : pdf.numPages);
+              const start = pageNumber && pageNumber > 0
+                ? Math.min(pageNumber, pdf.numPages)
+                : pageStart && pageStart > 0 ? Math.min(pageStart, pdf.numPages) : 1;
+              const end = pageNumber && pageNumber > 0
+                ? start
+                : pageEnd && pageEnd >= start ? Math.min(pageEnd, pdf.numPages) : (pageStart && pageStart > 0 ? start : pdf.numPages);
               return Array.from({ length: end - start + 1 }, (_, index) => {
                 const pageNumber = start + index;
                 return (
                   <Fragment key={pageNumber}>
                     {index > 0 || start > 1 ? <div className="doc-page-divider px-8">第 {pageNumber} 页</div> : null}
-                    <PdfPage pdf={pdf} pageNumber={pageNumber} width={width} aspect={aspect} />
+                    <PdfPage pdf={pdf} pageNumber={pageNumber} width={width} aspect={aspect} scale={scale} />
                   </Fragment>
                 );
               });
